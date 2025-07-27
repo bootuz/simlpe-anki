@@ -185,7 +185,14 @@ const Home = () => {
             <Calendar className="h-6 w-6 text-primary" />
           </div>
           <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Cards Due for Review
+            {(() => {
+              const cardsToStudy = cards.filter(card => {
+                const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
+                const isDueToday = daysUntilDue === 0 && !isOverdue;
+                return isOverdue || isDueToday;
+              });
+              return cardsToStudy.length > 0 ? "Cards Due for Review" : "No cards to review right now";
+            })()}
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Stay on top of your learning with spaced repetition flashcards
