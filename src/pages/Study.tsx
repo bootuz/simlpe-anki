@@ -259,35 +259,37 @@ const Study = () => {
                         ) : (
                           <div className="space-y-4">
                             <p className="text-sm text-muted-foreground">How well did you know this?</p>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-4 gap-2">
                               <Button 
                                 onClick={() => handleAnswer('again')}
                                 variant="destructive"
-                                size="lg"
+                                size="sm"
+                                className="bg-red-500 hover:bg-red-600"
                               >
-                                <XCircle className="h-5 w-5 mr-2" />
                                 Again
                               </Button>
                               <Button 
                                 onClick={() => handleAnswer('hard')}
                                 variant="outline"
-                                size="lg"
+                                size="sm"
+                                className="border-orange-500 text-orange-500 hover:bg-orange-50"
                               >
                                 Hard
                               </Button>
                               <Button 
                                 onClick={() => handleAnswer('medium')}
                                 variant="outline"
-                                size="lg"
+                                size="sm"
+                                className="border-blue-500 text-blue-500 hover:bg-blue-50"
                               >
                                 Good
                               </Button>
                               <Button 
                                 onClick={() => handleAnswer('easy')}
                                 variant="default"
-                                size="lg"
+                                size="sm"
+                                className="bg-green-500 hover:bg-green-600"
                               >
-                                <CheckCircle className="h-5 w-5 mr-2" />
                                 Easy
                               </Button>
                             </div>
