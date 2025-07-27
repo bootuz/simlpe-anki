@@ -24,7 +24,6 @@ const Home = () => {
   
   const [cards, setCards] = useState<CardWithDue[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [revealedCards, setRevealedCards] = useState<Set<string>>(new Set());
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -125,16 +124,6 @@ const Home = () => {
     }).length;
     
     return { overdue, dueToday, dueSoon, total: cards.length };
-  };
-
-  const toggleRevealCard = (cardId: string) => {
-    const newRevealedCards = new Set(revealedCards);
-    if (newRevealedCards.has(cardId)) {
-      newRevealedCards.delete(cardId);
-    } else {
-      newRevealedCards.add(cardId);
-    }
-    setRevealedCards(newRevealedCards);
   };
 
   const stats = getCardStats();
@@ -336,29 +325,18 @@ const Home = () => {
                              {card.front}
                            </h3>
                            <div 
-                             className={`relative leading-relaxed cursor-pointer select-none transition-all duration-300 overflow-hidden ${
-                               revealedCards.has(card.id) 
-                                 ? 'text-muted-foreground' 
-                                 : 'text-transparent'
-                             }`}
-                             style={{
-                               background: revealedCards.has(card.id) 
-                                 ? 'transparent' 
-                                 : 'linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)',
-                               backgroundSize: revealedCards.has(card.id) ? '0 0' : '8px 8px',
-                               backgroundPosition: revealedCards.has(card.id) ? '0 0' : '0 0, 0 4px, 4px -4px, -4px 0px',
-                               borderRadius: '4px',
-                               animation: revealedCards.has(card.id) ? 'none' : 'spoilerShimmer 1.5s infinite linear'
-                             }}
+                             className="text-muted-foreground leading-relaxed cursor-pointer select-none transition-all duration-200 filter blur-sm hover:blur-none focus:blur-none active:blur-none"
                              title="Click to reveal answer"
                              tabIndex={0}
                              onKeyDown={(e) => {
                                if (e.key === 'Enter' || e.key === ' ') {
                                  e.preventDefault();
-                                 toggleRevealCard(card.id);
+                                 e.currentTarget.classList.toggle('blur-sm');
                                }
                              }}
-                             onClick={() => toggleRevealCard(card.id)}
+                             onClick={(e) => {
+                               e.currentTarget.classList.toggle('blur-sm');
+                             }}
                            >
                              {card.back}
                            </div>
