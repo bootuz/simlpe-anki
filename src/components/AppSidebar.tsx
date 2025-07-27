@@ -191,19 +191,19 @@ export function AppSidebar({
                       >
                         <div className="flex items-center">
                           {!isCollapsed && (
-                            <button
+                            <div
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onToggleFolder(folder.id);
                               }}
-                              className="mr-1"
+                              className="mr-1 cursor-pointer"
                             >
                               {folder.isExpanded ? (
                                 <ChevronDown className="h-3 w-3" />
                               ) : (
                                 <ChevronRight className="h-3 w-3" />
                               )}
-                            </button>
+                            </div>
                           )}
                           {folder.isExpanded ? (
                             <FolderOpen className="h-4 w-4 mr-2" />
