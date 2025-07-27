@@ -263,8 +263,8 @@ const Study = () => {
                                <Button 
                                  onClick={() => handleAnswer('again')}
                                  variant="outline"
-                                 size="sm"
-                                 className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400"
+                                 size="lg"
+                                 className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400 py-3"
                                >
                                  <XCircle className="h-4 w-4 mr-1" />
                                  Again
@@ -272,8 +272,8 @@ const Study = () => {
                                <Button 
                                  onClick={() => handleAnswer('hard')}
                                  variant="outline"
-                                 size="sm"
-                                 className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400"
+                                 size="lg"
+                                 className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400 py-3"
                                >
                                  <AlertTriangle className="h-4 w-4 mr-1" />
                                  Hard
@@ -281,8 +281,8 @@ const Study = () => {
                                <Button 
                                  onClick={() => handleAnswer('medium')}
                                  variant="outline"
-                                 size="sm"
-                                 className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400"
+                                 size="lg"
+                                 className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 py-3"
                                >
                                  <Check className="h-4 w-4 mr-1" />
                                  Good
@@ -290,8 +290,8 @@ const Study = () => {
                                <Button 
                                  onClick={() => handleAnswer('easy')}
                                  variant="outline"
-                                 size="sm"
-                                 className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400"
+                                 size="lg"
+                                 className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3"
                                >
                                  <CheckCircle className="h-4 w-4 mr-1" />
                                  Easy
