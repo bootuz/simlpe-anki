@@ -19,8 +19,6 @@ import {
   LogOut, 
   Search, 
   Filter, 
-  LayoutGrid, 
-  List, 
   Calendar,
   Clock,
   Trash2,
@@ -57,7 +55,6 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterState, setFilterState] = useState<string>("all");
   const [filterDueDate, setFilterDueDate] = useState<string>("all");
-  const [layoutMode, setLayoutMode] = useState<"grid" | "list">("list");
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -798,15 +795,6 @@ const Index = () => {
                             </SelectContent>
                           </Select>
 
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setLayoutMode(layoutMode === "list" ? "grid" : "list")}
-                            className="flex items-center gap-2"
-                          >
-                            {layoutMode === "list" ? <LayoutGrid className="h-4 w-4" /> : <List className="h-4 w-4" />}
-                            {layoutMode === "list" ? "Grid" : "List"}
-                          </Button>
                         </div>
                       </div>
 
@@ -868,11 +856,7 @@ const Index = () => {
                         <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
                       </div>
                     ) : (
-                      <div className={
-                        layoutMode === "grid" 
-                          ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" 
-                          : "space-y-4"
-                      }>
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {filteredCards
                           .sort((a, b) => {
                             if (a.due_date && b.due_date) {
