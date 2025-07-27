@@ -179,10 +179,11 @@ const Index = () => {
 
       if (error) throw error;
 
-      // The trigger will automatically create FSRS data with 'New' state
+      // The trigger will automatically create FSRS data with 'New' state and NULL due_date
       const newCard: Card = {
         ...data,
-        state: 'New'
+        state: 'New',
+        due_date: null
       };
 
       setCards([...cards, newCard]);
