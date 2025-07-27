@@ -324,9 +324,9 @@ const Home = () => {
                            <h3 className="text-lg font-semibold text-foreground leading-tight">
                              {card.front}
                            </h3>
-                           <div 
-                             className="text-muted-foreground leading-relaxed cursor-pointer select-none transition-all duration-200 filter blur-sm hover:blur-none focus:blur-none active:blur-none"
-                             title="Click to reveal answer"
+                            <div 
+                              className="text-muted-foreground leading-relaxed cursor-pointer select-none transition-all duration-200 filter blur-sm"
+                              title="Click to reveal answer"
                              tabIndex={0}
                              onKeyDown={(e) => {
                                if (e.key === 'Enter' || e.key === ' ') {
