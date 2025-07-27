@@ -279,7 +279,11 @@ const Home = () => {
         ) : (
           <div className="w-full space-y-6">
             <div className="space-y-6">
-              {cards.map((card, index) => {
+              {cards.filter(card => {
+                const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
+                const isDueToday = daysUntilDue === 0 && !isOverdue;
+                return isOverdue || isDueToday;
+              }).map((card, index) => {
               const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
               const isDueToday = daysUntilDue === 0 && !isOverdue;
               
