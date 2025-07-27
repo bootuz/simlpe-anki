@@ -6,6 +6,7 @@ import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, A
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { fsrs, Card as FSRSCard, Rating, State } from "ts-fsrs";
 
 interface StudyCard {
   id: string;
@@ -163,66 +164,92 @@ const Study = () => {
       
       if (fsrsError) throw fsrsError;
       
-      // Calculate new FSRS values based on the FSRS algorithm
+      // Convert our database record to FSRS Card format
       const now = new Date();
       const lastReview = fsrsData.last_review ? new Date(fsrsData.last_review) : new Date(fsrsData.created_at);
-      const elapsedDays = Math.max(1, Math.ceil((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24)));
+      const elapsedDays = Math.max(0, Math.ceil((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24)));
       
-      let newState = fsrsData.state;
-      let newReps = fsrsData.reps;
-      let newLapses = fsrsData.lapses;
-      let newDifficulty = fsrsData.difficulty;
-      let newStability = fsrsData.stability;
-      let newScheduledDays = fsrsData.scheduled_days;
-      
-      // FSRS algorithm implementation (simplified version)
-      switch (difficulty) {
-        case 'again':
-          newState = 'Relearning';
-          newLapses += 1;
-          newScheduledDays = 1;
-          newDifficulty = Math.min(10, newDifficulty + 0.2);
-          newStability = Math.max(0.1, newStability * 0.8);
+      // Map database state to FSRS State enum
+      let fsrsState: State;
+      switch (fsrsData.state) {
+        case 'New':
+          fsrsState = State.New;
           break;
-        case 'hard':
-          newReps += 1;
-          newState = newReps === 1 ? 'Learning' : 'Review';
-          newScheduledDays = Math.max(1, Math.round(newStability * 1.2));
-          newDifficulty = Math.min(10, newDifficulty + 0.15);
-          newStability = newStability * 0.85;
+        case 'Learning':
+          fsrsState = State.Learning;
           break;
-        case 'medium':
-          newReps += 1;
-          newState = newReps === 1 ? 'Learning' : 'Review';
-          newScheduledDays = Math.max(1, Math.round(newStability * 2.5));
-          newDifficulty = Math.max(1, newDifficulty - 0.1);
-          newStability = newStability * 1.3;
+        case 'Review':
+          fsrsState = State.Review;
           break;
-        case 'easy':
-          newReps += 1;
-          newState = 'Review';
-          newScheduledDays = Math.max(1, Math.round(newStability * 4));
-          newDifficulty = Math.max(1, newDifficulty - 0.2);
-          newStability = newStability * 1.5;
+        case 'Relearning':
+          fsrsState = State.Relearning;
           break;
+        default:
+          fsrsState = State.New;
       }
       
-      // Calculate new due date
-      const newDueDate = new Date(now);
-      newDueDate.setDate(newDueDate.getDate() + newScheduledDays);
+      const fsrsCard: FSRSCard = {
+        due: new Date(fsrsData.due_date),
+        stability: fsrsData.stability,
+        difficulty: fsrsData.difficulty,
+        elapsed_days: elapsedDays,
+        scheduled_days: fsrsData.scheduled_days,
+        reps: fsrsData.reps,
+        lapses: fsrsData.lapses,
+        state: fsrsState,
+        last_review: lastReview,
+        learning_steps: 0 // Current learning step index (0 for cards past initial learning)
+      };
+      
+      // Map our difficulty to FSRS Rating
+      const ratingMap = {
+        'again': Rating.Again,
+        'hard': Rating.Hard, 
+        'medium': Rating.Good,
+        'easy': Rating.Easy
+      };
+      
+      const rating = ratingMap[difficulty];
+      
+      // Initialize FSRS scheduler
+      const f = fsrs();
+      
+      // Calculate next review using FSRS
+      const schedulingCards = f.repeat(fsrsCard, now);
+      const nextCard = schedulingCards[rating].card;
+      const reviewLog = schedulingCards[rating].log;
+      
+      // Map FSRS State back to our database format
+      let newState: string;
+      switch (nextCard.state) {
+        case State.New:
+          newState = 'New';
+          break;
+        case State.Learning:
+          newState = 'Learning';
+          break;
+        case State.Review:
+          newState = 'Review';
+          break;
+        case State.Relearning:
+          newState = 'Relearning';
+          break;
+        default:
+          newState = 'New';
+      }
       
       // Update the FSRS data in the database
       const { error: updateError } = await supabase
         .from('card_fsrs')
         .update({
           state: newState,
-          reps: newReps,
-          lapses: newLapses,
-          difficulty: newDifficulty,
-          stability: newStability,
-          scheduled_days: newScheduledDays,
-          elapsed_days: elapsedDays,
-          due_date: newDueDate.toISOString(),
+          reps: nextCard.reps,
+          lapses: nextCard.lapses,
+          difficulty: nextCard.difficulty,
+          stability: nextCard.stability,
+          scheduled_days: nextCard.scheduled_days,
+          elapsed_days: nextCard.elapsed_days,
+          due_date: nextCard.due.toISOString(),
           last_review: now.toISOString(),
           updated_at: now.toISOString()
         })
@@ -238,15 +265,18 @@ const Study = () => {
         setShowAnswer(false);
       }
       
+      // Calculate days until next review for user feedback
+      const daysUntilNextReview = Math.ceil((nextCard.due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      
       toast({
         title: "Progress saved",
-        description: `Card reviewed. Next review in ${newScheduledDays} day${newScheduledDays === 1 ? '' : 's'}. ${cards.length - nextIndex} cards remaining.`,
+        description: `Card reviewed. Next review in ${daysUntilNextReview} day${daysUntilNextReview === 1 ? '' : 's'}. ${cards.length - nextIndex} cards remaining.`,
       });
       
     } catch (error) {
       console.error("Error updating card:", error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to save your progress. Please try again.",
         variant: "destructive"
       });
