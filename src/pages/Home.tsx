@@ -147,7 +147,7 @@ const Home = () => {
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
-              onClick={() => navigate("/study")}
+              onClick={() => navigate("/manage")}
               className="flex items-center gap-2"
             >
               <FolderOpen className="h-4 w-4" />
@@ -224,18 +224,26 @@ const Home = () => {
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 justify-center">
               {stats.overdue > 0 && (
-                <Button size="lg" className="shadow-lg">
+                <Button 
+                  size="lg" 
+                  className="shadow-lg"
+                  onClick={() => navigate("/study")}
+                >
                   <PlayCircle className="h-5 w-5 mr-2" />
                   Study Overdue ({stats.overdue})
                 </Button>
               )}
               {stats.dueToday > 0 && (
-                <Button variant="outline" size="lg">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => navigate("/study")}
+                >
                   <Clock className="h-5 w-5 mr-2" />
                   Study Today ({stats.dueToday})
                 </Button>
               )}
-              <Button variant="outline" onClick={() => navigate("/study")}>
+              <Button variant="outline" onClick={() => navigate("/manage")}>
                 <FolderOpen className="h-4 w-4 mr-2" />
                 Manage Decks
               </Button>
@@ -253,7 +261,7 @@ const Home = () => {
                 <p className="text-muted-foreground text-center mb-8 max-w-md">
                   Create some flashcards to start your learning journey with spaced repetition
                 </p>
-                <Button onClick={() => navigate("/study")} size="lg" className="shadow-lg">
+                <Button onClick={() => navigate("/manage")} size="lg" className="shadow-lg">
                   <FolderOpen className="h-5 w-5 mr-2" />
                   Create Your First Deck
                 </Button>
@@ -323,6 +331,7 @@ const Home = () => {
                         size="sm" 
                         variant={isOverdue ? "default" : "outline"}
                         className="shrink-0"
+                        onClick={() => navigate("/study")}
                       >
                         <PlayCircle className="h-4 w-4 mr-1" />
                         Study

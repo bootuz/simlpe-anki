@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
+import Study from "./pages/Study";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,8 @@ const App = () => (
             <div className="min-h-screen flex w-full">
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/study" element={<Index />} />
+                <Route path="/manage" element={<Index />} />
+                <Route path="/study" element={<Study />} />
                 <Route path="/auth" element={<Auth />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
