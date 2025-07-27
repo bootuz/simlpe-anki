@@ -116,7 +116,7 @@ const Home = () => {
       <div className="relative z-10">
       {/* Header */}
       <header className="h-16 border-b bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/60 shadow-sm">
-        <div className="flex items-center justify-between h-full px-6">
+        <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary" />
@@ -150,7 +150,8 @@ const Home = () => {
       </header>
 
       {/* Main Content */}
-      <main className="px-6 py-12 w-full">
+      <main className="py-12 w-full">
+        <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
             <Calendar className="h-8 w-8 text-primary" />
@@ -246,6 +247,7 @@ const Home = () => {
             </div>
           </div>
         )}
+        </div>
       </main>
       </div>
     </div>
