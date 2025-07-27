@@ -342,7 +342,7 @@ const Home = () => {
                         size="sm" 
                         variant={isOverdue ? "default" : "outline"}
                         className="shrink-0"
-                        onClick={() => navigate("/study")}
+                        onClick={() => navigate(`/study?cardId=${card.id}`)}
                       >
                         <PlayCircle className="h-4 w-4 mr-1" />
                         Study

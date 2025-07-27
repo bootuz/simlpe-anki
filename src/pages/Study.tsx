@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check } from "lucide-react";
@@ -21,6 +21,7 @@ interface StudyCard {
 const Study = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   
   const [cards, setCards] = useState<StudyCard[]>([]);
@@ -47,48 +48,89 @@ const Study = () => {
     try {
       setDataLoading(true);
       
-      // Get cards that are due for review (overdue or due today)
-      const today = new Date();
-      today.setHours(23, 59, 59, 999); // End of today
+      const specificCardId = searchParams.get('cardId');
       
-      const { data, error } = await supabase
-        .from("cards")
-        .select(`
-          id,
-          front,
-          back,
-          deck_id,
-          created_at,
-          card_fsrs!inner (
-            due_date
-          ),
-          decks!inner (
-            name,
-            folders!inner (
-              name
+      if (specificCardId) {
+        // Load only the specific card
+        const { data, error } = await supabase
+          .from("cards")
+          .select(`
+            id,
+            front,
+            back,
+            deck_id,
+            created_at,
+            card_fsrs!inner (
+              due_date
+            ),
+            decks!inner (
+              name,
+              folders!inner (
+                name
+              )
             )
-          )
-        `)
-        .lte("card_fsrs.due_date", today.toISOString())
-        .order("card_fsrs(due_date)", { ascending: true });
+          `)
+          .eq('id', specificCardId)
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Transform the data
-      const transformedCards: StudyCard[] = data.map(card => ({
-        id: card.id,
-        front: card.front,
-        back: card.back,
-        deck_id: card.deck_id,
-        deck_name: card.decks.name,
-        folder_name: card.decks.folders.name,
-        due_date: card.card_fsrs.due_date,
-        created_at: card.created_at
-      }));
+        const transformedCard: StudyCard = {
+          id: data.id,
+          front: data.front,
+          back: data.back,
+          deck_id: data.deck_id,
+          deck_name: data.decks.name,
+          folder_name: data.decks.folders.name,
+          due_date: data.card_fsrs.due_date,
+          created_at: data.created_at
+        };
 
-      setCards(transformedCards);
+        setCards([transformedCard]);
+      } else {
+        // Load all cards due for review (overdue or due today)
+        const today = new Date();
+        today.setHours(23, 59, 59, 999); // End of today
+        
+        const { data, error } = await supabase
+          .from("cards")
+          .select(`
+            id,
+            front,
+            back,
+            deck_id,
+            created_at,
+            card_fsrs!inner (
+              due_date
+            ),
+            decks!inner (
+              name,
+              folders!inner (
+                name
+              )
+            )
+          `)
+          .lte("card_fsrs.due_date", today.toISOString())
+          .order("card_fsrs(due_date)", { ascending: true });
+
+        if (error) throw error;
+
+        // Transform the data
+        const transformedCards: StudyCard[] = data.map(card => ({
+          id: card.id,
+          front: card.front,
+          back: card.back,
+          deck_id: card.deck_id,
+          deck_name: card.decks.name,
+          folder_name: card.decks.folders.name,
+          due_date: card.card_fsrs.due_date,
+          created_at: card.created_at
+        }));
+
+        setCards(transformedCards);
+      }
       
-      if (transformedCards.length === 0) {
+      if (cards.length === 0) {
         setStudyComplete(true);
       }
     } catch (error) {
