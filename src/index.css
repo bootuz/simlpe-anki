@@ -34,16 +34,6 @@ All colors MUST be HSL.
     --flashcard-back: 217 91% 60%;
     --flashcard-shadow: 240 50% 85%;
     
-    /* Card state colors */
-    --card-new: 142 76% 36%;
-    --card-new-foreground: 138 62% 47%;
-    --card-learning: 221 83% 53%;
-    --card-learning-foreground: 213 94% 68%;
-    --card-review: 271 81% 56%;
-    --card-review-foreground: 271 91% 65%;
-    --card-relearning: 25 95% 53%;
-    --card-relearning-foreground: 31 81% 61%;
-    
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(217 91% 60%));
     --gradient-card: linear-gradient(145deg, hsl(240 50% 99%), hsl(240 30% 97%));
@@ -108,16 +98,6 @@ All colors MUST be HSL.
     
     --warning: 48 96% 89%;
     --warning-foreground: 20 14.3% 4.1%;
-
-    /* Card state colors - dark mode */
-    --card-new: 142 84% 47%;
-    --card-new-foreground: 142 84% 47%;
-    --card-learning: 213 94% 68%;
-    --card-learning-foreground: 213 94% 68%;
-    --card-review: 271 91% 65%;
-    --card-review-foreground: 271 91% 65%;
-    --card-relearning: 31 81% 61%;
-    --card-relearning-foreground: 31 81% 61%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
