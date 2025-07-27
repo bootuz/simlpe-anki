@@ -49,6 +49,7 @@ const Study = () => {
       setDataLoading(true);
       
       const specificCardId = searchParams.get('cardId');
+      let transformedCards: StudyCard[] = [];
       
       if (specificCardId) {
         // Load only the specific card
@@ -86,7 +87,7 @@ const Study = () => {
           created_at: data.created_at
         };
 
-        setCards([transformedCard]);
+        transformedCards = [transformedCard];
       } else {
         // Load all cards due for review (overdue or due today)
         const today = new Date();
@@ -116,7 +117,7 @@ const Study = () => {
         if (error) throw error;
 
         // Transform the data
-        const transformedCards: StudyCard[] = data.map(card => ({
+        transformedCards = data.map(card => ({
           id: card.id,
           front: card.front,
           back: card.back,
@@ -126,12 +127,16 @@ const Study = () => {
           due_date: card.card_fsrs.due_date,
           created_at: card.created_at
         }));
-
-        setCards(transformedCards);
       }
       
-      if (cards.length === 0) {
+      setCards(transformedCards);
+      
+      if (transformedCards.length === 0) {
         setStudyComplete(true);
+      } else {
+        setStudyComplete(false);
+        setCurrentCardIndex(0);
+        setShowAnswer(false);
       }
     } catch (error) {
       console.error("Error loading study cards:", error);
