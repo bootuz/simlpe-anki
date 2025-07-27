@@ -800,7 +800,7 @@ const Index = () => {
 
                     </div>
 
-                    {/* Add Card Button */}
+                    {/* Header */}
                     <div className="flex justify-between items-center mb-6">
                       <div className="flex items-center gap-3">
                         <h3 className="text-lg font-semibold">
@@ -818,13 +818,6 @@ const Index = () => {
                           </Button>
                         )}
                       </div>
-                      <Button 
-                        onClick={() => setShowAddForm(!showAddForm)}
-                        className="flex items-center gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add Card
-                      </Button>
                     </div>
 
                     {/* Add Card Form */}
@@ -852,76 +845,88 @@ const Index = () => {
                         <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {filteredCards
-                          .sort((a, b) => {
-                            if (a.due_date && b.due_date) {
-                              return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
-                            }
-                            return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-                          })
-                          .map((card) => (
-                            <Card 
-                              key={card.id} 
-                              className={`
-                                transition-all duration-200 hover:shadow-md cursor-pointer
-                                ${selectedCards.has(card.id) ? 'ring-2 ring-primary' : ''}
-                              `}
-                            >
-                              <CardContent className="p-4">
-                                <div className="flex items-start justify-between gap-4">
-                                  <div className="flex items-start gap-3 flex-1">
-                                    <Checkbox
-                                      checked={selectedCards.has(card.id)}
-                                      onCheckedChange={() => handleCardSelection(card.id)}
-                                    />
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <h3 className="font-medium text-card-foreground truncate">
-                                          {card.front}
-                                        </h3>
-                                        {card.state && (
-                                          <Badge 
-                                            variant="secondary"
-                                            className={`text-xs ${getStateBadgeColor(card.state)}`}
-                                          >
-                                            {card.state}
-                                          </Badge>
-                                        )}
-                                      </div>
-                                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                        {card.back}
-                                      </p>
-                                      {card.due_date && (
-                                        <div className={`text-xs flex items-center gap-1 ${getDueDateColor(card.due_date)}`}>
-                                          <Clock className="h-3 w-3" />
-                                          Due: {new Date(card.due_date).toLocaleDateString()}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-1 flex-shrink-0">
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => editCard(card.id, card.front, card.back)}
-                                    >
-                                      Edit
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => deleteCard(card.id)}
-                                      className="text-destructive hover:text-destructive"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                      </div>
+                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                         {/* Add Card Button - Always first */}
+                         <Card 
+                           className="transition-all duration-200 hover:shadow-md cursor-pointer border-dashed border-2 hover:border-primary/50"
+                           onClick={() => setShowAddForm(true)}
+                         >
+                           <CardContent className="p-4 h-full flex flex-col items-center justify-center min-h-[120px]">
+                             <Plus className="h-8 w-8 text-muted-foreground mb-2" />
+                             <span className="text-sm font-medium text-muted-foreground">Add New Card</span>
+                           </CardContent>
+                         </Card>
+
+                         {/* Existing Cards */}
+                         {filteredCards
+                           .sort((a, b) => {
+                             if (a.due_date && b.due_date) {
+                               return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+                             }
+                             return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                           })
+                           .map((card) => (
+                             <Card 
+                               key={card.id} 
+                               className={`
+                                 transition-all duration-200 hover:shadow-md cursor-pointer
+                                 ${selectedCards.has(card.id) ? 'ring-2 ring-primary' : ''}
+                               `}
+                             >
+                               <CardContent className="p-4">
+                                 <div className="flex items-start justify-between gap-4">
+                                   <div className="flex items-start gap-3 flex-1">
+                                     <Checkbox
+                                       checked={selectedCards.has(card.id)}
+                                       onCheckedChange={() => handleCardSelection(card.id)}
+                                     />
+                                     <div className="flex-1 min-w-0">
+                                       <div className="flex items-center gap-2 mb-2">
+                                         <h3 className="font-medium text-card-foreground truncate">
+                                           {card.front}
+                                         </h3>
+                                         {card.state && (
+                                           <Badge 
+                                             variant="secondary"
+                                             className={`text-xs ${getStateBadgeColor(card.state)}`}
+                                           >
+                                             {card.state}
+                                           </Badge>
+                                         )}
+                                       </div>
+                                       <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                         {card.back}
+                                       </p>
+                                       {card.due_date && (
+                                         <div className={`text-xs flex items-center gap-1 ${getDueDateColor(card.due_date)}`}>
+                                           <Clock className="h-3 w-3" />
+                                           Due: {new Date(card.due_date).toLocaleDateString()}
+                                         </div>
+                                       )}
+                                     </div>
+                                   </div>
+                                   <div className="flex gap-1 flex-shrink-0">
+                                     <Button
+                                       size="sm"
+                                       variant="ghost"
+                                       onClick={() => editCard(card.id, card.front, card.back)}
+                                     >
+                                       Edit
+                                     </Button>
+                                     <Button
+                                       size="sm"
+                                       variant="ghost"
+                                       onClick={() => deleteCard(card.id)}
+                                       className="text-destructive hover:text-destructive"
+                                     >
+                                       <Trash2 className="h-4 w-4" />
+                                     </Button>
+                                   </div>
+                                 </div>
+                               </CardContent>
+                             </Card>
+                           ))}
+                       </div>
                     )}
                   </>
                 )}
