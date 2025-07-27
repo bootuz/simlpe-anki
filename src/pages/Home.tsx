@@ -263,27 +263,7 @@ const Home = () => {
             return isOverdue || isDueToday;
           });
 
-          return cardsToStudy.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/5 rounded-full blur-3xl"></div>
-                <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 text-center">
-                  <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
-                  <h3 className="text-2xl font-semibold mb-3">No cards to review right now</h3>
-                  <p className="text-muted-foreground text-center mb-8 max-w-md">
-                    {cards.length === 0 
-                      ? "Create some flashcards to start your learning journey with spaced repetition"
-                      : "Great job! You're all caught up. Check back later for more cards to review."
-                    }
-                  </p>
-                  <Button onClick={() => navigate("/manage")} size="lg" className="shadow-lg">
-                    <FolderOpen className="h-5 w-5 mr-2" />
-                    {cards.length === 0 ? "Create Your First Deck" : "Manage Decks"}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
+          return cardsToStudy.length === 0 ? null : (
             <div className="w-full space-y-6">
               <div className="space-y-6">
                 {cardsToStudy.map((card, index) => {
