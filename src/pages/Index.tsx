@@ -531,16 +531,6 @@ const Index = () => {
                 Home
               </Button>
               
-              {currentFolder && currentDeck && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Folder className="h-4 w-4" />
-                  <span>{currentFolder.name}</span>
-                  <span>/</span>
-                  <BookOpen className="h-4 w-4" />
-                  <span>{currentDeck.name}</span>
-                </div>
-              )}
-              
               {user && (
                 <Button
                   variant="outline"
@@ -578,6 +568,17 @@ const Index = () => {
               </div>
             ) : (
               <>
+                {/* Breadcrumb */}
+                {currentFolder && currentDeck && (
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+                    <Folder className="h-4 w-4" />
+                    <span>{currentFolder.name}</span>
+                    <span>/</span>
+                    <BookOpen className="h-4 w-4" />
+                    <span>{currentDeck.name}</span>
+                  </div>
+                )}
+
                 {/* Deck Header */}
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold mb-2">{currentDeck.name}</h2>
