@@ -259,114 +259,122 @@ const Home = () => {
           </div>
         )}
 
-        {cards.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/5 rounded-full blur-3xl"></div>
-              <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 text-center">
-                <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
-                <h3 className="text-2xl font-semibold mb-3">No cards to review</h3>
-                <p className="text-muted-foreground text-center mb-8 max-w-md">
-                  Create some flashcards to start your learning journey with spaced repetition
-                </p>
-                <Button onClick={() => navigate("/manage")} size="lg" className="shadow-lg">
-                  <FolderOpen className="h-5 w-5 mr-2" />
-                  Create Your First Deck
-                </Button>
+        {/* Filter cards to show only overdue and due today */}
+        {(() => {
+          const cardsToStudy = cards.filter(card => {
+            const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
+            const isDueToday = daysUntilDue === 0 && !isOverdue;
+            return isOverdue || isDueToday;
+          });
+
+          return cardsToStudy.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/5 rounded-full blur-3xl"></div>
+                <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 text-center">
+                  <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
+                  <h3 className="text-2xl font-semibold mb-3">No cards to review right now</h3>
+                  <p className="text-muted-foreground text-center mb-8 max-w-md">
+                    {cards.length === 0 
+                      ? "Create some flashcards to start your learning journey with spaced repetition"
+                      : "Great job! You're all caught up. Check back later for more cards to review."
+                    }
+                  </p>
+                  <Button onClick={() => navigate("/manage")} size="lg" className="shadow-lg">
+                    <FolderOpen className="h-5 w-5 mr-2" />
+                    {cards.length === 0 ? "Create Your First Deck" : "Manage Decks"}
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="w-full space-y-6">
-            <div className="space-y-6">
-              {cards.filter(card => {
+          ) : (
+            <div className="w-full space-y-6">
+              <div className="space-y-6">
+                {cardsToStudy.map((card, index) => {
                 const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
                 const isDueToday = daysUntilDue === 0 && !isOverdue;
-                return isOverdue || isDueToday;
-              }).map((card, index) => {
-              const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
-              const isDueToday = daysUntilDue === 0 && !isOverdue;
-              
-              return (
-                <div 
-                  key={card.id} 
-                  className={`group relative bg-card backdrop-blur-sm border border-border/50 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
-                    isOverdue 
-                      ? 'ring-2 ring-destructive/20 bg-destructive/5 border-destructive/30' 
-                      : isDueToday
-                        ? 'ring-2 ring-warning/20 bg-warning/5 border-warning/30'
-                        : ''
-                  }`}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="flex items-start justify-between p-6">
-                    {/* Main Content */}
-                    <div className="flex-1 min-w-0 space-y-3">
-                      {/* Metadata */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
-                          <FolderOpen className="h-3 w-3" />
-                          <span className="truncate font-medium">{card.folder_name}</span>
-                          <span className="text-muted-foreground/60">/</span>
-                          <BookOpen className="h-3 w-3" />
-                          <span className="truncate font-medium">{card.deck_name}</span>
+                
+                return (
+                  <div 
+                    key={card.id} 
+                    className={`group relative bg-card backdrop-blur-sm border border-border/50 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
+                      isOverdue 
+                        ? 'ring-2 ring-destructive/20 bg-destructive/5 border-destructive/30' 
+                        : isDueToday
+                          ? 'ring-2 ring-warning/20 bg-warning/5 border-warning/30'
+                          : ''
+                    }`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="flex items-start justify-between p-6">
+                      {/* Main Content */}
+                      <div className="flex-1 min-w-0 space-y-3">
+                        {/* Metadata */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
+                            <FolderOpen className="h-3 w-3" />
+                            <span className="truncate font-medium">{card.folder_name}</span>
+                            <span className="text-muted-foreground/60">/</span>
+                            <BookOpen className="h-3 w-3" />
+                            <span className="truncate font-medium">{card.deck_name}</span>
+                          </div>
+                          
+                          {/* Due Date Badge */}
+                          <div className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
+                            isOverdue 
+                              ? 'bg-destructive/15 text-destructive border border-destructive/30' 
+                              : daysUntilDue === 0 
+                                ? 'bg-warning/15 text-warning border border-warning/30' 
+                                : 'bg-primary/15 text-primary border border-primary/30'
+                          }`}>
+                            {isOverdue 
+                              ? 'Overdue' 
+                              : daysUntilDue === 0 
+                                ? 'Due today' 
+                                : `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`
+                            }
+                          </div>
                         </div>
                         
-                        {/* Due Date Badge */}
-                        <div className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-                          isOverdue 
-                            ? 'bg-destructive/15 text-destructive border border-destructive/30' 
-                            : daysUntilDue === 0 
-                              ? 'bg-warning/15 text-warning border border-warning/30' 
-                              : 'bg-primary/15 text-primary border border-primary/30'
-                        }`}>
-                          {isOverdue 
-                            ? 'Overdue' 
-                            : daysUntilDue === 0 
-                              ? 'Due today' 
-                              : `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`
-                          }
+                        {/* Card Content */}
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold text-foreground leading-tight">
+                            {card.front}
+                          </h3>
+                          <p className="text-muted-foreground leading-relaxed">
+                            {card.back}
+                          </p>
                         </div>
                       </div>
-                      
-                      {/* Card Content */}
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-foreground leading-tight">
-                          {card.front}
-                        </h3>
-                        <p className="text-muted-foreground leading-relaxed">
-                          {card.back}
-                        </p>
-                      </div>
-                    </div>
 
-                    {/* Action Area */}
-                    <div className="flex flex-col items-end gap-3 ml-4">
-                      <Button 
-                        size="sm" 
-                        variant={isOverdue ? "default" : "outline"}
-                        className="shrink-0"
-                        onClick={() => navigate(`/study?cardId=${card.id}`)}
-                      >
-                        <PlayCircle className="h-4 w-4 mr-1" />
-                        Study
-                      </Button>
-                      
-                      <div className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
-                        {new Date(card.due_date).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric',
-                          year: new Date(card.due_date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
-                        })}
+                      {/* Action Area */}
+                      <div className="flex flex-col items-end gap-3 ml-4">
+                        <Button 
+                          size="sm" 
+                          variant={isOverdue ? "default" : "outline"}
+                          className="shrink-0"
+                          onClick={() => navigate(`/study?cardId=${card.id}`)}
+                        >
+                          <PlayCircle className="h-4 w-4 mr-1" />
+                          Study
+                        </Button>
+                        
+                        <div className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
+                          {new Date(card.due_date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: new Date(card.due_date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
         </div>
       </main>
       </div>
