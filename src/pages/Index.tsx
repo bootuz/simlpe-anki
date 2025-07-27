@@ -517,7 +517,7 @@ const Index = () => {
               <SidebarTrigger />
               <div className="flex items-center gap-2">
                 <BookOpen className="h-6 w-6 text-primary" />
-                <h1 className="text-xl font-semibold">FlashCards</h1>
+                <h1 className="text-xl font-semibold">Simple Anki</h1>
               </div>
             </div>
             
