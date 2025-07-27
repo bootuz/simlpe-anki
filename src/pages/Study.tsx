@@ -189,7 +189,7 @@ const Study = () => {
       }
       
       const fsrsCard: FSRSCard = {
-        due: new Date(fsrsData.due_date),
+        due: fsrsData.due_date ? new Date(fsrsData.due_date) : now, // Use current time for new cards
         stability: fsrsData.stability,
         difficulty: fsrsData.difficulty,
         elapsed_days: elapsedDays,

@@ -19,7 +19,7 @@ export type Database = {
           card_id: string
           created_at: string
           difficulty: number
-          due_date: string
+          due_date: string | null
           elapsed_days: number
           id: string
           lapses: number
@@ -36,7 +36,7 @@ export type Database = {
           card_id: string
           created_at?: string
           difficulty?: number
-          due_date?: string
+          due_date?: string | null
           elapsed_days?: number
           id?: string
           lapses?: number
@@ -53,7 +53,7 @@ export type Database = {
           card_id?: string
           created_at?: string
           difficulty?: number
-          due_date?: string
+          due_date?: string | null
           elapsed_days?: number
           id?: string
           lapses?: number

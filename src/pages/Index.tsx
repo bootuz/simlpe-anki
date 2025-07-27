@@ -581,8 +581,12 @@ const Index = () => {
       }
     }
 
-    // Due date filter
-    if (filterDueDate !== "all" && card.due_date) {
+    // Due date filter - New cards (NULL due_date) should always be shown
+    if (filterDueDate !== "all") {
+      if (card.due_date === null) {
+        return true; // Always show new cards
+      }
+      
       const now = new Date();
       const dueDate = new Date(card.due_date);
       const diffTime = dueDate.getTime() - now.getTime();
