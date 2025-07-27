@@ -110,9 +110,12 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/10">
+    <div className="min-h-screen bg-background">
+      {/* Background pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
+      <div className="relative z-10">
       {/* Header */}
-      <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="h-16 border-b bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/60 shadow-sm">
         <div className="flex items-center justify-between h-full px-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -147,62 +150,78 @@ const Home = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2">Cards Due for Review</h2>
-          <p className="text-muted-foreground">
-            All your flashcards sorted by due date
+      <main className="container mx-auto px-6 py-12">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
+            <Calendar className="h-8 w-8 text-primary" />
+          </div>
+          <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Cards Due for Review
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Stay on top of your learning with spaced repetition flashcards
           </p>
         </div>
 
         {cards.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Calendar className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No cards to review</h3>
-            <p className="text-muted-foreground text-center mb-6">
-              Create some flashcards to start studying
-            </p>
-            <Button onClick={() => navigate("/study")}>
-              <FolderOpen className="h-4 w-4 mr-2" />
-              Go to Deck Manager
-            </Button>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/5 rounded-full blur-3xl"></div>
+              <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 text-center">
+                <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
+                <h3 className="text-2xl font-semibold mb-3">No cards to review</h3>
+                <p className="text-muted-foreground text-center mb-8 max-w-md">
+                  Create some flashcards to start your learning journey with spaced repetition
+                </p>
+                <Button onClick={() => navigate("/study")} size="lg" className="shadow-lg">
+                  <FolderOpen className="h-5 w-5 mr-2" />
+                  Create Your First Deck
+                </Button>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto space-y-4">
-            {cards.map((card) => {
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="grid gap-4">
+              {cards.map((card, index) => {
               const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
               
               return (
                 <div 
                   key={card.id} 
-                  className={`p-4 rounded-lg border transition-all duration-200 hover:shadow-md ${
+                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
                     isOverdue 
-                      ? 'bg-destructive/5 border-destructive/20' 
-                      : 'bg-card border-border'
+                      ? 'ring-2 ring-destructive/20 bg-destructive/5' 
+                      : ''
                   }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start justify-between gap-6">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs text-muted-foreground">
-                          {card.folder_name} / {card.deck_name}
-                        </span>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
+                          <FolderOpen className="h-3 w-3" />
+                          <span>{card.folder_name}</span>
+                          <span className="text-muted-foreground/60">/</span>
+                          <BookOpen className="h-3 w-3" />
+                          <span>{card.deck_name}</span>
+                        </div>
                       </div>
-                      <h3 className="font-medium text-card-foreground mb-2 truncate">
+                      <h3 className="font-semibold text-lg text-card-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
                         {card.front}
                       </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                      <p className="text-muted-foreground line-clamp-2 leading-relaxed">
                         {card.back}
                       </p>
                     </div>
                     
-                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                      <div className={`text-xs px-2 py-1 rounded-full ${
+                    <div className="flex flex-col items-end gap-3 flex-shrink-0">
+                      <div className={`text-xs px-3 py-2 rounded-full font-medium shadow-sm ${
                         isOverdue 
-                          ? 'bg-destructive/10 text-destructive' 
+                          ? 'bg-destructive/10 text-destructive border border-destructive/20' 
                           : daysUntilDue === 0 
-                            ? 'bg-warning/10 text-warning' 
-                            : 'bg-muted text-muted-foreground'
+                            ? 'bg-warning/10 text-warning border border-warning/20' 
+                            : 'bg-primary/10 text-primary border border-primary/20'
                       }`}>
                         {isOverdue 
                           ? 'Overdue' 
@@ -212,17 +231,23 @@ const Home = () => {
                         }
                       </div>
                       
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(card.due_date).toLocaleDateString()}
+                      <div className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
+                        {new Date(card.due_date).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric',
+                          year: new Date(card.due_date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                        })}
                       </div>
                     </div>
                   </div>
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 };
