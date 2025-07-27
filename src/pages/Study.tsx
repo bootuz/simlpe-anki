@@ -284,7 +284,7 @@ const Study = () => {
   };
 
   const currentCard = cards[currentCardIndex];
-  const progress = cards.length > 0 ? ((currentCardIndex + 1) / cards.length) * 100 : 0;
+  const progress = cards.length > 0 ? (currentCardIndex / cards.length) * 100 : 0;
 
   if (loading || dataLoading) {
     return (
