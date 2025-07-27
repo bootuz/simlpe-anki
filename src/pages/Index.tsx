@@ -133,27 +133,6 @@ const Index = () => {
 
       if (error) throw error;
 
-      // Create initial FSRS data for the card
-      const { error: fsrsError } = await supabase
-        .from("card_fsrs")
-        .insert({
-          card_id: data.id,
-          user_id: user.id,
-          state: 'New',
-          due_date: new Date().toISOString(),
-          stability: 0,
-          difficulty: 0,
-          elapsed_days: 0,
-          scheduled_days: 0,
-          reps: 0,
-          lapses: 0
-        });
-
-      if (fsrsError) {
-        console.error("Error creating FSRS data:", fsrsError);
-        // Don't throw here, card creation succeeded
-      }
-
       setCards([...cards, data]);
       toast({
         title: "Success",
@@ -171,9 +150,6 @@ const Index = () => {
 
   const deleteCard = async (id: string) => {
     try {
-      // Delete FSRS data first
-      await supabase.from("card_fsrs").delete().eq("card_id", id);
-      
       const { error } = await supabase
         .from("cards")
         .delete()
@@ -519,15 +495,6 @@ const Index = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => navigate("/")}
-                className="flex items-center gap-2"
-              >
-                <BookOpen className="h-4 w-4" />
-                Home
-              </Button>
-              
               {currentFolder && currentDeck && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Folder className="h-4 w-4" />
