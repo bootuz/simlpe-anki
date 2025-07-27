@@ -94,7 +94,10 @@ const Home = () => {
   const getDueDateStatus = (dueDate: string) => {
     const due = new Date(dueDate);
     const now = new Date();
-    const isOverdue = due <= now;
+    // Set both dates to start of day for accurate comparison
+    const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const isOverdue = dueDay < today;
     const daysUntilDue = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     
     return { isOverdue, daysUntilDue };
@@ -103,7 +106,12 @@ const Home = () => {
   // Calculate summary statistics
   const getCardStats = () => {
     const now = new Date();
-    const overdue = cards.filter(card => new Date(card.due_date) <= now).length;
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const overdue = cards.filter(card => {
+      const due = new Date(card.due_date);
+      const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+      return dueDay < today;
+    }).length;
     const dueToday = cards.filter(card => {
       const due = new Date(card.due_date);
       const today = new Date();
