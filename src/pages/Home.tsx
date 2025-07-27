@@ -150,7 +150,7 @@ const Home = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12 max-w-7xl">
+      <main className="px-6 py-12 w-full">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
             <Calendar className="h-8 w-8 text-primary" />
@@ -182,7 +182,7 @@ const Home = () => {
           </div>
         ) : (
           <div className="w-full space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {cards.map((card, index) => {
               const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
               
