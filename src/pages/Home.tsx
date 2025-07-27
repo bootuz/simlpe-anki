@@ -110,7 +110,7 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen w-full bg-background">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
       <div className="relative z-10">
