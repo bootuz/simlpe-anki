@@ -42,13 +42,11 @@ export const AddCardForm = ({ onAdd }: AddCardFormProps) => {
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto">
-      <Card className="bg-card/95 backdrop-blur-sm border-border/50 shadow-lg">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-semibold">Create New Flashcard</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6 p-6 pt-0">
-          <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="w-full">
+      <div className="p-4 rounded-lg border bg-card border-border transition-all duration-200 hover:shadow-md">
+        <h3 className="font-medium text-card-foreground mb-4">Create New Flashcard</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="front" className="text-sm font-medium">Front</Label>
               <Textarea
@@ -56,7 +54,7 @@ export const AddCardForm = ({ onAdd }: AddCardFormProps) => {
                 value={front}
                 onChange={(e) => setFront(e.target.value)}
                 placeholder="What's the question or prompt?"
-                className="min-h-[80px] resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
+                className="h-20 resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
                 required
               />
             </div>
@@ -67,34 +65,36 @@ export const AddCardForm = ({ onAdd }: AddCardFormProps) => {
                 value={back}
                 onChange={(e) => setBack(e.target.value)}
                 placeholder="What's the answer or explanation?"
-                className="min-h-[80px] resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
+                className="h-20 resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
                 required
               />
             </div>
-            <div className="flex gap-3 pt-2">
-              <Button 
-                type="submit" 
-                className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium shadow-md hover:shadow-lg transition-all duration-200"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Card
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="px-6 hover:bg-muted/80 transition-colors duration-200"
-                onClick={() => {
-                  setIsExpanded(false);
-                  setFront("");
-                  setBack("");
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm"
+              className="px-4 hover:bg-muted/80 transition-colors duration-200"
+              onClick={() => {
+                setIsExpanded(false);
+                setFront("");
+                setBack("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              size="sm"
+              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Create Card
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
