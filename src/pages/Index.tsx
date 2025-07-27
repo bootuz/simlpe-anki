@@ -798,23 +798,6 @@ const Index = () => {
                         </div>
                       </div>
 
-                      {/* Bulk Actions */}
-                      {selectedCards.size > 0 && (
-                        <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                          <span className="text-sm text-muted-foreground">
-                            {selectedCards.size} card{selectedCards.size > 1 ? 's' : ''} selected
-                          </span>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={handleBulkDelete}
-                            className="flex items-center gap-2"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete Selected
-                          </Button>
-                        </div>
-                      )}
                     </div>
 
                     {/* Add Card Button */}
