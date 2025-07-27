@@ -133,7 +133,6 @@ export function AppSidebar({
 
   return (
     <Sidebar className={isCollapsed ? "w-14" : "w-64"}>
-      <SidebarTrigger className="m-2 self-end" />
       
       <SidebarContent>
         <SidebarGroup>
