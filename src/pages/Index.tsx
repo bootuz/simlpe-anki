@@ -18,6 +18,7 @@ interface Card {
   created_at: string;
   updated_at: string;
   state?: string; // FSRS state
+  due_date?: string; // FSRS due date
 }
 
 const Index = () => {
@@ -72,7 +73,8 @@ const Index = () => {
         .select(`
           *,
           card_fsrs!inner (
-            state
+            state,
+            due_date
           )
         `)
         .order("created_at");
@@ -101,7 +103,8 @@ const Index = () => {
         deck_id: card.deck_id,
         created_at: card.created_at,
         updated_at: card.updated_at,
-        state: card.card_fsrs?.state
+        state: card.card_fsrs?.state,
+        due_date: card.card_fsrs?.due_date
       }));
 
       setFolders(transformedFolders);
@@ -609,15 +612,20 @@ const Index = () => {
                            <div key={card.id} className="p-4 rounded-lg border bg-card border-border transition-all duration-200 hover:shadow-md">
                              <div className="flex items-start justify-between gap-4">
                                <div className="flex-1 min-w-0">
-                                 <div className="flex items-center gap-2 mb-2">
-                                   <h3 className="font-medium text-card-foreground truncate">{card.front}</h3>
-                                   {card.state === 'New' && (
-                                     <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-600 dark:text-green-400 rounded-full border border-green-500/30 shrink-0">
-                                       New
-                                     </span>
-                                   )}
-                                 </div>
-                                 <p className="text-sm text-muted-foreground line-clamp-2">{card.back}</p>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <h3 className="font-medium text-card-foreground truncate">{card.front}</h3>
+                                    {card.state === 'New' && (
+                                      <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-600 dark:text-green-400 rounded-full border border-green-500/30 shrink-0">
+                                        New
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{card.back}</p>
+                                  {card.due_date && (
+                                    <div className="text-xs text-muted-foreground">
+                                      Due: {new Date(card.due_date).toLocaleDateString()}
+                                    </div>
+                                  )}
                                </div>
                               <div className="flex gap-1 flex-shrink-0">
                                 <Button
