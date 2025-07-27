@@ -262,9 +262,9 @@ const Study = () => {
                             <div className="grid grid-cols-4 gap-2">
                               <Button 
                                 onClick={() => handleAnswer('again')}
-                                variant="destructive"
+                                variant="outline"
                                 size="sm"
-                                className="bg-red-500 hover:bg-red-600"
+                                className="border-red-200 text-red-600 hover:bg-red-50 bg-red-25"
                               >
                                 Again
                               </Button>
@@ -272,7 +272,7 @@ const Study = () => {
                                 onClick={() => handleAnswer('hard')}
                                 variant="outline"
                                 size="sm"
-                                className="border-orange-500 text-orange-500 hover:bg-orange-50"
+                                className="border-orange-200 text-orange-600 hover:bg-orange-50 bg-orange-25"
                               >
                                 Hard
                               </Button>
@@ -280,15 +280,15 @@ const Study = () => {
                                 onClick={() => handleAnswer('medium')}
                                 variant="outline"
                                 size="sm"
-                                className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                                className="border-blue-200 text-blue-600 hover:bg-blue-50 bg-blue-25"
                               >
                                 Good
                               </Button>
                               <Button 
                                 onClick={() => handleAnswer('easy')}
-                                variant="default"
+                                variant="outline"
                                 size="sm"
-                                className="bg-green-500 hover:bg-green-600"
+                                className="border-green-200 text-green-600 hover:bg-green-50 bg-green-25"
                               >
                                 Easy
                               </Button>
