@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, ArrowLeft } from "lucide-react";
+import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -260,38 +260,42 @@ const Study = () => {
                           <div className="space-y-4">
                             <p className="text-sm text-muted-foreground">How well did you know this?</p>
                             <div className="grid grid-cols-4 gap-2">
-                              <Button 
-                                onClick={() => handleAnswer('again')}
-                                variant="outline"
-                                size="sm"
-                                className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400"
-                              >
-                                Again
-                              </Button>
-                              <Button 
-                                onClick={() => handleAnswer('hard')}
-                                variant="outline"
-                                size="sm"
-                                className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400"
-                              >
-                                Hard
-                              </Button>
-                              <Button 
-                                onClick={() => handleAnswer('medium')}
-                                variant="outline"
-                                size="sm"
-                                className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400"
-                              >
-                                Good
-                              </Button>
-                              <Button 
-                                onClick={() => handleAnswer('easy')}
-                                variant="outline"
-                                size="sm"
-                                className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400"
-                              >
-                                Easy
-                              </Button>
+                               <Button 
+                                 onClick={() => handleAnswer('again')}
+                                 variant="outline"
+                                 size="sm"
+                                 className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400"
+                               >
+                                 <XCircle className="h-4 w-4 mr-1" />
+                                 Again
+                               </Button>
+                               <Button 
+                                 onClick={() => handleAnswer('hard')}
+                                 variant="outline"
+                                 size="sm"
+                                 className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400"
+                               >
+                                 <AlertTriangle className="h-4 w-4 mr-1" />
+                                 Hard
+                               </Button>
+                               <Button 
+                                 onClick={() => handleAnswer('medium')}
+                                 variant="outline"
+                                 size="sm"
+                                 className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400"
+                               >
+                                 <Check className="h-4 w-4 mr-1" />
+                                 Good
+                               </Button>
+                               <Button 
+                                 onClick={() => handleAnswer('easy')}
+                                 variant="outline"
+                                 size="sm"
+                                 className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400"
+                               >
+                                 <CheckCircle className="h-4 w-4 mr-1" />
+                                 Easy
+                               </Button>
                             </div>
                           </div>
                         )}
