@@ -116,7 +116,7 @@ const Home = () => {
       <div className="relative z-10">
       {/* Header */}
       <header className="h-16 border-b bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/60 shadow-sm">
-        <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between h-full px-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary" />
