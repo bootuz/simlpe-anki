@@ -103,22 +103,107 @@ const Study = () => {
     }
   };
 
-  const handleAnswer = (difficulty: 'easy' | 'medium' | 'hard' | 'again') => {
-    // Here you would implement FSRS algorithm to update the card
-    // For now, we'll just move to the next card
-    
-    const nextIndex = currentCardIndex + 1;
-    if (nextIndex >= cards.length) {
-      setStudyComplete(true);
-    } else {
-      setCurrentCardIndex(nextIndex);
-      setShowAnswer(false);
+  const handleAnswer = async (difficulty: 'easy' | 'medium' | 'hard' | 'again') => {
+    try {
+      const cardId = currentCard.id;
+      
+      // Get current FSRS data for the card
+      const { data: fsrsData, error: fsrsError } = await supabase
+        .from('card_fsrs')
+        .select('*')
+        .eq('card_id', cardId)
+        .single();
+      
+      if (fsrsError) throw fsrsError;
+      
+      // Calculate new FSRS values based on the FSRS algorithm
+      const now = new Date();
+      const lastReview = fsrsData.last_review ? new Date(fsrsData.last_review) : new Date(fsrsData.created_at);
+      const elapsedDays = Math.max(1, Math.ceil((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24)));
+      
+      let newState = fsrsData.state;
+      let newReps = fsrsData.reps;
+      let newLapses = fsrsData.lapses;
+      let newDifficulty = fsrsData.difficulty;
+      let newStability = fsrsData.stability;
+      let newScheduledDays = fsrsData.scheduled_days;
+      
+      // FSRS algorithm implementation (simplified version)
+      switch (difficulty) {
+        case 'again':
+          newState = 'Relearning';
+          newLapses += 1;
+          newScheduledDays = 1;
+          newDifficulty = Math.min(10, newDifficulty + 0.2);
+          newStability = Math.max(0.1, newStability * 0.8);
+          break;
+        case 'hard':
+          newReps += 1;
+          newState = newReps === 1 ? 'Learning' : 'Review';
+          newScheduledDays = Math.max(1, Math.round(newStability * 1.2));
+          newDifficulty = Math.min(10, newDifficulty + 0.15);
+          newStability = newStability * 0.85;
+          break;
+        case 'medium':
+          newReps += 1;
+          newState = newReps === 1 ? 'Learning' : 'Review';
+          newScheduledDays = Math.max(1, Math.round(newStability * 2.5));
+          newDifficulty = Math.max(1, newDifficulty - 0.1);
+          newStability = newStability * 1.3;
+          break;
+        case 'easy':
+          newReps += 1;
+          newState = 'Review';
+          newScheduledDays = Math.max(1, Math.round(newStability * 4));
+          newDifficulty = Math.max(1, newDifficulty - 0.2);
+          newStability = newStability * 1.5;
+          break;
+      }
+      
+      // Calculate new due date
+      const newDueDate = new Date(now);
+      newDueDate.setDate(newDueDate.getDate() + newScheduledDays);
+      
+      // Update the FSRS data in the database
+      const { error: updateError } = await supabase
+        .from('card_fsrs')
+        .update({
+          state: newState,
+          reps: newReps,
+          lapses: newLapses,
+          difficulty: newDifficulty,
+          stability: newStability,
+          scheduled_days: newScheduledDays,
+          elapsed_days: elapsedDays,
+          due_date: newDueDate.toISOString(),
+          last_review: now.toISOString(),
+          updated_at: now.toISOString()
+        })
+        .eq('card_id', cardId);
+      
+      if (updateError) throw updateError;
+      
+      const nextIndex = currentCardIndex + 1;
+      if (nextIndex >= cards.length) {
+        setStudyComplete(true);
+      } else {
+        setCurrentCardIndex(nextIndex);
+        setShowAnswer(false);
+      }
+      
+      toast({
+        title: "Progress saved",
+        description: `Card reviewed. Next review in ${newScheduledDays} day${newScheduledDays === 1 ? '' : 's'}. ${cards.length - nextIndex} cards remaining.`,
+      });
+      
+    } catch (error) {
+      console.error("Error updating card:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save your progress. Please try again.",
+        variant: "destructive"
+      });
     }
-    
-    toast({
-      title: "Progress saved",
-      description: `Card reviewed. ${cards.length - nextIndex} cards remaining.`,
-    });
   };
 
   const currentCard = cards[currentCardIndex];
