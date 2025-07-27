@@ -39,6 +39,32 @@ const Home = () => {
     }
   }, [user]);
 
+  // Set up real-time subscription for card updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('card-fsrs-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'card_fsrs',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Reload cards when FSRS data is updated
+          loadAllCards();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const loadAllCards = async () => {
     try {
       setDataLoading(true);
