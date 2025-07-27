@@ -227,7 +227,7 @@ const Study = () => {
 
                 {/* Study Card */}
                 <Card className="min-h-[400px] bg-card/50 backdrop-blur-sm border-border/50">
-                  <CardContent className="p-8 flex flex-col justify-center items-center text-center h-full min-h-[400px]">
+                  <CardContent className="px-8 pt-8 pb-4 flex flex-col justify-center items-center text-center h-full min-h-[400px]">
                     <div className="space-y-6 w-full">
                       {/* Question */}
                       <div className="space-y-4">
