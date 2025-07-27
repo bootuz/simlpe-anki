@@ -42,49 +42,47 @@ export const AddCardForm = ({ onAdd }: AddCardFormProps) => {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Card className="h-64 bg-gradient-to-br from-card to-muted/30 border-primary/20">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Create New Flashcard</CardTitle>
+    <div className="w-full max-w-lg mx-auto">
+      <Card className="bg-card/95 backdrop-blur-sm border-border/50 shadow-lg">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-semibold">Create New Flashcard</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="space-y-6 p-6 pt-0">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="front" className="text-sm font-medium text-foreground/80">Front</Label>
+              <Label htmlFor="front" className="text-sm font-medium">Front</Label>
               <Textarea
                 id="front"
                 value={front}
                 onChange={(e) => setFront(e.target.value)}
                 placeholder="What's the question or prompt?"
-                className="h-14 resize-none border-primary/20 focus:border-primary/40 transition-colors duration-200 placeholder:text-muted-foreground/60"
+                className="min-h-[80px] resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="back" className="text-sm font-medium text-foreground/80">Back</Label>
+              <Label htmlFor="back" className="text-sm font-medium">Back</Label>
               <Textarea
                 id="back"
                 value={back}
                 onChange={(e) => setBack(e.target.value)}
                 placeholder="What's the answer or explanation?"
-                className="h-14 resize-none border-primary/20 focus:border-primary/40 transition-colors duration-200 placeholder:text-muted-foreground/60"
+                className="min-h-[80px] resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
                 required
               />
             </div>
             <div className="flex gap-3 pt-2">
               <Button 
                 type="submit" 
-                size="sm" 
-                className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-sm hover:shadow-md transition-all duration-200"
+                className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium shadow-md hover:shadow-lg transition-all duration-200"
               >
-                <Plus className="h-4 w-4 mr-1" />
+                <Plus className="h-4 w-4 mr-2" />
                 Create Card
               </Button>
               <Button 
                 type="button" 
                 variant="outline" 
-                size="sm" 
-                className="px-4 border-primary/20 hover:border-primary/40 hover:bg-muted/50 transition-all duration-200"
+                className="px-6 hover:bg-muted/80 transition-colors duration-200"
                 onClick={() => {
                   setIsExpanded(false);
                   setFront("");
