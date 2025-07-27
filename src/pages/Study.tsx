@@ -264,7 +264,7 @@ const Study = () => {
                                 onClick={() => handleAnswer('again')}
                                 variant="outline"
                                 size="sm"
-                                className="border-red-200 text-red-600 hover:bg-red-50 bg-red-25"
+                                className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400"
                               >
                                 Again
                               </Button>
@@ -272,7 +272,7 @@ const Study = () => {
                                 onClick={() => handleAnswer('hard')}
                                 variant="outline"
                                 size="sm"
-                                className="border-orange-200 text-orange-600 hover:bg-orange-50 bg-orange-25"
+                                className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400"
                               >
                                 Hard
                               </Button>
@@ -280,7 +280,7 @@ const Study = () => {
                                 onClick={() => handleAnswer('medium')}
                                 variant="outline"
                                 size="sm"
-                                className="border-blue-200 text-blue-600 hover:bg-blue-50 bg-blue-25"
+                                className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400"
                               >
                                 Good
                               </Button>
@@ -288,7 +288,7 @@ const Study = () => {
                                 onClick={() => handleAnswer('easy')}
                                 variant="outline"
                                 size="sm"
-                                className="border-green-200 text-green-600 hover:bg-green-50 bg-green-25"
+                                className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400"
                               >
                                 Easy
                               </Button>
