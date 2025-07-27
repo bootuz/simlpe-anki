@@ -26,17 +26,18 @@ export const AddCardForm = ({ onAdd }: AddCardFormProps) => {
 
   if (!isExpanded) {
     return (
-      <div className="w-full max-w-md mx-auto">
-        <Button
+      <div className="w-full">
+        <button
           onClick={() => setIsExpanded(true)}
-          className="w-full h-64 border-2 border-dashed border-muted-foreground/30 bg-gradient-to-br from-muted/50 to-muted text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300"
-          variant="ghost"
+          className="w-full p-6 rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 hover:bg-muted/40 hover:border-muted-foreground/50 transition-all duration-300 group"
         >
-          <div className="flex flex-col items-center gap-2">
-            <Plus className="h-8 w-8" />
-            <span className="text-lg">Add New Flashcard</span>
+          <div className="flex flex-col items-center gap-3">
+            <div className="p-2 rounded-full bg-muted-foreground/10 group-hover:bg-muted-foreground/20 transition-colors duration-300">
+              <Plus className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <span className="text-muted-foreground font-medium">Add New Flashcard</span>
           </div>
-        </Button>
+        </button>
       </div>
     );
   }
