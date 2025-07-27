@@ -295,10 +295,10 @@ export function AppSidebar({
 
                   {/* Decks */}
                   {folder.isExpanded && folder.decks.map((deck) => (
-                    <SidebarMenuItem key={deck.id} className="ml-6 mb-1">
+                    <SidebarMenuItem key={deck.id} className="ml-6 mb-0.5">
                       <div className="flex items-center w-full group">
                         <SidebarMenuButton
-                          className={`flex-1 rounded-md transition-all duration-200 ${
+                          className={`flex-1 rounded-md transition-all duration-200 min-h-[32px] ${
                             currentDeckId === deck.id 
                               ? "bg-primary text-primary-foreground shadow-sm" 
                               : "hover:bg-muted/40 hover:shadow-sm"
@@ -306,10 +306,10 @@ export function AppSidebar({
                           onClick={() => onDeckSelect(folder.id, deck.id)}
                         >
                           <div className="flex items-center justify-between w-full py-1">
-                            <div className="flex items-center">
-                              <BookOpen className="h-4 w-4 mr-3 text-current" />
+                            <div className="flex items-center min-w-0 flex-1">
+                              <BookOpen className="h-4 w-4 mr-3 text-current shrink-0" />
                               {!isCollapsed && (
-                                <span className="text-sm font-medium">
+                                <span className="text-sm font-medium truncate">
                                   {editingDeck === deck.id ? (
                                     <Input
                                       value={editName}
@@ -329,7 +329,7 @@ export function AppSidebar({
                               )}
                             </div>
                             {!isCollapsed && (
-                              <span className="text-xs bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-full font-medium ml-2">
+                              <span className="text-xs bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-full font-medium ml-2 shrink-0">
                                 {deck.cardCount}
                               </span>
                             )}
