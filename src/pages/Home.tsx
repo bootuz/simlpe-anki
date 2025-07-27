@@ -183,21 +183,21 @@ const Home = () => {
           </div>
         ) : (
           <div className="w-full space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-2">
               {cards.map((card, index) => {
               const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
               
               return (
                 <div 
                   key={card.id} 
-                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in h-full flex flex-col ${
+                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
                     isOverdue 
                       ? 'ring-2 ring-destructive/20 bg-destructive/5' 
                       : ''
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex flex-col h-full gap-4">
+                  <div className="flex flex-col gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
@@ -208,7 +208,7 @@ const Home = () => {
                           <span className="truncate">{card.deck_name}</span>
                         </div>
                       </div>
-                      <h3 className="font-semibold text-lg text-card-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                      <h3 className="font-semibold text-base text-card-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                         {card.front}
                       </h3>
                       <p className="text-muted-foreground line-clamp-3 leading-relaxed text-sm">
