@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, Calendar, FolderOpen } from "lucide-react";
+import { BookOpen, LogOut, Calendar, FolderOpen, PlayCircle, TrendingUp, Clock, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -100,6 +100,26 @@ const Home = () => {
     return { isOverdue, daysUntilDue };
   };
 
+  // Calculate summary statistics
+  const getCardStats = () => {
+    const now = new Date();
+    const overdue = cards.filter(card => new Date(card.due_date) <= now).length;
+    const dueToday = cards.filter(card => {
+      const due = new Date(card.due_date);
+      const today = new Date();
+      return due.toDateString() === today.toDateString();
+    }).length;
+    const dueSoon = cards.filter(card => {
+      const due = new Date(card.due_date);
+      const daysUntil = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return daysUntil > 0 && daysUntil <= 3;
+    }).length;
+    
+    return { overdue, dueToday, dueSoon, total: cards.length };
+  };
+
+  const stats = getCardStats();
+
   if (loading || dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -151,18 +171,77 @@ const Home = () => {
 
       {/* Main Content */}
       <main className="py-12 w-full">
-        <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
-            <Calendar className="h-8 w-8 text-primary" />
+        <div className="max-w-4xl mx-auto px-6">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+            <Calendar className="h-6 w-6 text-primary" />
           </div>
-          <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Cards Due for Review
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-xl mx-auto">
             Stay on top of your learning with spaced repetition flashcards
           </p>
         </div>
+
+        {/* Summary Statistics */}
+        {cards.length > 0 && (
+          <div className="mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-destructive/10 mx-auto mb-2">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                </div>
+                <div className="text-2xl font-bold text-destructive">{stats.overdue}</div>
+                <div className="text-xs text-muted-foreground">Overdue</div>
+              </div>
+              
+              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-warning/10 mx-auto mb-2">
+                  <Clock className="h-4 w-4 text-warning" />
+                </div>
+                <div className="text-2xl font-bold text-warning">{stats.dueToday}</div>
+                <div className="text-xs text-muted-foreground">Due Today</div>
+              </div>
+              
+              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mx-auto mb-2">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
+                <div className="text-2xl font-bold text-primary">{stats.dueSoon}</div>
+                <div className="text-xs text-muted-foreground">Due Soon</div>
+              </div>
+              
+              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/10 mx-auto mb-2">
+                  <BookOpen className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <div className="text-xs text-muted-foreground">Total Cards</div>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 justify-center">
+              {stats.overdue > 0 && (
+                <Button size="lg" className="shadow-lg">
+                  <PlayCircle className="h-5 w-5 mr-2" />
+                  Study Overdue ({stats.overdue})
+                </Button>
+              )}
+              {stats.dueToday > 0 && (
+                <Button variant="outline" size="lg">
+                  <Clock className="h-5 w-5 mr-2" />
+                  Study Today ({stats.dueToday})
+                </Button>
+              )}
+              <Button variant="outline" onClick={() => navigate("/study")}>
+                <FolderOpen className="h-4 w-4 mr-2" />
+                Manage Decks
+              </Button>
+            </div>
+          </div>
+        )}
 
         {cards.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
@@ -190,47 +269,64 @@ const Home = () => {
               return (
                 <div 
                   key={card.id} 
-                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-2 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
+                  className={`group relative bg-card backdrop-blur-sm border border-border/50 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
                     isOverdue 
-                      ? 'ring-2 ring-destructive/20 bg-destructive/5' 
+                      ? 'ring-2 ring-destructive/20 bg-destructive/5 border-destructive/30' 
                       : ''
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                   <div className="flex flex-col gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-start justify-between p-6">
+                    {/* Main Content */}
+                    <div className="flex-1 min-w-0 space-y-3">
+                      {/* Metadata */}
+                      <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
                           <FolderOpen className="h-3 w-3" />
-                          <span className="truncate">{card.folder_name}</span>
+                          <span className="truncate font-medium">{card.folder_name}</span>
                           <span className="text-muted-foreground/60">/</span>
                           <BookOpen className="h-3 w-3" />
-                          <span className="truncate">{card.deck_name}</span>
+                          <span className="truncate font-medium">{card.deck_name}</span>
+                        </div>
+                        
+                        {/* Due Date Badge */}
+                        <div className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
+                          isOverdue 
+                            ? 'bg-destructive/15 text-destructive border border-destructive/30' 
+                            : daysUntilDue === 0 
+                              ? 'bg-warning/15 text-warning border border-warning/30' 
+                              : 'bg-primary/15 text-primary border border-primary/30'
+                        }`}>
+                          {isOverdue 
+                            ? 'Overdue' 
+                            : daysUntilDue === 0 
+                              ? 'Due today' 
+                              : `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`
+                          }
                         </div>
                       </div>
-                      <h3 className="font-semibold text-base text-card-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                        {card.front}
-                      </h3>
-                      <p className="text-muted-foreground line-clamp-3 leading-relaxed text-sm">
-                        {card.back}
-                      </p>
+                      
+                      {/* Card Content */}
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground leading-tight">
+                          {card.front}
+                        </h3>
+                        <p className="text-muted-foreground leading-relaxed">
+                          {card.back}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-3 mt-auto">
-                      <div className={`text-xs px-3 py-2 rounded-full font-medium shadow-sm whitespace-nowrap ${
-                        isOverdue 
-                          ? 'bg-destructive/10 text-destructive border border-destructive/20' 
-                          : daysUntilDue === 0 
-                            ? 'bg-warning/10 text-warning border border-warning/20' 
-                            : 'bg-primary/10 text-primary border border-primary/20'
-                      }`}>
-                        {isOverdue 
-                          ? 'Overdue' 
-                          : daysUntilDue === 0 
-                            ? 'Due today' 
-                            : `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`
-                        }
-                      </div>
+                    {/* Action Area */}
+                    <div className="flex flex-col items-end gap-3 ml-4">
+                      <Button 
+                        size="sm" 
+                        variant={isOverdue ? "default" : "outline"}
+                        className="shrink-0"
+                      >
+                        <PlayCircle className="h-4 w-4 mr-1" />
+                        Study
+                      </Button>
                       
                       <div className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
                         {new Date(card.due_date).toLocaleDateString('en-US', { 
