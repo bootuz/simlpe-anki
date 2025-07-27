@@ -183,21 +183,21 @@ const Home = () => {
           </div>
         ) : (
           <div className="w-full space-y-6">
-            <div className="space-y-2">
+            <div className="space-y-6">
               {cards.map((card, index) => {
               const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
               
               return (
                 <div 
                   key={card.id} 
-                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
+                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-2 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
                     isOverdue 
                       ? 'ring-2 ring-destructive/20 bg-destructive/5' 
                       : ''
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex flex-col gap-3">
+                   <div className="flex flex-col gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
