@@ -124,29 +124,30 @@ const Home = () => {
     const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const isOverdue = dueDay < today;
-    const daysUntilDue = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const isDueToday = dueDay.getTime() === today.getTime();
+    const daysUntilDue = Math.ceil((dueDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
-    return { isOverdue, daysUntilDue };
+    return { isOverdue, daysUntilDue, isDueToday };
   };
 
   // Calculate summary statistics
   const getCardStats = () => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
     const overdue = cards.filter(card => {
-      const due = new Date(card.due_date);
-      const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
-      return dueDay < today;
+      const { isOverdue } = getDueDateStatus(card.due_date);
+      return isOverdue;
     }).length;
+    
     const dueToday = cards.filter(card => {
-      const due = new Date(card.due_date);
-      const today = new Date();
-      return due.toDateString() === today.toDateString();
+      const { isDueToday } = getDueDateStatus(card.due_date);
+      return isDueToday;
     }).length;
+    
     const dueSoon = cards.filter(card => {
-      const due = new Date(card.due_date);
-      const daysUntil = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      return daysUntil > 0 && daysUntil <= 3;
+      const { isOverdue, daysUntilDue, isDueToday } = getDueDateStatus(card.due_date);
+      return !isOverdue && !isDueToday && daysUntilDue > 0 && daysUntilDue <= 3;
     }).length;
     
     return { overdue, dueToday, dueSoon, total: cards.length };
@@ -291,8 +292,7 @@ const Home = () => {
         {/* Filter cards to show only overdue and due today */}
         {(() => {
           const cardsToStudy = cards.filter(card => {
-            const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
-            const isDueToday = daysUntilDue === 0 && !isOverdue;
+            const { isOverdue, isDueToday } = getDueDateStatus(card.due_date);
             return isOverdue || isDueToday;
           });
 
@@ -300,8 +300,7 @@ const Home = () => {
             <div className="w-full space-y-6">
               <div className="space-y-6">
                 {cardsToStudy.map((card, index) => {
-                const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
-                const isDueToday = daysUntilDue === 0 && !isOverdue;
+                const { isOverdue, isDueToday, daysUntilDue } = getDueDateStatus(card.due_date);
                 
                 return (
                   <div 
