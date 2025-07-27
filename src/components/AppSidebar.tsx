@@ -132,18 +132,21 @@ export function AppSidebar({
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-14" : "w-64"}>
+    <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} border-r bg-card/50 backdrop-blur-sm`}>
       
-      <SidebarContent>
-        <SidebarGroup>
-          <div className="flex items-center justify-between">
-            <SidebarGroupLabel>Study Library</SidebarGroupLabel>
+      <SidebarContent className="px-3 py-4">
+        <SidebarGroup className="space-y-4">
+          <div className="flex items-center justify-between px-2">
+            <SidebarGroupLabel className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
+              Study Library
+            </SidebarGroupLabel>
             {!isCollapsed && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0"
+                className="h-7 w-7 p-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
                 onClick={() => setShowNewFolder(true)}
+                title="Add new folder"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -154,13 +157,13 @@ export function AppSidebar({
             <SidebarMenu>
               {/* New Folder Input */}
               {showNewFolder && !isCollapsed && (
-                <SidebarMenuItem>
+                <SidebarMenuItem className="mb-2">
                   <div className="px-2 py-1">
                     <Input
                       value={newFolderName}
                       onChange={(e) => setNewFolderName(e.target.value)}
                       placeholder="Folder name..."
-                      className="h-8 text-sm"
+                      className="h-8 text-sm border-primary/30 focus:border-primary"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleCreateFolder();
                         if (e.key === 'Escape') setShowNewFolder(false);
@@ -175,47 +178,47 @@ export function AppSidebar({
               {/* Folders */}
               {folders.map((folder) => (
                 <div key={folder.id}>
-                  <SidebarMenuItem>
-                    <div className="flex items-center w-full">
+                  <SidebarMenuItem className="mb-2">
+                    <div className="flex items-center w-full group">
                       <SidebarMenuButton
-                        className={`flex-1 ${
+                        className={`flex-1 rounded-lg transition-all duration-200 ${
                           currentFolderId === folder.id 
-                            ? "bg-accent text-accent-foreground" 
-                            : "hover:bg-accent/50"
+                            ? "bg-primary/10 text-primary border border-primary/20 shadow-sm" 
+                            : "hover:bg-muted/60 hover:shadow-sm"
                         }`}
                         onClick={() => {
                           onToggleFolder(folder.id);
                           onFolderSelect(folder.id);
                         }}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center py-1">
                           {!isCollapsed && (
                             <div
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onToggleFolder(folder.id);
                               }}
-                              className="mr-1 cursor-pointer"
+                              className="mr-2 cursor-pointer p-0.5 rounded hover:bg-accent/50 transition-colors"
                             >
                               {folder.isExpanded ? (
-                                <ChevronDown className="h-3 w-3" />
+                                <ChevronDown className="h-3 w-3 text-muted-foreground" />
                               ) : (
-                                <ChevronRight className="h-3 w-3" />
+                                <ChevronRight className="h-3 w-3 text-muted-foreground" />
                               )}
                             </div>
                           )}
                           {folder.isExpanded ? (
-                            <FolderOpen className="h-4 w-4 mr-2" />
+                            <FolderOpen className="h-4 w-4 mr-3 text-primary" />
                           ) : (
-                            <Folder className="h-4 w-4 mr-2" />
+                            <Folder className="h-4 w-4 mr-3 text-muted-foreground" />
                           )}
                           {!isCollapsed && (
-                            <span className="flex-1">
+                            <span className="flex-1 font-medium text-sm">
                               {editingFolder === folder.id ? (
                                 <Input
                                   value={editName}
                                   onChange={(e) => setEditName(e.target.value)}
-                                  className="h-6 text-sm"
+                                  className="h-7 text-sm border-primary/30 focus:border-primary"
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') handleSaveEdit();
                                     if (e.key === 'Escape') handleCancelEdit();
@@ -234,26 +237,32 @@ export function AppSidebar({
                       {!isCollapsed && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-7 w-7 p-0 ml-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent"
+                            >
                               <MoreHorizontal className="h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem
                               onClick={() => setShowNewDeck(folder.id)}
+                              className="cursor-pointer"
                             >
                               <Plus className="h-4 w-4 mr-2" />
                               Add Deck
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleStartEdit('folder', folder.id, folder.name)}
+                              className="cursor-pointer"
                             >
                               <Edit className="h-4 w-4 mr-2" />
                               Rename
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => onDeleteFolder(folder.id)}
-                              className="text-destructive"
+                              className="text-destructive cursor-pointer focus:text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Delete
@@ -266,13 +275,13 @@ export function AppSidebar({
 
                   {/* New Deck Input */}
                   {showNewDeck === folder.id && !isCollapsed && (
-                    <SidebarMenuItem>
-                      <div className="pl-6 pr-2 py-1">
+                    <SidebarMenuItem className="ml-6 mb-2">
+                      <div className="px-2 py-1">
                         <Input
                           value={newDeckName}
                           onChange={(e) => setNewDeckName(e.target.value)}
                           placeholder="Deck name..."
-                          className="h-8 text-sm"
+                          className="h-8 text-sm border-primary/30 focus:border-primary"
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleCreateDeck(folder.id);
                             if (e.key === 'Escape') setShowNewDeck(null);
@@ -286,60 +295,69 @@ export function AppSidebar({
 
                   {/* Decks */}
                   {folder.isExpanded && folder.decks.map((deck) => (
-                    <SidebarMenuItem key={deck.id}>
-                      <div className="flex items-center w-full pl-4">
+                    <SidebarMenuItem key={deck.id} className="ml-6 mb-1">
+                      <div className="flex items-center w-full group">
                         <SidebarMenuButton
-                          className={`flex-1 ${
+                          className={`flex-1 rounded-md transition-all duration-200 ${
                             currentDeckId === deck.id 
-                              ? "bg-primary text-primary-foreground" 
-                              : "hover:bg-accent/50"
+                              ? "bg-primary text-primary-foreground shadow-sm" 
+                              : "hover:bg-muted/40 hover:shadow-sm"
                           }`}
                           onClick={() => onDeckSelect(folder.id, deck.id)}
                         >
-                          <BookOpen className="h-4 w-4 mr-2" />
-                          {!isCollapsed && (
-                            <div className="flex items-center justify-between w-full">
-                              <span>
-                                {editingDeck === deck.id ? (
-                                  <Input
-                                    value={editName}
-                                    onChange={(e) => setEditName(e.target.value)}
-                                    className="h-6 text-sm"
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') handleSaveEdit();
-                                      if (e.key === 'Escape') handleCancelEdit();
-                                    }}
-                                    onBlur={handleSaveEdit}
-                                    autoFocus
-                                  />
-                                ) : (
-                                  deck.name
-                                )}
-                              </span>
-                              <span className="text-xs opacity-60 ml-2">
+                          <div className="flex items-center justify-between w-full py-1">
+                            <div className="flex items-center">
+                              <BookOpen className="h-4 w-4 mr-3 text-current" />
+                              {!isCollapsed && (
+                                <span className="text-sm font-medium">
+                                  {editingDeck === deck.id ? (
+                                    <Input
+                                      value={editName}
+                                      onChange={(e) => setEditName(e.target.value)}
+                                      className="h-6 text-sm border-primary/30 focus:border-primary"
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleSaveEdit();
+                                        if (e.key === 'Escape') handleCancelEdit();
+                                      }}
+                                      onBlur={handleSaveEdit}
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    deck.name
+                                  )}
+                                </span>
+                              )}
+                            </div>
+                            {!isCollapsed && (
+                              <span className="text-xs bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-full font-medium ml-2">
                                 {deck.cardCount}
                               </span>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </SidebarMenuButton>
                         
                         {!isCollapsed && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 w-7 p-0 ml-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent"
+                              >
                                 <MoreHorizontal className="h-3 w-3" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className="w-48">
                               <DropdownMenuItem
                                 onClick={() => handleStartEdit('deck', deck.id, deck.name)}
+                                className="cursor-pointer"
                               >
                                 <Edit className="h-4 w-4 mr-2" />
                                 Rename
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => onDeleteDeck(folder.id, deck.id)}
-                                className="text-destructive"
+                                className="text-destructive cursor-pointer focus:text-destructive"
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Delete
