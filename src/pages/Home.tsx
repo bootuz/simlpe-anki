@@ -120,11 +120,16 @@ const Home = () => {
   const getDueDateStatus = (dueDate: string) => {
     const due = new Date(dueDate);
     const now = new Date();
-    // Set both dates to start of day for accurate comparison
+    
+    // For overdue check, use full datetime comparison
+    const isOverdue = due < now;
+    
+    // For "due today" check, compare only dates
     const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const isOverdue = dueDay < today;
     const isDueToday = dueDay.getTime() === today.getTime();
+    
+    // Days until due calculation using start of day
     const daysUntilDue = Math.ceil((dueDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
     return { isOverdue, daysUntilDue, isDueToday };
