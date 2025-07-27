@@ -150,7 +150,7 @@ const Home = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
             <Calendar className="h-8 w-8 text-primary" />
@@ -181,42 +181,42 @@ const Home = () => {
             </div>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="grid gap-4">
+          <div className="w-full space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {cards.map((card, index) => {
               const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
               
               return (
                 <div 
                   key={card.id} 
-                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
+                  className={`group relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in h-full flex flex-col ${
                     isOverdue 
                       ? 'ring-2 ring-destructive/20 bg-destructive/5' 
                       : ''
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="flex items-start justify-between gap-6">
+                  <div className="flex flex-col h-full gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
                           <FolderOpen className="h-3 w-3" />
-                          <span>{card.folder_name}</span>
+                          <span className="truncate">{card.folder_name}</span>
                           <span className="text-muted-foreground/60">/</span>
                           <BookOpen className="h-3 w-3" />
-                          <span>{card.deck_name}</span>
+                          <span className="truncate">{card.deck_name}</span>
                         </div>
                       </div>
                       <h3 className="font-semibold text-lg text-card-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors">
                         {card.front}
                       </h3>
-                      <p className="text-muted-foreground line-clamp-2 leading-relaxed">
+                      <p className="text-muted-foreground line-clamp-3 leading-relaxed text-sm">
                         {card.back}
                       </p>
                     </div>
-                    
-                    <div className="flex flex-col items-end gap-3 flex-shrink-0">
-                      <div className={`text-xs px-3 py-2 rounded-full font-medium shadow-sm ${
+
+                    <div className="flex flex-col items-end gap-3 mt-auto">
+                      <div className={`text-xs px-3 py-2 rounded-full font-medium shadow-sm whitespace-nowrap ${
                         isOverdue 
                           ? 'bg-destructive/10 text-destructive border border-destructive/20' 
                           : daysUntilDue === 0 
