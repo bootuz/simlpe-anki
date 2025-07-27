@@ -5,7 +5,27 @@ import { AddCardForm } from "@/components/AddCardForm";
 import { AppSidebar, StudyFolder, Deck } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ChevronLeft, ChevronRight, BookOpen, Folder, Plus, LogOut } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  BookOpen, 
+  Folder, 
+  Plus, 
+  LogOut, 
+  Search, 
+  Filter, 
+  LayoutGrid, 
+  List, 
+  Calendar,
+  Clock,
+  Trash2,
+  CheckSquare
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +52,14 @@ const Index = () => {
   const [currentDeckId, setCurrentDeckId] = useState<string>("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
+  
+  // Modern UI state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterState, setFilterState] = useState<string>("all");
+  const [filterDueDate, setFilterDueDate] = useState<string>("all");
+  const [layoutMode, setLayoutMode] = useState<"grid" | "list">("list");
+  const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
+  const [showAddForm, setShowAddForm] = useState(false);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -495,6 +523,127 @@ const Index = () => {
     ));
   };
 
+  // Modern UI functions
+  const filteredCards = currentDeckCards.filter(card => {
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      if (!card.front.toLowerCase().includes(query) && 
+          !card.back.toLowerCase().includes(query)) {
+        return false;
+      }
+    }
+
+    // State filter
+    if (filterState !== "all") {
+      if (!card.state || card.state.toLowerCase() !== filterState.toLowerCase()) {
+        return false;
+      }
+    }
+
+    // Due date filter
+    if (filterDueDate !== "all" && card.due_date) {
+      const now = new Date();
+      const dueDate = new Date(card.due_date);
+      const diffTime = dueDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      switch (filterDueDate) {
+        case "overdue":
+          if (diffDays >= 0) return false;
+          break;
+        case "today":
+          if (diffDays !== 0) return false;
+          break;
+        case "week":
+          if (diffDays < 0 || diffDays > 7) return false;
+          break;
+        case "month":
+          if (diffDays < 0 || diffDays > 30) return false;
+          break;
+      }
+    }
+
+    return true;
+  });
+
+  const handleCardSelection = (cardId: string) => {
+    const newSelected = new Set(selectedCards);
+    if (newSelected.has(cardId)) {
+      newSelected.delete(cardId);
+    } else {
+      newSelected.add(cardId);
+    }
+    setSelectedCards(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedCards.size === 0) return;
+    
+    try {
+      const cardIds = Array.from(selectedCards);
+      
+      // Delete FSRS data first
+      await supabase.from("card_fsrs").delete().in("card_id", cardIds);
+      
+      const { error } = await supabase
+        .from("cards")
+        .delete()
+        .in("id", cardIds);
+
+      if (error) throw error;
+
+      setCards(cards.filter(card => !selectedCards.has(card.id)));
+      setSelectedCards(new Set());
+      
+      toast({
+        title: "Success",
+        description: `${cardIds.length} cards deleted successfully`
+      });
+    } catch (error) {
+      console.error("Error deleting cards:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete cards",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStateVariant = (state?: string) => {
+    switch (state) {
+      case "New": return "default";
+      case "Learning": return "secondary";
+      case "Review": return "outline";
+      case "Relearning": return "destructive";
+      default: return "secondary";
+    }
+  };
+
+  const getStateBadgeColor = (state?: string) => {
+    switch (state) {
+      case "New": return "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30";
+      case "Learning": return "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30";
+      case "Review": return "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30";
+      case "Relearning": return "bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/30";
+      default: return "bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30";
+    }
+  };
+
+  const getDueDateColor = (dueDate?: string) => {
+    if (!dueDate) return "text-muted-foreground";
+    
+    const now = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return "text-red-500";
+    if (diffDays === 0) return "text-orange-500";
+    if (diffDays <= 3) return "text-yellow-500";
+    return "text-muted-foreground";
+  };
+
   return (
     <>
       <AppSidebar
@@ -590,65 +739,212 @@ const Index = () => {
                   </p>
                 </div>
 
-                {/* Cards List */}
-                <div className="max-w-4xl mx-auto space-y-4">
-                  {currentDeckCards.length === 0 ? (
-                    <div className="text-center py-12">
-                      <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold mb-2">No cards yet</h3>
-                      <p className="text-muted-foreground mb-6">Create your first flashcard to start learning</p>
-                      <AddCardForm onAdd={addCard} />
-                    </div>
-                  ) : (
-                    <>
-                      {/* Add new card form at the top */}
-                      <div className="mb-6">
-                        <AddCardForm onAdd={addCard} />
-                      </div>
-                      
-                      {currentDeckCards
-                        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-                        .map((card) => (
-                           <div key={card.id} className="p-4 rounded-lg border bg-card border-border transition-all duration-200 hover:shadow-md">
-                             <div className="flex items-start justify-between gap-4">
-                               <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <h3 className="font-medium text-card-foreground truncate">{card.front}</h3>
-                                    {card.state === 'New' && (
-                                      <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-600 dark:text-green-400 rounded-full border border-green-500/30 shrink-0">
-                                        New
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{card.back}</p>
-                                  {card.due_date && (
-                                    <div className="text-xs text-muted-foreground">
-                                      Due: {new Date(card.due_date).toLocaleDateString()}
-                                    </div>
-                                  )}
-                               </div>
-                              <div className="flex gap-1 flex-shrink-0">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => editCard(card.id, card.front, card.back)}
-                                >
-                                  Edit
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => deleteCard(card.id)}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
+                {currentDeckCards.length === 0 ? (
+                  <div className="text-center py-12">
+                    <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">No cards yet</h3>
+                    <p className="text-muted-foreground mb-6">Create your first flashcard to start learning</p>
+                    <Button 
+                      onClick={() => setShowAddForm(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add Your First Card
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Search and Filter Bar */}
+                    <div className="bg-card rounded-lg border p-4 mb-6">
+                      <div className="flex flex-col lg:flex-row gap-4">
+                        {/* Search */}
+                        <div className="flex-1">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Search cards..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-10"
+                            />
                           </div>
-                        ))}
-                    </>
-                  )}
-                </div>
+                        </div>
+
+                        {/* Filters */}
+                        <div className="flex flex-wrap gap-3">
+                          <Select value={filterState} onValueChange={setFilterState}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue placeholder="State" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All States</SelectItem>
+                              <SelectItem value="new">New</SelectItem>
+                              <SelectItem value="learning">Learning</SelectItem>
+                              <SelectItem value="review">Review</SelectItem>
+                              <SelectItem value="relearning">Relearning</SelectItem>
+                            </SelectContent>
+                          </Select>
+
+                          <Select value={filterDueDate} onValueChange={setFilterDueDate}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue placeholder="Due Date" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All Cards</SelectItem>
+                              <SelectItem value="overdue">Overdue</SelectItem>
+                              <SelectItem value="today">Due Today</SelectItem>
+                              <SelectItem value="week">This Week</SelectItem>
+                              <SelectItem value="month">This Month</SelectItem>
+                            </SelectContent>
+                          </Select>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setLayoutMode(layoutMode === "list" ? "grid" : "list")}
+                            className="flex items-center gap-2"
+                          >
+                            {layoutMode === "list" ? <LayoutGrid className="h-4 w-4" /> : <List className="h-4 w-4" />}
+                            {layoutMode === "list" ? "Grid" : "List"}
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Bulk Actions */}
+                      {selectedCards.size > 0 && (
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                          <span className="text-sm text-muted-foreground">
+                            {selectedCards.size} card{selectedCards.size > 1 ? 's' : ''} selected
+                          </span>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleBulkDelete}
+                            className="flex items-center gap-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete Selected
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Add Card Button */}
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-lg font-semibold">
+                        Cards ({filteredCards.length})
+                      </h3>
+                      <Button 
+                        onClick={() => setShowAddForm(!showAddForm)}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Card
+                      </Button>
+                    </div>
+
+                    {/* Add Card Form */}
+                    {showAddForm && (
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle>Add New Card</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <AddCardForm 
+                            onAdd={(front, back) => {
+                              addCard(front, back);
+                              setShowAddForm(false);
+                            }} 
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Cards Display */}
+                    {filteredCards.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Filter className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold mb-2">No cards match your filters</h3>
+                        <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+                      </div>
+                    ) : (
+                      <div className={
+                        layoutMode === "grid" 
+                          ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" 
+                          : "space-y-4"
+                      }>
+                        {filteredCards
+                          .sort((a, b) => {
+                            if (a.due_date && b.due_date) {
+                              return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+                            }
+                            return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                          })
+                          .map((card) => (
+                            <Card 
+                              key={card.id} 
+                              className={`
+                                transition-all duration-200 hover:shadow-md cursor-pointer
+                                ${selectedCards.has(card.id) ? 'ring-2 ring-primary' : ''}
+                              `}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex items-start gap-3 flex-1">
+                                    <Checkbox
+                                      checked={selectedCards.has(card.id)}
+                                      onCheckedChange={() => handleCardSelection(card.id)}
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <h3 className="font-medium text-card-foreground truncate">
+                                          {card.front}
+                                        </h3>
+                                        {card.state && (
+                                          <Badge 
+                                            variant="secondary"
+                                            className={`text-xs ${getStateBadgeColor(card.state)}`}
+                                          >
+                                            {card.state}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                        {card.back}
+                                      </p>
+                                      {card.due_date && (
+                                        <div className={`text-xs flex items-center gap-1 ${getDueDateColor(card.due_date)}`}>
+                                          <Clock className="h-3 w-3" />
+                                          Due: {new Date(card.due_date).toLocaleDateString()}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-1 flex-shrink-0">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => editCard(card.id, card.front, card.back)}
+                                    >
+                                      Edit
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => deleteCard(card.id)}
+                                      className="text-destructive hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </>
             )}
           </div>
