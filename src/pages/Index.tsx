@@ -17,6 +17,7 @@ interface Card {
   deck_id: string;
   created_at: string;
   updated_at: string;
+  state?: string; // FSRS state
 }
 
 const Index = () => {
@@ -65,10 +66,15 @@ const Index = () => {
 
       if (decksError) throw decksError;
 
-      // Load cards
+      // Load cards with FSRS state
       const { data: cardsData, error: cardsError } = await supabase
         .from("cards")
-        .select("*")
+        .select(`
+          *,
+          card_fsrs!inner (
+            state
+          )
+        `)
         .order("created_at");
 
       if (cardsError) throw cardsError;
@@ -87,8 +93,19 @@ const Index = () => {
           }))
       }));
 
+      // Transform cards data to include FSRS state
+      const transformedCards: Card[] = cardsData.map(card => ({
+        id: card.id,
+        front: card.front,
+        back: card.back,
+        deck_id: card.deck_id,
+        created_at: card.created_at,
+        updated_at: card.updated_at,
+        state: card.card_fsrs?.state
+      }));
+
       setFolders(transformedFolders);
-      setCards(cardsData);
+      setCards(transformedCards);
       
       // Set initial selection
       if (transformedFolders.length > 0) {
@@ -133,28 +150,14 @@ const Index = () => {
 
       if (error) throw error;
 
-      // Create initial FSRS data for the card
-      const { error: fsrsError } = await supabase
-        .from("card_fsrs")
-        .insert({
-          card_id: data.id,
-          user_id: user.id,
-          state: 'New',
-          due_date: new Date().toISOString(),
-          stability: 0,
-          difficulty: 0,
-          elapsed_days: 0,
-          scheduled_days: 0,
-          reps: 0,
-          lapses: 0
-        });
+      // The trigger will automatically create FSRS data with 'New' state
+      // So we don't need to manually insert it anymore
+      const newCard: Card = {
+        ...data,
+        state: 'New' // New cards will have 'New' state
+      };
 
-      if (fsrsError) {
-        console.error("Error creating FSRS data:", fsrsError);
-        // Don't throw here, card creation succeeded
-      }
-
-      setCards([...cards, data]);
+      setCards([...cards, newCard]);
       toast({
         title: "Success",
         description: "Card added successfully"
@@ -602,12 +605,19 @@ const Index = () => {
                       {currentDeckCards
                         .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
                         .map((card) => (
-                          <div key={card.id} className="p-4 rounded-lg border bg-card border-border transition-all duration-200 hover:shadow-md">
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-medium text-card-foreground mb-2 truncate">{card.front}</h3>
-                                <p className="text-sm text-muted-foreground line-clamp-2">{card.back}</p>
-                              </div>
+                           <div key={card.id} className="p-4 rounded-lg border bg-card border-border transition-all duration-200 hover:shadow-md">
+                             <div className="flex items-start justify-between gap-4">
+                               <div className="flex-1 min-w-0">
+                                 <div className="flex items-center gap-2 mb-2">
+                                   <h3 className="font-medium text-card-foreground truncate">{card.front}</h3>
+                                   {card.state === 'New' && (
+                                     <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-600 dark:text-green-400 rounded-full border border-green-500/30 shrink-0">
+                                       New
+                                     </span>
+                                   )}
+                                 </div>
+                                 <p className="text-sm text-muted-foreground line-clamp-2">{card.back}</p>
+                               </div>
                               <div className="flex gap-1 flex-shrink-0">
                                 <Button
                                   size="sm"

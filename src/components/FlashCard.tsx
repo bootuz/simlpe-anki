@@ -7,11 +7,12 @@ interface FlashCardProps {
   id: string;
   front: string;
   back: string;
+  state?: string; // FSRS state
   onDelete: (id: string) => void;
   onEdit: (id: string, front: string, back: string) => void;
 }
 
-export const FlashCard = ({ id, front, back, onDelete, onEdit }: FlashCardProps) => {
+export const FlashCard = ({ id, front, back, state, onDelete, onEdit }: FlashCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editFront, setEditFront] = useState(front);
@@ -49,7 +50,14 @@ export const FlashCard = ({ id, front, back, onDelete, onEdit }: FlashCardProps)
         }`}>
           <div className="p-6 h-full flex flex-col">
             <div className="flex justify-between items-start mb-4">
-              <span className="text-sm opacity-80">Front</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm opacity-80">Front</span>
+                {state === 'New' && (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-300 rounded-full border border-green-500/30">
+                    New
+                  </span>
+                )}
+              </div>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
