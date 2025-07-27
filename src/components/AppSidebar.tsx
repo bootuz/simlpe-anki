@@ -300,7 +300,7 @@ export function AppSidebar({
                         <SidebarMenuButton
                           className={`flex-1 rounded-md transition-all duration-200 min-h-[32px] ${
                             currentDeckId === deck.id 
-                              ? "bg-primary text-primary-foreground shadow-sm" 
+                              ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground" 
                               : "hover:bg-muted/40 hover:shadow-sm"
                           }`}
                           onClick={() => onDeckSelect(folder.id, deck.id)}
