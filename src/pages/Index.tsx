@@ -11,6 +11,10 @@ interface Card {
   front: string;
   back: string;
   deckId: string;
+  dueDate: Date;
+  interval: number;
+  repetitions: number;
+  easeFactor: number;
 }
 
 const Index = () => {
@@ -51,13 +55,21 @@ const Index = () => {
       id: "1",
       front: "What is React?",
       back: "A JavaScript library for building user interfaces, particularly web applications with interactive UIs.",
-      deckId: "1"
+      deckId: "1",
+      dueDate: new Date(),
+      interval: 1,
+      repetitions: 0,
+      easeFactor: 2.5
     },
     {
       id: "2", 
       front: "What does JSX stand for?",
       back: "JavaScript XML - a syntax extension for JavaScript that allows you to write HTML-like elements in React.",
-      deckId: "1"
+      deckId: "1",
+      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+      interval: 1,
+      repetitions: 0,
+      easeFactor: 2.5
     }
   ]);
 
@@ -89,7 +101,11 @@ const Index = () => {
       id: Date.now().toString(),
       front,
       back,
-      deckId: currentDeckId
+      deckId: currentDeckId,
+      dueDate: new Date(),
+      interval: 1,
+      repetitions: 0,
+      easeFactor: 2.5
     };
     setCards([...cards, newCard]);
   };
@@ -291,99 +307,81 @@ const Index = () => {
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-bold mb-2">{currentDeck.name}</h2>
                   <p className="text-muted-foreground">
-                    {currentDeckCards.length === 0 ? (
-                      "No cards yet - create your first one!"
-                    ) : showAddForm ? (
-                      `Add a new card to your deck of ${currentDeckCards.length}`
-                    ) : (
-                      `Card ${currentIndex + 1} of ${currentDeckCards.length}`
-                    )}
+                    Cards ready for review (sorted by due date)
                   </p>
                 </div>
 
-                {/* Main Card Display */}
-                <div className="flex flex-col items-center space-y-6">
-                  <div className="w-full max-w-md">
-                    {currentDeckCards.length === 0 ? (
+                {/* Cards List sorted by due date */}
+                <div className="max-w-4xl mx-auto space-y-4">
+                  {currentDeckCards.length === 0 ? (
+                    <div className="text-center py-12">
+                      <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">No cards yet</h3>
+                      <p className="text-muted-foreground mb-6">Create your first flashcard to start learning</p>
                       <AddCardForm onAdd={addCard} />
-                    ) : showAddForm ? (
-                      <AddCardForm onAdd={addCard} />
-                    ) : (
-                      <FlashCard
-                        key={currentDeckCards[currentIndex].id}
-                        id={currentDeckCards[currentIndex].id}
-                        front={currentDeckCards[currentIndex].front}
-                        back={currentDeckCards[currentIndex].back}
-                        onDelete={deleteCard}
-                        onEdit={editCard}
-                      />
-                    )}
-                  </div>
-
-                  {/* Navigation */}
-                  {currentDeckCards.length > 0 && (
-                    <div className="flex items-center gap-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={prevCard}
-                        disabled={currentIndex === 0}
-                        className="flex items-center gap-2"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                        Previous
-                      </Button>
-
-                      <div className="flex gap-1">
-                        {currentDeckCards.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setCurrentIndex(index)}
-                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                              index === currentIndex 
-                                ? 'bg-primary scale-125' 
-                                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                            }`}
-                          />
-                        ))}
-                        <button
-                          onClick={() => setCurrentIndex(currentDeckCards.length)}
-                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                            showAddForm
-                              ? 'bg-primary scale-125' 
-                              : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                          }`}
-                        />
-                      </div>
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={nextCard}
-                        disabled={currentIndex >= currentDeckCards.length}
-                        className="flex items-center gap-2"
-                      >
-                        Next
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
                     </div>
+                  ) : (
+                    <>
+                      {currentDeckCards
+                        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+                        .map((card) => {
+                          const isOverdue = new Date(card.dueDate) <= new Date();
+                          const daysUntilDue = Math.ceil((new Date(card.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                          
+                          return (
+                            <div key={card.id} className={`p-4 rounded-lg border transition-all duration-200 hover:shadow-md ${
+                              isOverdue 
+                                ? 'bg-destructive/5 border-destructive/20' 
+                                : 'bg-card border-border'
+                            }`}>
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-medium text-card-foreground mb-2 truncate">{card.front}</h3>
+                                  <p className="text-sm text-muted-foreground line-clamp-2">{card.back}</p>
+                                </div>
+                                <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                                  <div className={`text-xs px-2 py-1 rounded-full ${
+                                    isOverdue 
+                                      ? 'bg-destructive/10 text-destructive' 
+                                      : daysUntilDue === 0 
+                                        ? 'bg-warning/10 text-warning' 
+                                        : 'bg-muted text-muted-foreground'
+                                  }`}>
+                                    {isOverdue 
+                                      ? 'Overdue' 
+                                      : daysUntilDue === 0 
+                                        ? 'Due today' 
+                                        : `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`
+                                    }
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => editCard(card.id, card.front, card.back)}
+                                    >
+                                      Edit
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => deleteCard(card.id)}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      
+                      {/* Add new card button */}
+                      <div className="pt-4">
+                        <AddCardForm onAdd={addCard} />
+                      </div>
+                    </>
                   )}
-
-                  {/* Quick Add Button */}
-                  {currentDeckCards.length > 0 && !showAddForm && (
-                    <Button
-                      onClick={() => setCurrentIndex(currentDeckCards.length)}
-                      variant="outline"
-                      className="mt-4"
-                    >
-                      Add New Card
-                    </Button>
-                  )}
-                </div>
-
-                {/* Instructions */}
-                <div className="text-center mt-12 text-sm text-muted-foreground">
-                  <p>💡 Click on any card to flip it and reveal the answer</p>
                 </div>
               </>
             )}
