@@ -322,6 +322,11 @@ const Index = () => {
                     </div>
                   ) : (
                     <>
+                      {/* Add new card form at the top */}
+                      <div className="mb-6">
+                        <AddCardForm onAdd={addCard} />
+                      </div>
+                      
                       {currentDeckCards
                         .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
                         .map((card) => {
@@ -375,11 +380,6 @@ const Index = () => {
                             </div>
                           );
                         })}
-                      
-                      {/* Add new card button */}
-                      <div className="pt-4">
-                        <AddCardForm onAdd={addCard} />
-                      </div>
                     </>
                   )}
                 </div>
