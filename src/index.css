@@ -135,4 +135,13 @@ All colors MUST be HSL.
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
+  
+  @keyframes spoilerShimmer {
+    0% {
+      background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+    }
+    100% {
+      background-position: 8px 8px, 8px 12px, 12px 4px, 4px 8px;
+    }
+  }
 }
