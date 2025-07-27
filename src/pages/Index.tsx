@@ -662,11 +662,11 @@ const Index = () => {
 
   const getStateBadgeColor = (state?: string) => {
     switch (state) {
-      case "New": return "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30";
-      case "Learning": return "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30";
-      case "Review": return "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30";
-      case "Relearning": return "bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/30";
-      default: return "bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30";
+      case "New": return "bg-[hsl(var(--card-new)_/_0.2)] text-[hsl(var(--card-new-foreground))] border-[hsl(var(--card-new)_/_0.3)]";
+      case "Learning": return "bg-[hsl(var(--card-learning)_/_0.2)] text-[hsl(var(--card-learning-foreground))] border-[hsl(var(--card-learning)_/_0.3)]";
+      case "Review": return "bg-[hsl(var(--card-review)_/_0.2)] text-[hsl(var(--card-review-foreground))] border-[hsl(var(--card-review)_/_0.3)]";
+      case "Relearning": return "bg-[hsl(var(--card-relearning)_/_0.2)] text-[hsl(var(--card-relearning-foreground))] border-[hsl(var(--card-relearning)_/_0.3)]";
+      default: return "bg-muted/20 text-muted-foreground border-muted/30";
     }
   };
 
