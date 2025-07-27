@@ -47,7 +47,7 @@ export const AddCardForm = ({ onAdd }: AddCardFormProps) => {
       <div className="p-4 rounded-lg border bg-card border-border transition-all duration-200 hover:shadow-md">
         <h3 className="font-medium text-card-foreground mb-4">Create New Flashcard</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="front" className="text-sm font-medium">Front</Label>
               <Textarea
