@@ -356,10 +356,13 @@ const Home = () => {
                         </Button>
                         
                         <div className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
-                          {new Date(card.due_date).toLocaleDateString('en-US', { 
+                          {new Date(card.due_date).toLocaleString('en-US', { 
                             month: 'short', 
                             day: 'numeric',
-                            year: new Date(card.due_date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                            year: new Date(card.due_date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
                           })}
                         </div>
                       </div>
