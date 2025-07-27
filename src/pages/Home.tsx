@@ -251,10 +251,6 @@ const Home = () => {
                   Study Today ({stats.dueToday})
                 </Button>
               )}
-              <Button variant="outline" onClick={() => navigate("/manage")}>
-                <FolderOpen className="h-4 w-4 mr-2" />
-                Manage Decks
-              </Button>
             </div>
           </div>
         )}
