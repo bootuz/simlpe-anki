@@ -819,9 +819,22 @@ const Index = () => {
 
                     {/* Add Card Button */}
                     <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-semibold">
-                        Cards ({filteredCards.length})
-                      </h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold">
+                          Cards ({filteredCards.length})
+                        </h3>
+                        {selectedCards.size > 0 && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleBulkDelete}
+                            className="flex items-center gap-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete ({selectedCards.size})
+                          </Button>
+                        )}
+                      </div>
                       <Button 
                         onClick={() => setShowAddForm(!showAddForm)}
                         className="flex items-center gap-2"
