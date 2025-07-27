@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FlashCard } from "@/components/FlashCard";
-import { AddCardForm } from "@/components/AddCardForm";
 import { AppSidebar, StudyFolder, Deck } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -56,7 +55,9 @@ const Index = () => {
   const [filterState, setFilterState] = useState<string>("all");
   const [filterDueDate, setFilterDueDate] = useState<string>("all");
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [isAddingCard, setIsAddingCard] = useState(false);
+  const [newCardFront, setNewCardFront] = useState("");
+  const [newCardBack, setNewCardBack] = useState("");
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -160,6 +161,48 @@ const Index = () => {
   // Get current deck and folder info
   const currentFolder = folders.find(f => f.id === currentFolderId);
   const currentDeck = currentFolder?.decks.find(d => d.id === currentDeckId);
+
+  const handleAddCard = async () => {
+    if (!user || !newCardFront.trim() || !newCardBack.trim()) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("cards")
+        .insert({
+          front: newCardFront.trim(),
+          back: newCardBack.trim(),
+          deck_id: currentDeckId,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // The trigger will automatically create FSRS data with 'New' state
+      const newCard: Card = {
+        ...data,
+        state: 'New'
+      };
+
+      setCards([...cards, newCard]);
+      setNewCardFront("");
+      setNewCardBack("");
+      setIsAddingCard(false);
+      
+      toast({
+        title: "Success",
+        description: "Card added successfully"
+      });
+    } catch (error) {
+      console.error("Error adding card:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add card",
+        variant: "destructive"
+      });
+    }
+  };
 
   const addCard = async (front: string, back: string) => {
     if (!user) return;
@@ -742,7 +785,7 @@ const Index = () => {
                     <h3 className="text-xl font-semibold mb-2">No cards yet</h3>
                     <p className="text-muted-foreground mb-6">Create your first flashcard to start learning</p>
                     <Button 
-                      onClick={() => setShowAddForm(true)}
+                      onClick={() => setIsAddingCard(true)}
                       className="flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
@@ -820,22 +863,6 @@ const Index = () => {
                       </div>
                     </div>
 
-                    {/* Add Card Form */}
-                    {showAddForm && (
-                      <Card className="mb-6">
-                        <CardHeader>
-                          <CardTitle>Add New Card</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <AddCardForm 
-                            onAdd={(front, back) => {
-                              addCard(front, back);
-                              setShowAddForm(false);
-                            }} 
-                          />
-                        </CardContent>
-                      </Card>
-                    )}
 
                     {/* Cards Display */}
                     {filteredCards.length === 0 ? (
@@ -846,16 +873,56 @@ const Index = () => {
                       </div>
                     ) : (
                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                         {/* Add Card Button - Always first */}
-                         <Card 
-                           className="transition-all duration-200 hover:shadow-md cursor-pointer border-dashed border-2 hover:border-primary/50"
-                           onClick={() => setShowAddForm(true)}
-                         >
-                           <CardContent className="p-4 h-full flex flex-col items-center justify-center min-h-[120px]">
-                             <Plus className="h-8 w-8 text-muted-foreground mb-2" />
-                             <span className="text-sm font-medium text-muted-foreground">Add New Card</span>
-                           </CardContent>
-                         </Card>
+                         {/* Add Card Button/Form - Always first */}
+                         {isAddingCard ? (
+                           <Card className="transition-all duration-200 border-2 border-primary/50">
+                             <CardContent className="p-4">
+                               <div className="space-y-3">
+                                 <Input
+                                   placeholder="Front of card"
+                                   value={newCardFront}
+                                   onChange={(e) => setNewCardFront(e.target.value)}
+                                 />
+                                 <Input
+                                   placeholder="Back of card"
+                                   value={newCardBack}
+                                   onChange={(e) => setNewCardBack(e.target.value)}
+                                 />
+                                 <div className="flex gap-2">
+                                   <Button
+                                     size="sm"
+                                     onClick={handleAddCard}
+                                     disabled={!newCardFront.trim() || !newCardBack.trim()}
+                                     className="flex-1"
+                                   >
+                                     Add Card
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant="outline"
+                                     onClick={() => {
+                                       setIsAddingCard(false);
+                                       setNewCardFront("");
+                                       setNewCardBack("");
+                                     }}
+                                   >
+                                     Cancel
+                                   </Button>
+                                 </div>
+                               </div>
+                             </CardContent>
+                           </Card>
+                         ) : (
+                           <Card 
+                             className="transition-all duration-200 hover:shadow-md cursor-pointer border-dashed border-2 hover:border-primary/50"
+                             onClick={() => setIsAddingCard(true)}
+                           >
+                             <CardContent className="p-4 h-full flex flex-col items-center justify-center min-h-[120px]">
+                               <Plus className="h-8 w-8 text-muted-foreground mb-2" />
+                               <span className="text-sm font-medium text-muted-foreground">Add New Card</span>
+                             </CardContent>
+                           </Card>
+                         )}
 
                          {/* Existing Cards */}
                          {filteredCards
