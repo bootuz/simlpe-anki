@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, LogOut, Calendar, FolderOpen, PlayCircle, TrendingUp, Clock, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { BookOpen, LogOut, Calendar, FolderOpen, PlayCircle, TrendingUp, Clock, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +24,6 @@ const Home = () => {
   
   const [cards, setCards] = useState<CardWithDue[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [showBackCards, setShowBackCards] = useState<Set<string>>(new Set());
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -125,16 +124,6 @@ const Home = () => {
     }).length;
     
     return { overdue, dueToday, dueSoon, total: cards.length };
-  };
-
-  const toggleShowBack = (cardId: string) => {
-    const newShowBackCards = new Set(showBackCards);
-    if (newShowBackCards.has(cardId)) {
-      newShowBackCards.delete(cardId);
-    } else {
-      newShowBackCards.add(cardId);
-    }
-    setShowBackCards(newShowBackCards);
   };
 
   const stats = getCardStats();
@@ -335,32 +324,21 @@ const Home = () => {
                            <h3 className="text-lg font-semibold text-foreground leading-tight">
                              {card.front}
                            </h3>
-                           <div className="flex items-center gap-2">
-                             {showBackCards.has(card.id) ? (
-                               <>
-                                 <p className="text-muted-foreground leading-relaxed flex-1">
-                                   {card.back}
-                                 </p>
-                                 <Button
-                                   variant="ghost"
-                                   size="sm"
-                                   onClick={() => toggleShowBack(card.id)}
-                                   className="h-6 w-6 p-0 shrink-0"
-                                 >
-                                   <EyeOff className="h-4 w-4" />
-                                 </Button>
-                               </>
-                             ) : (
-                               <Button
-                                 variant="ghost"
-                                 size="sm"
-                                 onClick={() => toggleShowBack(card.id)}
-                                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                               >
-                                 <Eye className="h-4 w-4" />
-                                 <span className="text-sm">Show answer</span>
-                               </Button>
-                             )}
+                           <div 
+                             className="text-muted-foreground leading-relaxed cursor-pointer select-none transition-all duration-200 filter blur-sm hover:blur-none focus:blur-none active:blur-none"
+                             title="Click to reveal answer"
+                             tabIndex={0}
+                             onKeyDown={(e) => {
+                               if (e.key === 'Enter' || e.key === ' ') {
+                                 e.preventDefault();
+                                 e.currentTarget.classList.toggle('blur-sm');
+                               }
+                             }}
+                             onClick={(e) => {
+                               e.currentTarget.classList.toggle('blur-sm');
+                             }}
+                           >
+                             {card.back}
                            </div>
                          </div>
                       </div>
