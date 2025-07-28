@@ -117,7 +117,12 @@ const Home = () => {
     }
   };
 
-  const getDueDateStatus = (dueDate: string) => {
+  const getDueDateStatus = (dueDate: string | null) => {
+    // Handle null due_date for new cards
+    if (!dueDate) {
+      return { isOverdue: false, daysUntilDue: Infinity, isDueToday: false, isNew: true };
+    }
+    
     const due = new Date(dueDate);
     const now = new Date();
     
@@ -132,7 +137,7 @@ const Home = () => {
     // Days until due calculation using start of day
     const daysUntilDue = Math.ceil((dueDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
-    return { isOverdue, daysUntilDue, isDueToday };
+    return { isOverdue, daysUntilDue, isDueToday, isNew: false };
   };
 
   // Calculate summary statistics
@@ -294,11 +299,11 @@ const Home = () => {
           </div>
         )}
 
-        {/* Filter cards to show only overdue and due today */}
+        {/* Filter cards to show only overdue, due today, and new cards */}
         {(() => {
           const cardsToStudy = cards.filter(card => {
-            const { isOverdue, isDueToday } = getDueDateStatus(card.due_date);
-            return isOverdue || isDueToday;
+            const { isOverdue, isDueToday, isNew } = getDueDateStatus(card.due_date);
+            return isOverdue || isDueToday || isNew;
           });
 
           return cardsToStudy.length === 0 ? null : (
@@ -334,18 +339,20 @@ const Home = () => {
                           
                           {/* Due Date Badge */}
                           <div className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-                            isOverdue 
-                              ? 'bg-destructive/15 text-destructive border border-destructive/30' 
-                              : daysUntilDue === 0 
-                                ? 'bg-primary/15 text-primary border border-primary/30' 
-                                : 'bg-primary/15 text-primary border border-primary/30'
+                            (() => {
+                              const { isNew } = getDueDateStatus(card.due_date);
+                              if (isNew) return 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30';
+                              if (isOverdue) return 'bg-destructive/15 text-destructive border border-destructive/30';
+                              return 'bg-primary/15 text-primary border border-primary/30';
+                            })()
                           }`}>
-                            {isOverdue 
-                              ? 'Overdue' 
-                              : daysUntilDue === 0 
-                                ? 'Due today' 
-                                : `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`
-                            }
+                            {(() => {
+                              const { isNew } = getDueDateStatus(card.due_date);
+                              if (isNew) return 'New';
+                              if (isOverdue) return 'Overdue';
+                              if (daysUntilDue === 0) return 'Due today';
+                              return `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`;
+                            })()}
                           </div>
                         </div>
                         
@@ -385,16 +392,18 @@ const Home = () => {
                           Study
                         </Button>
                         
-                        <div className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
-                          {new Date(card.due_date).toLocaleString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric',
-                            year: new Date(card.due_date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
-                          })}
-                        </div>
+                        {card.due_date && (
+                          <div className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
+                            {new Date(card.due_date).toLocaleString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric',
+                              year: new Date(card.due_date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
