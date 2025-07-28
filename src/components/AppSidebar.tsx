@@ -138,7 +138,7 @@ export function AppSidebar({
         <SidebarGroup className="space-y-4">
           <div className="flex items-center justify-between px-2">
             <SidebarGroupLabel className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">
-              Study Library
+              Cards Library
             </SidebarGroupLabel>
             {!isCollapsed && (
               <Button

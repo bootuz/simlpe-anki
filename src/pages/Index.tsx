@@ -9,6 +9,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -21,7 +37,9 @@ import {
   Calendar,
   Clock,
   Trash2,
-  CheckSquare
+  CheckSquare,
+  MoreHorizontal,
+  Edit
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,7 +73,7 @@ const Index = () => {
   const [filterState, setFilterState] = useState<string>("all");
   const [filterDueDate, setFilterDueDate] = useState<string>("all");
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
-  const [isAddingCard, setIsAddingCard] = useState(false);
+  const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [newCardFront, setNewCardFront] = useState("");
   const [newCardBack, setNewCardBack] = useState("");
 
@@ -189,7 +207,7 @@ const Index = () => {
       setCards([...cards, newCard]);
       setNewCardFront("");
       setNewCardBack("");
-      setIsAddingCard(false);
+      setIsAddCardModalOpen(false);
       
       toast({
         title: "Success",
@@ -725,7 +743,7 @@ const Index = () => {
                 className="flex items-center gap-2"
               >
                 <BookOpen className="h-4 w-4" />
-                Home
+                Study
               </Button>
               
               {user && (
@@ -784,13 +802,69 @@ const Index = () => {
                   </p>
                 </div>
 
+                {/* Add Card Modal */}
+                <Dialog open={isAddCardModalOpen} onOpenChange={setIsAddCardModalOpen}>
+                  <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle>Add New Card</DialogTitle>
+                      <DialogDescription>
+                        Create a new flashcard for your {currentDeck?.name} deck.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="space-y-2">
+                        <label htmlFor="card-front" className="text-sm font-medium">
+                          Front of card
+                        </label>
+                        <Textarea
+                          id="card-front"
+                          placeholder="Enter the question or prompt..."
+                          value={newCardFront}
+                          onChange={(e) => setNewCardFront(e.target.value)}
+                          className="min-h-[100px] resize-none"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="card-back" className="text-sm font-medium">
+                          Back of card
+                        </label>
+                        <Textarea
+                          id="card-back"
+                          placeholder="Enter the answer or explanation..."
+                          value={newCardBack}
+                          onChange={(e) => setNewCardBack(e.target.value)}
+                          className="min-h-[100px] resize-none"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsAddCardModalOpen(false);
+                          setNewCardFront("");
+                          setNewCardBack("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleAddCard}
+                        disabled={!newCardFront.trim() || !newCardBack.trim()}
+                      >
+                        Add Card
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
                 {currentDeckCards.length === 0 ? (
                   <div className="text-center py-12">
                     <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-xl font-semibold mb-2">No cards yet</h3>
                     <p className="text-muted-foreground mb-6">Create your first flashcard to start learning</p>
                     <Button 
-                      onClick={() => setIsAddingCard(true)}
+                      onClick={() => setIsAddCardModalOpen(true)}
                       className="flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
@@ -849,7 +923,7 @@ const Index = () => {
                     </div>
 
                     {/* Header */}
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex justify-between items-center mb-6 min-h-[2.5rem]">
                       <div className="flex items-center gap-3">
                         <h3 className="text-lg font-semibold">
                           Cards ({filteredCards.length})
@@ -878,56 +952,16 @@ const Index = () => {
                       </div>
                     ) : (
                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                         {/* Add Card Button/Form - Always first */}
-                         {isAddingCard ? (
-                           <Card className="transition-all duration-200 border-2 border-primary/50">
-                             <CardContent className="p-4">
-                               <div className="space-y-3">
-                                 <Input
-                                   placeholder="Front of card"
-                                   value={newCardFront}
-                                   onChange={(e) => setNewCardFront(e.target.value)}
-                                 />
-                                 <Input
-                                   placeholder="Back of card"
-                                   value={newCardBack}
-                                   onChange={(e) => setNewCardBack(e.target.value)}
-                                 />
-                                 <div className="flex gap-2">
-                                   <Button
-                                     size="sm"
-                                     onClick={handleAddCard}
-                                     disabled={!newCardFront.trim() || !newCardBack.trim()}
-                                     className="flex-1"
-                                   >
-                                     Add Card
-                                   </Button>
-                                   <Button
-                                     size="sm"
-                                     variant="outline"
-                                     onClick={() => {
-                                       setIsAddingCard(false);
-                                       setNewCardFront("");
-                                       setNewCardBack("");
-                                     }}
-                                   >
-                                     Cancel
-                                   </Button>
-                                 </div>
-                               </div>
-                             </CardContent>
-                           </Card>
-                         ) : (
-                           <Card 
-                             className="transition-all duration-200 hover:shadow-md cursor-pointer border-dashed border-2 hover:border-primary/50"
-                             onClick={() => setIsAddingCard(true)}
-                           >
-                             <CardContent className="p-4 h-full flex flex-col items-center justify-center min-h-[120px]">
-                               <Plus className="h-8 w-8 text-muted-foreground mb-2" />
-                               <span className="text-sm font-medium text-muted-foreground">Add New Card</span>
-                             </CardContent>
-                           </Card>
-                         )}
+                         {/* Add Card Button - Always first */}
+                         <Card 
+                           className="transition-all duration-200 hover:shadow-md cursor-pointer border-dashed border-2 hover:border-primary/50"
+                           onClick={() => setIsAddCardModalOpen(true)}
+                         >
+                           <CardContent className="p-4 h-full flex flex-col items-center justify-center min-h-[110px]">
+                             <Plus className="h-8 w-8 text-muted-foreground mb-2" />
+                             <span className="text-sm font-medium text-muted-foreground">Add New Card</span>
+                           </CardContent>
+                         </Card>
 
                          {/* Existing Cards */}
                          {filteredCards
@@ -941,58 +975,85 @@ const Index = () => {
                              <Card 
                                key={card.id} 
                                className={`
-                                 transition-all duration-200 hover:shadow-md cursor-pointer
+                                 transition-all duration-200 hover:shadow-md cursor-pointer min-h-[110px]
                                  ${selectedCards.has(card.id) ? 'ring-2 ring-primary' : ''}
                                `}
                              >
                                <CardContent className="p-4">
-                                 <div className="flex items-start justify-between gap-4">
-                                   <div className="flex items-start gap-3 flex-1">
+                                 <div className="flex flex-col gap-3">
+                                   <div className="flex items-start gap-3">
                                      <Checkbox
                                        checked={selectedCards.has(card.id)}
                                        onCheckedChange={() => handleCardSelection(card.id)}
+                                       className="mt-0.5 flex-shrink-0"
                                      />
                                      <div className="flex-1 min-w-0">
-                                       <div className="flex items-center gap-2 mb-2">
-                                         <h3 className="font-medium text-card-foreground truncate">
-                                           {card.front}
-                                         </h3>
-                                         {card.state && (
-                                           <Badge 
-                                             variant="secondary"
-                                             className={`text-xs ${getStateBadgeColor(card.state)}`}
-                                           >
-                                             {card.state}
-                                           </Badge>
-                                         )}
+                                       <div className="flex items-start justify-between gap-2 mb-2">
+                                         <div className="flex items-center gap-2 flex-1 min-w-0">
+                                           <h3 className="font-medium text-card-foreground truncate">
+                                             {card.front}
+                                           </h3>
+                                           {card.state && (
+                                             <Badge 
+                                               variant="secondary"
+                                               className={`text-xs flex-shrink-0 ${getStateBadgeColor(card.state)}`}
+                                             >
+                                               {card.state}
+                                             </Badge>
+                                           )}
+                                         </div>
+                                         <DropdownMenu>
+                                           <DropdownMenuTrigger asChild>
+                                             <Button
+                                               size="sm"
+                                               variant="ghost"
+                                               className="h-6 w-6 p-0 flex-shrink-0"
+                                               onClick={(e) => e.stopPropagation()}
+                                             >
+                                               <MoreHorizontal className="h-3 w-3" />
+                                             </Button>
+                                           </DropdownMenuTrigger>
+                                           <DropdownMenuContent align="end" className="w-32">
+                                             <DropdownMenuItem
+                                               onClick={(e) => {
+                                                 e.stopPropagation();
+                                                 editCard(card.id, card.front, card.back);
+                                               }}
+                                               className="cursor-pointer"
+                                             >
+                                               <Edit className="h-4 w-4 mr-2" />
+                                               Edit
+                                             </DropdownMenuItem>
+                                             <DropdownMenuItem
+                                               onClick={(e) => {
+                                                 e.stopPropagation();
+                                                 deleteCard(card.id);
+                                               }}
+                                               className="text-destructive cursor-pointer focus:text-destructive"
+                                             >
+                                               <Trash2 className="h-4 w-4 mr-2" />
+                                               Delete
+                                             </DropdownMenuItem>
+                                           </DropdownMenuContent>
+                                         </DropdownMenu>
                                        </div>
-                                       <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                                          {card.back}
                                        </p>
-                                       {card.due_date && (
-                                         <div className={`text-xs flex items-center gap-1 ${getDueDateColor(card.due_date)}`}>
-                                           <Clock className="h-3 w-3" />
-                                           Due: {new Date(card.due_date).toLocaleDateString()}
-                                         </div>
-                                       )}
+                                       <div className="h-4 flex items-center">
+                                         {card.due_date ? (
+                                           <div className={`text-xs flex items-center gap-1 ${getDueDateColor(card.due_date)}`}>
+                                             <Clock className="h-3 w-3" />
+                                             Due: {new Date(card.due_date).toLocaleDateString()}
+                                           </div>
+                                         ) : (
+                                           <div className="text-xs flex items-center gap-1 text-muted-foreground">
+                                             <Calendar className="h-3 w-3" />
+                                             Not reviewed yet
+                                           </div>
+                                         )}
+                                       </div>
                                      </div>
-                                   </div>
-                                   <div className="flex gap-1 flex-shrink-0">
-                                     <Button
-                                       size="sm"
-                                       variant="ghost"
-                                       onClick={() => editCard(card.id, card.front, card.back)}
-                                     >
-                                       Edit
-                                     </Button>
-                                     <Button
-                                       size="sm"
-                                       variant="ghost"
-                                       onClick={() => deleteCard(card.id)}
-                                       className="text-destructive hover:text-destructive"
-                                     >
-                                       <Trash2 className="h-4 w-4" />
-                                     </Button>
                                    </div>
                                  </div>
                                </CardContent>
