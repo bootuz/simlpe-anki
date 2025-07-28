@@ -166,7 +166,28 @@ const Study = () => {
       
       // Convert our database record to FSRS Card format
       const now = new Date();
-      const lastReview = fsrsData.last_review ? new Date(fsrsData.last_review) : new Date(fsrsData.created_at);
+      
+      // Validate that now is a valid date
+      if (isNaN(now.getTime())) {
+        throw new Error("Invalid current date");
+      }
+      
+      // Safely parse dates with validation
+      let lastReview: Date;
+      if (fsrsData.last_review) {
+        lastReview = new Date(fsrsData.last_review);
+        if (isNaN(lastReview.getTime())) {
+          lastReview = new Date(fsrsData.created_at);
+        }
+      } else {
+        lastReview = new Date(fsrsData.created_at);
+      }
+      
+      // Validate lastReview date
+      if (isNaN(lastReview.getTime())) {
+        throw new Error("Invalid last review date");
+      }
+      
       const elapsedDays = Math.max(0, Math.ceil((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24)));
       
       // Map database state to FSRS State enum
@@ -188,8 +209,19 @@ const Study = () => {
           fsrsState = State.New;
       }
       
+      // Safely parse due date
+      let dueDate: Date;
+      if (fsrsData.due_date) {
+        dueDate = new Date(fsrsData.due_date);
+        if (isNaN(dueDate.getTime())) {
+          dueDate = now; // Fallback to current time for invalid dates
+        }
+      } else {
+        dueDate = now; // Use current time for new cards
+      }
+      
       const fsrsCard: FSRSCard = {
-        due: fsrsData.due_date ? new Date(fsrsData.due_date) : now, // Use current time for new cards
+        due: dueDate,
         stability: fsrsData.stability,
         difficulty: fsrsData.difficulty,
         elapsed_days: elapsedDays,
@@ -239,9 +271,14 @@ const Study = () => {
       }
       
       // Validate the due date before converting to ISO string
-      const dueDateToUse = nextCard.due && !isNaN(nextCard.due.getTime()) 
-        ? nextCard.due 
-        : new Date(Date.now() + (nextCard.scheduled_days * 24 * 60 * 60 * 1000));
+      let dueDateToUse: Date;
+      if (nextCard.due && !isNaN(nextCard.due.getTime())) {
+        dueDateToUse = nextCard.due;
+      } else {
+        // Fallback: calculate due date manually
+        const fallbackDueDate = new Date(now.getTime() + (nextCard.scheduled_days * 24 * 60 * 60 * 1000));
+        dueDateToUse = fallbackDueDate;
+      }
 
       // Update the FSRS data in the database
       const { error: updateError } = await supabase
@@ -270,8 +307,11 @@ const Study = () => {
         setShowAnswer(false);
       }
       
-      // Calculate days until next review for user feedback
-      const daysUntilNextReview = Math.ceil((nextCard.due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      // Calculate days until next review for user feedback with validation
+      let daysUntilNextReview = 1; // Default fallback
+      if (dueDateToUse && !isNaN(dueDateToUse.getTime())) {
+        daysUntilNextReview = Math.max(1, Math.ceil((dueDateToUse.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+      }
       
       toast({
         title: "Progress saved",
