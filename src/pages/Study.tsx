@@ -238,6 +238,11 @@ const Study = () => {
           newState = 'New';
       }
       
+      // Validate the due date before converting to ISO string
+      const dueDateToUse = nextCard.due && !isNaN(nextCard.due.getTime()) 
+        ? nextCard.due 
+        : new Date(Date.now() + (nextCard.scheduled_days * 24 * 60 * 60 * 1000));
+
       // Update the FSRS data in the database
       const { error: updateError } = await supabase
         .from('card_fsrs')
@@ -249,7 +254,7 @@ const Study = () => {
           stability: nextCard.stability,
           scheduled_days: nextCard.scheduled_days,
           elapsed_days: nextCard.elapsed_days,
-          due_date: nextCard.due.toISOString(),
+          due_date: dueDateToUse.toISOString(),
           last_review: now.toISOString(),
           updated_at: now.toISOString()
         })
