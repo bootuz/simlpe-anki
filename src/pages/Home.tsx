@@ -316,11 +316,13 @@ const Home = () => {
                   <div 
                     key={card.id} 
                     className={`group relative bg-card backdrop-blur-sm border border-border/50 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 animate-fade-in ${
-                      isOverdue 
-                        ? 'ring-2 ring-destructive/20 bg-destructive/5 border-destructive/30' 
-                        : isDueToday
-                          ? 'ring-2 ring-primary/20 bg-primary/5 border-primary/30'
-                          : ''
+                      (() => {
+                        const { isNew } = getDueDateStatus(card.due_date);
+                        if (isNew) return 'ring-2 ring-green-500/20 bg-green-500/5 border-green-500/30';
+                        if (isOverdue) return 'ring-2 ring-destructive/20 bg-destructive/5 border-destructive/30';
+                        if (isDueToday) return 'ring-2 ring-primary/20 bg-primary/5 border-primary/30';
+                        return '';
+                      })()
                     }`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
