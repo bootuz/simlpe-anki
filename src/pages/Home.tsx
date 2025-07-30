@@ -244,13 +244,10 @@ const Home = () => {
                 Great job! You've reviewed all your cards that are due today. 
                 Keep up the great work and check back later for more reviews.
               </p>
-              <div className="flex justify-center space-x-4">
+              <div className="flex justify-center">
                 <Button variant="outline" onClick={handleManageDecks}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add More Cards
-                </Button>
-                <Button onClick={() => navigate("/study")}>
-                  Review All Cards
                 </Button>
               </div>
             </div>
