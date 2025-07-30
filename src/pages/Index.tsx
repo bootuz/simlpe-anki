@@ -862,26 +862,67 @@ const Index = () => {
                 </Dialog>
 
                 {currentDeckCards.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center py-16 px-4">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
-                      <BookOpen className="h-8 w-8 text-primary" />
+                  <div className="flex flex-col items-center justify-center text-center py-20 px-4 max-w-2xl mx-auto">
+                    {/* Decorative Background */}
+                    <div className="relative mb-8">
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 rounded-full blur-3xl scale-150"></div>
+                      
+                      {/* Card Stack Illustration */}
+                      <div className="relative flex items-center justify-center">
+                        <div className="absolute rotate-12 opacity-30">
+                          <div className="w-24 h-16 bg-card border border-border rounded-lg shadow-lg"></div>
+                        </div>
+                        <div className="absolute rotate-6 opacity-50">
+                          <div className="w-24 h-16 bg-card border border-border rounded-lg shadow-lg"></div>
+                        </div>
+                        <div className="relative z-10">
+                          <div className="w-24 h-16 bg-card border-2 border-primary/30 rounded-lg shadow-xl flex items-center justify-center">
+                            <Plus className="h-8 w-8 text-primary/60" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     
-                    <h3 className="text-2xl font-bold mb-3">
-                      Your {currentDeck?.name} deck is empty
-                    </h3>
-                    <p className="text-muted-foreground mb-8 max-w-md">
-                      Transform your learning with flashcards! Add your first card to this deck and start building your knowledge.
-                    </p>
+                    <div className="space-y-4 mb-8">
+                      <h3 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                        Ready to fill your {currentDeck?.name} deck?
+                      </h3>
+                      <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
+                        Create your first flashcard and start building an effective study routine. Each card brings you one step closer to mastery.
+                      </p>
+                    </div>
+
+                    {/* Quick Tips */}
+                    <div className="bg-muted/50 rounded-xl p-6 mb-8 w-full max-w-md border border-border/50">
+                      <h4 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">💡 Pro Tips</h4>
+                      <ul className="text-sm space-y-2 text-left text-muted-foreground">
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1">•</span>
+                          <span>Keep questions clear and specific</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1">•</span>
+                          <span>Use your own words for better retention</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-1">•</span>
+                          <span>Add examples to make concepts stick</span>
+                        </li>
+                      </ul>
+                    </div>
                     
                     <Button 
                       onClick={() => setIsAddCardModalOpen(true)}
                       size="lg"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-3 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
-                      <Plus className="h-5 w-5" />
+                      <Plus className="h-6 w-6" />
                       Create Your First Card
                     </Button>
+                    
+                    <p className="text-xs text-muted-foreground/60 mt-6">
+                      Start with just one card and watch your knowledge grow
+                    </p>
                   </div>
                 ) : (
                   <>
