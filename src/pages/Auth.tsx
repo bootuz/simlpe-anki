@@ -99,7 +99,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-accent/10 p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-card/95 border-border/50 shadow-2xl shadow-primary/5 ring-1 ring-border/10">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <BookOpen className="h-8 w-8 text-primary" />
