@@ -84,7 +84,6 @@ const Home = () => {
     }
   };
 
-
   const handleSignOut = async () => {
     await signOut();
     navigate("/auth");
