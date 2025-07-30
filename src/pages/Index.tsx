@@ -79,10 +79,6 @@ const Index = () => {
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [newCardFront, setNewCardFront] = useState("");
   const [newCardBack, setNewCardBack] = useState("");
-  const [showNewFolderInput, setShowNewFolderInput] = useState(false);
-  const [showNewDeckInput, setShowNewDeckInput] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [newDeckName, setNewDeckName] = useState("");
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -343,8 +339,6 @@ const Index = () => {
         isExpanded: true
       };
       setFolders([...folders, newFolder]);
-      setNewFolderName("");
-      setShowNewFolderInput(false);
       toast({
         title: "Success",
         description: "Folder created successfully"
@@ -385,8 +379,6 @@ const Index = () => {
           ? { ...folder, decks: [...folder.decks, newDeck] }
           : folder
       ));
-      setNewDeckName("");
-      setShowNewDeckInput(false);
       toast({
         title: "Success",
         description: "Deck created successfully"
@@ -775,70 +767,17 @@ const Index = () => {
                     "Set up your study space by creating a folder to organize your learning topics"
                   }
                 </p>
-                
-                {/* Input fields for folder/deck creation */}
-                {showNewFolderInput && !currentFolder ? (
-                  <div className="mb-4 w-full max-w-xs">
-                    <Input
-                      value={newFolderName}
-                      onChange={(e) => setNewFolderName(e.target.value)}
-                      placeholder="Enter folder name..."
-                      className="h-10 text-center border-primary/30 focus:border-primary"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && newFolderName.trim()) {
-                          handleCreateFolder(newFolderName.trim());
-                        }
-                        if (e.key === 'Escape') {
-                          setShowNewFolderInput(false);
-                          setNewFolderName("");
-                        }
-                      }}
-                      onBlur={() => {
-                        setShowNewFolderInput(false);
-                        setNewFolderName("");
-                      }}
-                      autoFocus
-                    />
-                  </div>
-                ) : showNewDeckInput && currentFolder ? (
-                  <div className="mb-4 w-full max-w-xs">
-                    <Input
-                      value={newDeckName}
-                      onChange={(e) => setNewDeckName(e.target.value)}
-                      placeholder="Enter deck name..."
-                      className="h-10 text-center border-primary/30 focus:border-primary"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && newDeckName.trim()) {
-                          handleCreateDeck(currentFolder.id, newDeckName.trim());
-                        }
-                        if (e.key === 'Escape') {
-                          setShowNewDeckInput(false);
-                          setNewDeckName("");
-                        }
-                      }}
-                      onBlur={() => {
-                        setShowNewDeckInput(false);
-                        setNewDeckName("");
-                      }}
-                      autoFocus
-                    />
-                  </div>
-                ) : (
-                  <Button 
-                    onClick={() => {
-                      if (currentFolder) {
-                        setShowNewDeckInput(true);
-                      } else {
-                        setShowNewFolderInput(true);
-                      }
-                    }}
-                    size="lg"
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="h-5 w-5" />
-                    {currentFolder ? "Create My First Deck" : "Get Started"}
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => currentFolder ? 
+                    handleCreateDeck(currentFolder.id, "My First Deck") : 
+                    handleCreateFolder("My First Folder")
+                  }
+                  size="lg"
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-5 w-5" />
+                  {currentFolder ? "Create My First Deck" : "Get Started"}
+                </Button>
               </div>
             ) : (
               <>
