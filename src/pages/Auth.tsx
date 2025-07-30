@@ -94,11 +94,9 @@ const Auth = () => {
         variant: "destructive"
       });
     } else {
-      // Since Supabase doesn't return an error for existing emails, 
-      // we'll show a generic success message
       toast({
-        title: "Registration Submitted",
-        description: "If this email isn't already registered, you'll receive a confirmation link. If it is already registered, no new account was created.",
+        title: "Success",
+        description: "Check your email for confirmation link!"
       });
     }
 
