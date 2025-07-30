@@ -205,6 +205,7 @@ const Index = () => {
       };
 
       setCards([...cards, newCard]);
+      updateDeckCardCount(currentDeckId, 1); // Update card count
       setNewCardFront("");
       setNewCardBack("");
       setIsAddCardModalOpen(false);
@@ -221,6 +222,18 @@ const Index = () => {
         variant: "destructive"
       });
     }
+  };
+
+  // Helper function to update deck card counts
+  const updateDeckCardCount = (deckId: string, change: number) => {
+    setFolders(folders.map(folder => ({
+      ...folder,
+      decks: folder.decks.map(deck => 
+        deck.id === deckId 
+          ? { ...deck, cardCount: Math.max(0, deck.cardCount + change) }
+          : deck
+      )
+    })));
   };
 
   const addCard = async (front: string, back: string) => {
@@ -248,6 +261,7 @@ const Index = () => {
       };
 
       setCards([...cards, newCard]);
+      updateDeckCardCount(currentDeckId, 1); // Update card count
       toast({
         title: "Success",
         description: "Card added successfully"
@@ -264,6 +278,9 @@ const Index = () => {
 
   const deleteCard = async (id: string) => {
     try {
+      const cardToDelete = cards.find(card => card.id === id);
+      if (!cardToDelete) return;
+
       // Delete FSRS data first
       await supabase.from("card_fsrs").delete().eq("card_id", id);
       
@@ -275,6 +292,7 @@ const Index = () => {
       if (error) throw error;
 
       setCards(cards.filter(card => card.id !== id));
+      updateDeckCardCount(cardToDelete.deck_id, -1); // Update card count
       toast({
         title: "Success",
         description: "Card deleted successfully"
@@ -645,6 +663,7 @@ const Index = () => {
     
     try {
       const cardIds = Array.from(selectedCards);
+      const cardsToDelete = cards.filter(card => selectedCards.has(card.id));
       
       // Delete FSRS data first
       await supabase.from("card_fsrs").delete().in("card_id", cardIds);
@@ -657,6 +676,17 @@ const Index = () => {
       if (error) throw error;
 
       setCards(cards.filter(card => !selectedCards.has(card.id)));
+      
+      // Update card counts for affected decks
+      const deckUpdates = new Map<string, number>();
+      cardsToDelete.forEach(card => {
+        deckUpdates.set(card.deck_id, (deckUpdates.get(card.deck_id) || 0) + 1);
+      });
+      
+      deckUpdates.forEach((count, deckId) => {
+        updateDeckCardCount(deckId, -count);
+      });
+      
       setSelectedCards(new Set());
       
       toast({
@@ -859,17 +889,47 @@ const Index = () => {
                 </Dialog>
 
                 {currentDeckCards.length === 0 ? (
-                  <div className="text-center py-12">
-                    <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">No cards yet</h3>
-                    <p className="text-muted-foreground mb-6">Create your first flashcard to start learning</p>
-                    <Button 
-                      onClick={() => setIsAddCardModalOpen(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add Your First Card
-                    </Button>
+                  <div className="flex flex-col items-center text-center py-16 px-4">
+                    {/* Hero Image */}
+                    <div className="mb-8 relative">
+                      <div className="w-48 h-32 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/20 border-2 border-border/50 shadow-lg">
+                        <img 
+                          src="/src/assets/empty-deck-image.jpg" 
+                          alt="Empty deck illustration"
+                          className="w-full h-full object-cover opacity-60"
+                        />
+                      </div>
+                      <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
+                        <BookOpen className="h-5 w-5 text-primary" />
+                      </div>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="max-w-md space-y-4">
+                      <h3 className="text-2xl font-bold text-foreground">
+                        Your {currentDeck?.name} deck is empty
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed">
+                        Transform your learning with flashcards! Add your first card to this deck and start building your knowledge step by step.
+                      </p>
+                      
+                      {/* Action Button */}
+                      <div className="pt-4">
+                        <Button 
+                          onClick={() => setIsAddCardModalOpen(true)}
+                          size="lg"
+                          className="flex items-center gap-2 font-semibold px-8 py-3 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200"
+                        >
+                          <Plus className="h-5 w-5" />
+                          Create Your First Card
+                        </Button>
+                      </div>
+                      
+                      {/* Hint */}
+                      <p className="text-xs text-muted-foreground/70 pt-2">
+                        💡 Tip: Keep cards simple with one concept per card
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <>
