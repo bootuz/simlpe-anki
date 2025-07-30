@@ -38,18 +38,20 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <SidebarProvider>
-            <div className="min-h-screen flex w-full">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/manage" element={<Index />} />
-                <Route path="/study" element={<Study />} />
-                <Route path="/auth" element={<Auth />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </SidebarProvider>
+          <div className="min-h-screen w-full">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/manage" element={
+                <SidebarProvider>
+                  <Index />
+                </SidebarProvider>
+              } />
+              <Route path="/study" element={<Study />} />
+              <Route path="/auth" element={<Auth />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
