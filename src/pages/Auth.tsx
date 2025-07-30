@@ -20,6 +20,9 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Email validation
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   // Password validation
   const passwordValidation = {
     minLength: password.length >= 8,
@@ -44,6 +47,15 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!isEmailValid) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!isPasswordValid) {
       toast({
         title: "Invalid Password",
@@ -73,11 +85,26 @@ const Auth = () => {
     });
 
     if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
+      // Handle specific error cases
+      if (error.message.includes("User already registered")) {
+        toast({
+          title: "Email Already Registered",
+          description: "This email is already registered. Try signing in instead.",
+          variant: "destructive"
+        });
+      } else if (error.message.includes("Invalid email")) {
+        toast({
+          title: "Invalid Email",
+          description: "Please enter a valid email address.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
     } else {
       toast({
         title: "Success",
@@ -174,17 +201,33 @@ const Auth = () => {
                         placeholder="HDanielajhmadi@gmail.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 h-12 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className={`pl-10 pr-10 h-12 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 ${
+                          email.length > 0 && !isEmailValid ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
+                        } ${
+                          email.length > 0 && isEmailValid ? 'border-green-300 focus:border-green-500 focus:ring-green-500' : ''
+                        }`}
                         required
                       />
                       <div className="absolute right-3 top-3">
-                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </div>
+                        {email.length > 0 && (
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
+                            isEmailValid ? 'bg-green-500' : 'bg-red-500'
+                          }`}>
+                            {isEmailValid ? (
+                              <Check className="w-3 h-3 text-white" />
+                            ) : (
+                              <X className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
+                    {email.length > 0 && !isEmailValid && (
+                      <div className="flex items-center gap-2 text-sm text-red-600">
+                        <X className="w-4 h-4" />
+                        <span>Please enter a valid email address</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Password Field */}
