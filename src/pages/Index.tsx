@@ -40,7 +40,8 @@ import {
   Trash2,
   CheckSquare,
   MoreHorizontal,
-  Edit
+  Edit,
+  Layers3
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -786,8 +787,8 @@ const Index = () => {
               </div>
             ) : (
               <>
-                {/* Breadcrumb */}
-                {currentFolder && currentDeck && (
+                {/* Breadcrumb - Only show when deck has cards */}
+                {currentFolder && currentDeck && currentDeckCards.length > 0 && (
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
                     <Folder className="h-4 w-4" />
                     <span>{currentFolder.name}</span>
@@ -797,13 +798,15 @@ const Index = () => {
                   </div>
                 )}
 
-                {/* Deck Header */}
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold mb-2">{currentDeck.name}</h2>
-                  <p className="text-muted-foreground">
-                    Your flashcards collection
-                  </p>
-                </div>
+                {/* Deck Header - Only show when deck has cards */}
+                {currentDeckCards.length > 0 && (
+                  <div className="text-center mb-8">
+                    <h2 className="text-3xl font-bold mb-2">{currentDeck.name}</h2>
+                    <p className="text-muted-foreground">
+                      Your flashcards collection
+                    </p>
+                  </div>
+                )}
 
                 {/* Add Card Modal */}
                 <Dialog open={isAddCardModalOpen} onOpenChange={setIsAddCardModalOpen}>
@@ -862,26 +865,44 @@ const Index = () => {
                 </Dialog>
 
                 {currentDeckCards.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center py-16 px-4">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
-                      <BookOpen className="h-8 w-8 text-primary" />
+                  <div className="flex flex-col items-center justify-center text-center py-12 px-4">
+                    {/* Enhanced Visual Elements */}
+                    <div className="relative mb-8">
+                      {/* Background decoration */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-full blur-3xl scale-150"></div>
+                      
+                      {/* Main icon stack */}
+                      <div className="relative flex items-center justify-center">
+                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse"></div>
+                        <div className="relative bg-background border-2 border-primary/20 rounded-full p-6 shadow-lg">
+                          <Layers3 className="h-12 w-12 text-primary" />
+                        </div>
+                      </div>
                     </div>
                     
-                    <h3 className="text-2xl font-bold mb-3">
-                      Your {currentDeck?.name} deck is empty
-                    </h3>
-                    <p className="text-muted-foreground mb-8 max-w-md">
-                      Transform your learning with flashcards! Add your first card to this deck and start building your knowledge.
-                    </p>
-                    
-                    <Button 
-                      onClick={() => setIsAddCardModalOpen(true)}
-                      size="lg"
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="h-5 w-5" />
-                      Create Your First Card
-                    </Button>
+                    {/* Enhanced Headlines */}
+                    <div className="space-y-3 mb-8">
+                      <h3 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                        Your {currentDeck?.name} deck is empty
+                      </h3>
+                      <p className="text-lg text-muted-foreground/90 max-w-lg leading-relaxed">
+                        Add your first card to this deck and start building your knowledge.
+                      </p>
+                    </div>
+
+
+                    {/* Enhanced CTA Section */}
+                    <div className="flex justify-center">
+                      <Button 
+                        onClick={() => setIsAddCardModalOpen(true)}
+                        size="lg"
+                        className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25 transition-all duration-200"
+                      >
+                        <Plus className="h-5 w-5" />
+                        Create Your First Card
+                      </Button>
+                    </div>
+
                   </div>
                 ) : (
                   <>

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check, Clock, Repeat } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -17,8 +18,9 @@ interface StudyCard {
   deck_id: string;
   deck_name: string;
   folder_name: string;
-  due_date: string;
+  due_date: string | null;
   created_at: string;
+  state?: string;
 }
 
 const Study = () => {
@@ -49,6 +51,37 @@ const Study = () => {
   }, [user]);
 
   const currentCard = cards[currentCardIndex];
+
+  // Helper function to get card status for display
+  const getCardStatus = (card: StudyCard) => {
+    if (!card.due_date) {
+      return { label: 'New', variant: 'default' as const, icon: <BookOpen className="h-3 w-3" /> };
+    }
+    
+    const now = new Date();
+    const dueDate = new Date(card.due_date);
+    
+    if (card.state === 'Learning') {
+      return { label: 'Learning', variant: 'secondary' as const, icon: <Repeat className="h-3 w-3" /> };
+    }
+    
+    if (card.state === 'Relearning') {
+      return { label: 'Relearning', variant: 'destructive' as const, icon: <Repeat className="h-3 w-3" /> };
+    }
+    
+    if (dueDate <= now) {
+      const hoursOverdue = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60));
+      if (hoursOverdue > 24) {
+        return { label: `${Math.floor(hoursOverdue / 24)}d overdue`, variant: 'destructive' as const, icon: <AlertTriangle className="h-3 w-3" /> };
+      } else if (hoursOverdue > 0) {
+        return { label: `${hoursOverdue}h overdue`, variant: 'destructive' as const, icon: <Clock className="h-3 w-3" /> };
+      } else {
+        return { label: 'Due now', variant: 'secondary' as const, icon: <Clock className="h-3 w-3" /> };
+      }
+    }
+    
+    return { label: 'Review', variant: 'outline' as const, icon: <BookOpen className="h-3 w-3" /> };
+  };
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -98,10 +131,11 @@ const Study = () => {
           front: data.front,
           back: data.back,
           deck_id: data.deck_id,
-          deck_name: data.deck_name || 'Unknown Deck',
-          folder_name: data.folder_name || 'Unknown Folder',
+          deck_name: data.deck_name || 'Uncategorized Deck',
+          folder_name: data.folder_name || 'Personal',
           due_date: data.due_date,
-          created_at: data.created_at
+          created_at: data.created_at,
+          state: data.state || 'New'
         };
 
         transformedCards = [transformedCard];
@@ -123,10 +157,11 @@ const Study = () => {
           front: card.front,
           back: card.back,
           deck_id: card.deck_id,
-          deck_name: card.deck_name || 'Unknown Deck',
-          folder_name: card.folder_name || 'Unknown Folder',
+          deck_name: card.deck_name || 'Uncategorized Deck',
+          folder_name: card.folder_name || 'Personal',
           due_date: card.due_date,
-          created_at: card.created_at
+          created_at: card.created_at,
+          state: card.state || 'New'
         }));
       }
       
@@ -301,11 +336,20 @@ const Study = () => {
                 </div>
 
                 {/* Card Metadata */}
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-3">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-md">
                     <BookOpen className="h-4 w-4" />
                     <span>{currentCard.folder_name} / {currentCard.deck_name}</span>
                   </div>
+                  {(() => {
+                    const status = getCardStatus(currentCard);
+                    return (
+                      <Badge variant={status.variant} className="text-xs">
+                        {status.icon}
+                        <span className="ml-1">{status.label}</span>
+                      </Badge>
+                    );
+                  })()}
                 </div>
 
                 {/* Study Card */}
