@@ -996,60 +996,59 @@ const Index = () => {
                                   )}
                                 </div>
 
-                                {/* Dropdown menu next to status badge */}
-                                <div className="absolute top-2 right-2">
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        className="h-7 w-7 p-0 shadow-sm"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <MoreHorizontal className="h-3 w-3" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-32 bg-background border shadow-md z-50">
-                                      <DropdownMenuItem
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          editCard(card.id, card.front, card.back);
-                                        }}
-                                        className="cursor-pointer"
-                                      >
-                                        <Edit className="h-4 w-4 mr-2" />
-                                        Edit
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          deleteCard(card.id);
-                                        }}
-                                        className="text-destructive cursor-pointer focus:text-destructive"
-                                      >
-                                        <Trash2 className="h-4 w-4 mr-2" />
-                                        Delete
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </div>
 
                                 <CardContent className="p-4 pl-8">
                                   <div className="space-y-3">
                                     {/* Front content - main focus */}
                                     <div className="space-y-2">
                                       <div className="flex items-start justify-between gap-2">
-                                        <h3 className="font-medium text-card-foreground leading-tight line-clamp-2">
+                                        <h3 className="font-medium text-card-foreground leading-tight line-clamp-2 flex-1">
                                           {card.front}
                                         </h3>
-                                        {card.state && (
-                                          <Badge 
-                                            variant="secondary"
-                                            className={`text-xs flex-shrink-0 h-5 ${getStateBadgeColor(card.state)}`}
-                                          >
-                                            {card.state}
-                                          </Badge>
-                                        )}
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                          {card.state && (
+                                            <Badge 
+                                              variant="secondary"
+                                              className={`text-xs h-5 ${getStateBadgeColor(card.state)}`}
+                                            >
+                                              {card.state}
+                                            </Badge>
+                                          )}
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-6 w-6 p-0"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <MoreHorizontal className="h-3 w-3" />
+                                              </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-32 bg-background border shadow-md z-50">
+                                              <DropdownMenuItem
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  editCard(card.id, card.front, card.back);
+                                                }}
+                                                className="cursor-pointer"
+                                              >
+                                                <Edit className="h-4 w-4 mr-2" />
+                                                Edit
+                                              </DropdownMenuItem>
+                                              <DropdownMenuItem
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  deleteCard(card.id);
+                                                }}
+                                                className="text-destructive cursor-pointer focus:text-destructive"
+                                              >
+                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                Delete
+                                              </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                          </DropdownMenu>
+                                        </div>
                                       </div>
                                     </div>
 
