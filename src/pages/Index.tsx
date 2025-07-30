@@ -44,6 +44,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCardMutations } from "@/hooks/useOptimizedQueries";
 
 interface Card {
   id: string;
@@ -60,6 +61,7 @@ const Index = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addCard: addCardMutation } = useCardMutations();
   
   const [folders, setFolders] = useState<StudyFolder[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
@@ -189,43 +191,30 @@ const Index = () => {
     if (!user || !newCardFront.trim() || !newCardBack.trim()) return;
     
     try {
-      const { data, error } = await supabase
-        .from("cards")
-        .insert({
-          front: newCardFront.trim(),
-          back: newCardBack.trim(),
-          deck_id: currentDeckId,
-          user_id: user.id
-        })
-        .select()
-        .single();
+      const result = await addCardMutation.mutateAsync({
+        front: newCardFront.trim(),
+        back: newCardBack.trim(),
+        deckId: currentDeckId
+      });
 
-      if (error) throw error;
-
-      // The trigger will automatically create FSRS data with 'New' state and NULL due_date
+      // Update local state with the new card
       const newCard: Card = {
-        ...data,
+        ...result,
         state: 'New',
         due_date: null
       };
-
       setCards([...cards, newCard]);
-      updateDeckCardCount(currentDeckId, 1); // Update card count
+      
+      // Update local UI state
+      updateDeckCardCount(currentDeckId, 1);
       setNewCardFront("");
       setNewCardBack("");
       setIsAddCardModalOpen(false);
       
-      toast({
-        title: "Success",
-        description: "Card added successfully"
-      });
+      // Note: addCardMutation already shows success toast and updates Home page cache
     } catch (error) {
       console.error("Error adding card:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add card",
-        variant: "destructive"
-      });
+      // Note: addCardMutation already shows error toast
     }
   };
 
@@ -241,45 +230,6 @@ const Index = () => {
     })));
   };
 
-  const addCard = async (front: string, back: string) => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from("cards")
-        .insert({
-          front,
-          back,
-          deck_id: currentDeckId,
-          user_id: user.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // The trigger will automatically create FSRS data with 'New' state
-      // So we don't need to manually insert it anymore
-      const newCard: Card = {
-        ...data,
-        state: 'New' // New cards will have 'New' state
-      };
-
-      setCards([...cards, newCard]);
-      updateDeckCardCount(currentDeckId, 1); // Update card count
-      toast({
-        title: "Success",
-        description: "Card added successfully"
-      });
-    } catch (error) {
-      console.error("Error adding card:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add card",
-        variant: "destructive"
-      });
-    }
-  };
 
   const deleteCard = async (id: string) => {
     try {
