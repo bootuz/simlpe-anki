@@ -146,7 +146,7 @@ const Home = () => {
             <div className="flex items-center space-x-4">
               <Button variant="outline" onClick={handleManageDecks}>
                 <Plus className="h-4 w-4 mr-2" />
-                Manage Decks
+                Manage Cards
               </Button>
               <Button variant="ghost" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
