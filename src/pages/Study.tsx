@@ -45,6 +45,25 @@ const Study = () => {
     }
   }, [user]);
 
+  const currentCard = cards[currentCardIndex];
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only handle keyboard shortcuts when there's a current card
+      if (!currentCard) return;
+      
+      // Show answer with spacebar
+      if (event.code === 'Space' && !showAnswer) {
+        event.preventDefault();
+        setShowAnswer(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentCard, showAnswer]);
+
   const loadStudyCards = async () => {
     try {
       setDataLoading(true);
@@ -328,7 +347,6 @@ const Study = () => {
     }
   };
 
-  const currentCard = cards[currentCardIndex];
   const progress = cards.length > 0 ? (currentCardIndex / cards.length) * 100 : 0;
 
   if (loading || dataLoading) {
