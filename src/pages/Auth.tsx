@@ -204,8 +204,8 @@ const Auth = () => {
               </h1>
               <p className="text-gray-500">
                 {activeTab === "signup" 
-                  ? "Secure Your Communications with EasyMail" 
-                  : "Welcome back! Please sign in to your account"
+                  ? "Master your learning with smart flashcards" 
+                  : "Welcome back! Continue your learning journey"
                 }
               </p>
             </div>
