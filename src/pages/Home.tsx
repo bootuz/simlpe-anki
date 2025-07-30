@@ -23,6 +23,7 @@ const Home = () => {
   const { toast } = useToast();
   
   const [cards, setCards] = useState<CardWithDue[]>([]);
+  const [totalCards, setTotalCards] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
 
   // Redirect to auth if not logged in
@@ -68,6 +69,14 @@ const Home = () => {
   const loadAllCards = async () => {
     try {
       setDataLoading(true);
+      
+      // Get total card count (without FSRS join to count all cards)
+      const { count: totalCardCount, error: countError } = await supabase
+        .from("cards")
+        .select("*", { count: 'exact', head: true });
+
+      if (countError) throw countError;
+      setTotalCards(totalCardCount || 0);
       
       // Join cards with card_fsrs, decks, and folders to get all info
       const { data, error } = await supabase
@@ -308,7 +317,7 @@ const Home = () => {
 
           if (cardsToStudy.length === 0) {
             // Empty state handling
-            if (cards.length === 0) {
+            if (totalCards === 0) {
               // No cards at all - new user onboarding
               return (
                 <div className="text-center py-16 space-y-8">
