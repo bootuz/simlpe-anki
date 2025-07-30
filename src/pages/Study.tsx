@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { fsrs, Card as FSRSCard, Rating, State } from "ts-fsrs";
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from "@/hooks/useOptimizedQueries";
 
 interface StudyCard {
   id: string;
@@ -24,6 +26,7 @@ const Study = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const [cards, setCards] = useState<StudyCard[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -295,6 +298,14 @@ const Study = () => {
         .eq('card_id', cardId);
       
       if (updateError) throw updateError;
+
+      // Invalidate the Home page cache to ensure updated due dates are reflected
+      queryClient.invalidateQueries({ 
+        queryKey: QUERY_KEYS.cardsWithDetails(user.id) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: QUERY_KEYS.studyCards(user.id) 
+      });
       
       const nextIndex = currentCardIndex + 1;
       if (nextIndex >= cards.length) {
