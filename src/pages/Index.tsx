@@ -1068,31 +1068,49 @@ const Index = () => {
                                       <div className="flex items-center gap-3">
                                         {/* Due date with enhanced styling */}
                                         {card.due_date ? (
-                                          <div className={`text-xs flex items-center gap-1.5 font-medium ${(() => {
-                                            const dueDate = new Date(card.due_date);
-                                            const today = new Date();
-                                            const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                                            
-                                            if (diffDays < 0) return 'text-destructive';
-                                            if (diffDays === 0) return 'text-orange-600 dark:text-orange-400';
-                                            if (diffDays <= 2) return 'text-yellow-600 dark:text-yellow-400';
-                                            return 'text-muted-foreground';
-                                          })()}`}>
-                                            <Clock className="h-3 w-3" />
-                                            <span>
-                                              {(() => {
-                                                const dueDate = new Date(card.due_date);
-                                                const today = new Date();
-                                                const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                                                
-                                                if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`;
-                                                if (diffDays === 0) return 'Due today';
-                                                if (diffDays === 1) return 'Due tomorrow';
-                                                if (diffDays < 7) return `Due in ${diffDays}d`;
-                                                return dueDate.toLocaleDateString();
-                                              })()}
-                                            </span>
-                                          </div>
+                                           <div className={`text-xs flex items-center gap-1.5 font-medium ${(() => {
+                                             const dueDate = new Date(card.due_date);
+                                             const today = new Date();
+                                             const timeDiff = dueDate.getTime() - today.getTime();
+                                             
+                                             if (timeDiff < 0) return 'text-destructive';
+                                             if (timeDiff <= 60 * 60 * 1000) return 'text-orange-600 dark:text-orange-400'; // Due within 1 hour
+                                             
+                                             const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                                             if (diffDays === 0) return 'text-orange-600 dark:text-orange-400';
+                                             if (diffDays <= 2) return 'text-yellow-600 dark:text-yellow-400';
+                                             return 'text-muted-foreground';
+                                           })()}`}>
+                                             <Clock className="h-3 w-3" />
+                                             <span>
+                                               {(() => {
+                                                 const dueDate = new Date(card.due_date);
+                                                 const today = new Date();
+                                                 const timeDiff = dueDate.getTime() - today.getTime();
+                                                 
+                                                 if (timeDiff < 0) {
+                                                   const minutes = Math.abs(Math.ceil(timeDiff / (1000 * 60)));
+                                                   if (minutes < 60) return `${minutes}m overdue`;
+                                                   const hours = Math.ceil(minutes / 60);
+                                                   if (hours < 24) return `${hours}h overdue`;
+                                                   const days = Math.ceil(hours / 24);
+                                                   return `${days}d overdue`;
+                                                 }
+                                                 
+                                                 const minutes = Math.ceil(timeDiff / (1000 * 60));
+                                                 if (minutes <= 60) return minutes <= 1 ? 'Due now' : `Due in ${minutes}m`;
+                                                 
+                                                 const hours = Math.ceil(minutes / 60);
+                                                 if (hours < 24) return `Due in ${hours}h`;
+                                                 
+                                                 const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                                                 if (diffDays === 0) return 'Due today';
+                                                 if (diffDays === 1) return 'Due tomorrow';
+                                                 if (diffDays < 7) return `Due in ${diffDays}d`;
+                                                 return dueDate.toLocaleDateString();
+                                               })()}
+                                             </span>
+                                           </div>
                                         ) : (
                                           <div className="text-xs flex items-center gap-1.5 text-muted-foreground/60">
                                             <Calendar className="h-3 w-3" />
