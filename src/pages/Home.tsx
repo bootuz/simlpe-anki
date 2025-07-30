@@ -127,10 +127,10 @@ const Home = () => {
     );
   }
 
-  // Cards that are due for study (overdue, due today, or new)
+  // Cards that are due for study (overdue and due today only)
   const cardsToStudy = cards.filter(card => {
     const { status } = getDueDateStatus(card.due_date);
-    return status === 'overdue' || status === 'due-today' || status === 'new';
+    return status === 'overdue' || status === 'due-today';
   });
 
   return (
