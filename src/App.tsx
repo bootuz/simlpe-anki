@@ -11,7 +11,25 @@ import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import Study from "./pages/Study";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on authentication errors
+        if (error?.message?.includes('auth') || error?.status === 401) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: false, // Don't retry mutations automatically
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

@@ -95,35 +95,40 @@ const Index = () => {
     try {
       setDataLoading(true);
       
-      // Load folders
-      const { data: foldersData, error: foldersError } = await supabase
-        .from("folders")
-        .select("*")
-        .order("created_at");
-
-      if (foldersError) throw foldersError;
-
-      // Load decks
-      const { data: decksData, error: decksError } = await supabase
-        .from("decks")
-        .select("*")
-        .order("created_at");
-
-      if (decksError) throw decksError;
-
-      // Load cards with FSRS state
+      // Use optimized single query with the new view
       const { data: cardsData, error: cardsError } = await supabase
-        .from("cards")
-        .select(`
-          *,
-          card_fsrs!inner (
-            state,
-            due_date
-          )
-        `)
+        .from("cards_with_details")
+        .select("*")
+        .eq("user_id", user.id)
         .order("created_at");
 
       if (cardsError) throw cardsError;
+
+      // Extract unique folders and decks from the cards data
+      const foldersMap = new Map();
+      const decksMap = new Map();
+      
+      (cardsData || []).forEach(card => {
+        // Add folder if not exists
+        if (card.folder_id && !foldersMap.has(card.folder_id)) {
+          foldersMap.set(card.folder_id, {
+            id: card.folder_id,
+            name: card.folder_name || 'Unknown Folder'
+          });
+        }
+        
+        // Add deck if not exists
+        if (!decksMap.has(card.deck_id)) {
+          decksMap.set(card.deck_id, {
+            id: card.deck_id,
+            name: card.deck_name || 'Unknown Deck',
+            folder_id: card.folder_id
+          });
+        }
+      });
+
+      const foldersData = Array.from(foldersMap.values());
+      const decksData = Array.from(decksMap.values());
 
       // Transform data to match component structure
       const transformedFolders: StudyFolder[] = foldersData.map(folder => ({
@@ -140,15 +145,15 @@ const Index = () => {
       }));
 
       // Transform cards data to include FSRS state
-      const transformedCards: Card[] = cardsData.map(card => ({
+      const transformedCards: Card[] = (cardsData || []).map(card => ({
         id: card.id,
         front: card.front,
         back: card.back,
         deck_id: card.deck_id,
         created_at: card.created_at,
         updated_at: card.updated_at,
-        state: card.card_fsrs?.state,
-        due_date: card.card_fsrs?.due_date
+        state: card.state,
+        due_date: card.due_date
       }));
 
       setFolders(transformedFolders);

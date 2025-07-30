@@ -74,36 +74,30 @@ const Study = () => {
       if (specificCardId) {
         // Load only the specific card
         const { data, error } = await supabase
-          .from("cards")
-          .select(`
-            id,
-            front,
-            back,
-            deck_id,
-            created_at,
-            card_fsrs!inner (
-              due_date
-            ),
-            decks!inner (
-              name,
-              folders!inner (
-                name
-              )
-            )
-          `)
+          .from("cards_with_details")
+          .select("*")
           .eq('id', specificCardId)
-          .single();
+          .eq('user_id', user.id)
+          .maybeSingle();
 
         if (error) throw error;
+        if (!data) {
+          toast({
+            title: "Card not found",
+            description: "The specified card could not be found.",
+            variant: "destructive"
+          });
+          return;
+        }
 
         const transformedCard: StudyCard = {
           id: data.id,
           front: data.front,
           back: data.back,
           deck_id: data.deck_id,
-          deck_name: data.decks.name,
-          folder_name: data.decks.folders.name,
-          due_date: data.card_fsrs.due_date,
+          deck_name: data.deck_name || 'Unknown Deck',
+          folder_name: data.folder_name || 'Unknown Folder',
+          due_date: data.due_date,
           created_at: data.created_at
         };
 
@@ -114,37 +108,21 @@ const Study = () => {
         today.setHours(23, 59, 59, 999); // End of today
         
         const { data, error } = await supabase
-          .from("cards")
-          .select(`
-            id,
-            front,
-            back,
-            deck_id,
-            created_at,
-            card_fsrs!inner (
-              due_date
-            ),
-            decks!inner (
-              name,
-              folders!inner (
-                name
-              )
-            )
-          `)
-          .lte("card_fsrs.due_date", today.toISOString())
-          .order("card_fsrs(due_date)", { ascending: true });
+          .from("study_cards")
+          .select("*")
+          .eq("user_id", user.id);
 
         if (error) throw error;
 
         // Transform the data
-        transformedCards = data.map(card => ({
+        transformedCards = (data || []).map(card => ({
           id: card.id,
           front: card.front,
           back: card.back,
           deck_id: card.deck_id,
-          deck_name: card.decks.name,
-          folder_name: card.decks.folders.name,
-          due_date: card.card_fsrs.due_date,
+          deck_name: card.deck_name || 'Unknown Deck',
+          folder_name: card.folder_name || 'Unknown Folder',
+          due_date: card.due_date,
           created_at: card.created_at
         }));
       }
