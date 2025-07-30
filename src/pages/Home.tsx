@@ -173,7 +173,7 @@ const Home = () => {
               </p>
               <Button onClick={handleManageDecks} size="lg">
                 <Plus className="h-5 w-5 mr-2" />
-                Create Your First Deck
+                Create your first cards
               </Button>
             </div>
           </div>
