@@ -84,15 +84,20 @@ const Auth = () => {
       }
     });
 
+    console.log("Supabase signUp response:", { error });
+
     if (error) {
+      console.log("Error message:", error.message);
+      console.log("Error code:", error.status);
+      
       // Handle specific error cases
-      if (error.message.includes("User already registered")) {
+      if (error.message.includes("already") || error.message.includes("registered")) {
         toast({
           title: "Email Already Registered",
           description: "This email is already registered. Try signing in instead.",
           variant: "destructive"
         });
-      } else if (error.message.includes("Invalid email")) {
+      } else if (error.message.includes("Invalid email") || error.message.includes("invalid")) {
         toast({
           title: "Invalid Email",
           description: "Please enter a valid email address.",
