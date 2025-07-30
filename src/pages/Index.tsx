@@ -760,11 +760,11 @@ const Index = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
                   <BookOpen className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3">No Deck Selected</h2>
+                <h2 className="text-2xl font-bold mb-3">Ready to Start Learning?</h2>
                 <p className="text-muted-foreground mb-8 max-w-md">
                   {currentFolder ? 
-                    `Create a deck in "${currentFolder.name}" to start adding flashcards` :
-                    "Create a folder and deck to start organizing your flashcards for effective learning"
+                    `Create your first deck in "${currentFolder.name}" and start adding cards to study` :
+                    "Set up your study space by creating a folder to organize your learning topics"
                   }
                 </p>
                 <Button 
@@ -776,7 +776,7 @@ const Index = () => {
                   className="flex items-center gap-2"
                 >
                   <Plus className="h-5 w-5" />
-                  {currentFolder ? "Create Your First Deck" : "Create Your First Folder"}
+                  {currentFolder ? "Create My First Deck" : "Get Started"}
                 </Button>
               </div>
             ) : (
