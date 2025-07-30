@@ -212,10 +212,6 @@ const Auth = () => {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
               
               <TabsContent value="signup" className="space-y-6">
                 <form onSubmit={handleSignUp} className="space-y-6">
