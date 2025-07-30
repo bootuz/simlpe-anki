@@ -889,47 +889,26 @@ const Index = () => {
                 </Dialog>
 
                 {currentDeckCards.length === 0 ? (
-                  <div className="flex flex-col items-center text-center py-16 px-4">
-                    {/* Hero Image */}
-                    <div className="mb-8 relative">
-                      <div className="w-48 h-32 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-accent/20 border-2 border-border/50 shadow-lg">
-                        <img 
-                          src="/src/assets/empty-deck-image.jpg" 
-                          alt="Empty deck illustration"
-                          className="w-full h-full object-cover opacity-60"
-                        />
-                      </div>
-                      <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
-                        <BookOpen className="h-5 w-5 text-primary" />
-                      </div>
+                  <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
+                      <BookOpen className="h-8 w-8 text-primary" />
                     </div>
                     
-                    {/* Content */}
-                    <div className="max-w-md space-y-4">
-                      <h3 className="text-2xl font-bold text-foreground">
-                        Your {currentDeck?.name} deck is empty
-                      </h3>
-                      <p className="text-muted-foreground leading-relaxed">
-                        Transform your learning with flashcards! Add your first card to this deck and start building your knowledge step by step.
-                      </p>
-                      
-                      {/* Action Button */}
-                      <div className="pt-4">
-                        <Button 
-                          onClick={() => setIsAddCardModalOpen(true)}
-                          size="lg"
-                          className="flex items-center gap-2 font-semibold px-8 py-3 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200"
-                        >
-                          <Plus className="h-5 w-5" />
-                          Create Your First Card
-                        </Button>
-                      </div>
-                      
-                      {/* Hint */}
-                      <p className="text-xs text-muted-foreground/70 pt-2">
-                        💡 Tip: Keep cards simple with one concept per card
-                      </p>
-                    </div>
+                    <h3 className="text-2xl font-bold mb-3">
+                      Your {currentDeck?.name} deck is empty
+                    </h3>
+                    <p className="text-muted-foreground mb-8 max-w-md">
+                      Transform your learning with flashcards! Add your first card to this deck and start building your knowledge.
+                    </p>
+                    
+                    <Button 
+                      onClick={() => setIsAddCardModalOpen(true)}
+                      size="lg"
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-5 w-5" />
+                      Create Your First Card
+                    </Button>
                   </div>
                 ) : (
                   <>
