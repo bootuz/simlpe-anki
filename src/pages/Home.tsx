@@ -161,19 +161,83 @@ const Home = () => {
 
         {/* Main Content */}
         {totalCards === 0 ? (
-          /* New User Experience */
-          <div className="text-center py-16">
-            <div className="max-w-md mx-auto">
-              <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
-              <h2 className="text-2xl font-bold mb-4">Welcome to Simple Anki!</h2>
-              <p className="text-muted-foreground mb-8">
-                Start your learning journey by creating your first deck of flashcards. 
-                Organize your study materials into folders and decks, then use our 
-                spaced repetition system to maximize your learning efficiency.
+          /* Enhanced New User Experience */
+          <div className="max-w-4xl mx-auto">
+            {/* Hero Section */}
+            <div className="text-center mb-12">
+              <div className="relative mb-8">
+                <div className="w-32 h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=128&h=128&fit=crop&crop=center"
+                    alt="Learning illustration"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold mb-4">Start Your Learning Journey</h2>
+              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Master any subject with spaced repetition. Create flashcards, organize them into decks, 
+                and let our smart algorithm optimize your learning.
               </p>
-              <Button onClick={handleManageDecks} size="lg">
+            </div>
+
+            {/* Benefits Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <div className="text-center p-6 rounded-lg bg-card border border-border/50">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-semibold mb-2">Smart Learning</h3>
+                <p className="text-sm text-muted-foreground">
+                  Our spaced repetition system shows you cards just when you're about to forget them
+                </p>
+              </div>
+              <div className="text-center p-6 rounded-lg bg-card border border-border/50">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <BarChart3 className="h-6 w-6 text-accent" />
+                </div>
+                <h3 className="font-semibold mb-2">Track Progress</h3>
+                <p className="text-sm text-muted-foreground">
+                  Monitor your learning with detailed statistics and progress tracking
+                </p>
+              </div>
+              <div className="text-center p-6 rounded-lg bg-card border border-border/50">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-secondary-foreground" />
+                </div>
+                <h3 className="font-semibold mb-2">Efficient Study</h3>
+                <p className="text-sm text-muted-foreground">
+                  Study smarter, not harder. Focus on what you need to review most
+                </p>
+              </div>
+            </div>
+
+            {/* Card Preview */}
+            <div className="mb-12">
+              <h3 className="text-xl font-semibold text-center mb-6">See How It Works</h3>
+              <div className="max-w-md mx-auto">
+                <div className="bg-gradient-to-br from-primary to-accent text-white p-6 rounded-lg shadow-lg">
+                  <div className="text-center">
+                    <p className="text-sm opacity-90 mb-2">Question</p>
+                    <h4 className="text-lg font-medium mb-4">What is the capital of France?</h4>
+                    <div className="border-t border-white/20 pt-4">
+                      <p className="text-sm opacity-90 mb-2">Answer</p>
+                      <p className="text-lg">Paris</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button onClick={handleManageDecks} size="lg" className="w-full sm:w-auto">
                 <Plus className="h-5 w-5 mr-2" />
                 Create your first cards
+              </Button>
+              <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                <BookOpen className="h-5 w-5 mr-2" />
+                View Example Deck
               </Button>
             </div>
           </div>
