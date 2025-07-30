@@ -6,7 +6,7 @@ import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, A
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { fsrs, Card as FSRSCard, Rating, State, date_diff, formatDate } from "ts-fsrs";
+import { fsrsService, Rating } from "@/services/fsrsService";
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from "@/hooks/useOptimizedQueries";
 
@@ -155,91 +155,6 @@ const Study = () => {
     try {
       const cardId = currentCard.id;
       
-      // Get current FSRS data for the card
-      const { data: fsrsData, error: fsrsError } = await supabase
-        .from('card_fsrs')
-        .select('*')
-        .eq('card_id', cardId)
-        .single();
-      
-      if (fsrsError) throw fsrsError;
-      
-      // Convert our database record to FSRS Card format
-      const now = new Date();
-      
-      // Validate that now is a valid date
-      if (isNaN(now.getTime())) {
-        throw new Error("Invalid current date");
-      }
-      
-      // Safely parse dates with validation
-      let lastReview: Date;
-      if (fsrsData.last_review) {
-        lastReview = new Date(fsrsData.last_review);
-        if (isNaN(lastReview.getTime())) {
-          lastReview = new Date(fsrsData.created_at);
-        }
-      } else {
-        lastReview = new Date(fsrsData.created_at);
-      }
-      
-      // Validate lastReview date
-      if (isNaN(lastReview.getTime())) {
-        throw new Error("Invalid last review date");
-      }
-      
-      const elapsedDays = Math.max(0, Math.ceil((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24)));
-      
-      // Map database state to FSRS State enum
-      let fsrsState: State;
-      switch (fsrsData.state) {
-        case 'New':
-          fsrsState = State.New;
-          break;
-        case 'Learning':
-          fsrsState = State.Learning;
-          break;
-        case 'Review':
-          fsrsState = State.Review;
-          break;
-        case 'Relearning':
-          fsrsState = State.Relearning;
-          break;
-        default:
-          fsrsState = State.New;
-      }
-      
-      // Safely parse due date
-      let dueDate: Date;
-      if (fsrsData.due_date) {
-        dueDate = new Date(fsrsData.due_date);
-        if (isNaN(dueDate.getTime())) {
-          dueDate = now; // Fallback to current time for invalid dates
-        }
-      } else {
-        dueDate = now; // Use current time for new cards
-      }
-      
-      // Determine learning step based on card state and reps
-      let currentLearningStep = 0;
-      if (fsrsState === State.Learning || fsrsState === State.New) {
-        // For new/learning cards, use reps to determine which learning step
-        currentLearningStep = Math.min(fsrsData.reps, 1); // 0 for first step, 1 for second step
-      }
-
-      const fsrsCard: FSRSCard = {
-        due: dueDate,
-        stability: fsrsData.stability,
-        difficulty: fsrsData.difficulty,
-        elapsed_days: elapsedDays,
-        scheduled_days: fsrsData.scheduled_days,
-        reps: fsrsData.reps,
-        lapses: fsrsData.lapses,
-        state: fsrsState,
-        last_review: lastReview,
-        learning_steps: currentLearningStep
-      };
-      
       // Map our difficulty to FSRS Rating
       const ratingMap = {
         'again': Rating.Again,
@@ -250,66 +165,14 @@ const Study = () => {
       
       const rating = ratingMap[difficulty];
       
-      // Initialize FSRS scheduler with proper learning steps
-      const f = fsrs({
-        learning_steps: ["1m", "10m"], // 1 minute, then 10 minutes for new/learning cards
-        relearning_steps: ["10m"],     // 10 minutes for relearning
-      });
+      // Use FSRS service to process the review
+      const result = await fsrsService.processReview(cardId, rating, user.id);
       
-      // Calculate next review using FSRS
-      const schedulingCards = f.repeat(fsrsCard, now);
-      const nextCard = schedulingCards[rating].card;
-      const reviewLog = schedulingCards[rating].log;
-      
-      // Map FSRS State back to our database format
-      let newState: string;
-      switch (nextCard.state) {
-        case State.New:
-          newState = 'New';
-          break;
-        case State.Learning:
-          newState = 'Learning';
-          break;
-        case State.Review:
-          newState = 'Review';
-          break;
-        case State.Relearning:
-          newState = 'Relearning';
-          break;
-        default:
-          newState = 'New';
-      }
-      
-      // Validate the due date before converting to ISO string
-      let dueDateToUse: Date;
-      if (nextCard.due && !isNaN(nextCard.due.getTime())) {
-        dueDateToUse = nextCard.due;
-      } else {
-        // Fallback: calculate due date manually
-        const fallbackDueDate = new Date(now.getTime() + (nextCard.scheduled_days * 24 * 60 * 60 * 1000));
-        dueDateToUse = fallbackDueDate;
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to process review');
       }
 
-      // Update the FSRS data in the database
-      const { error: updateError } = await supabase
-        .from('card_fsrs')
-        .update({
-          state: newState,
-          reps: nextCard.reps,
-          lapses: nextCard.lapses,
-          difficulty: nextCard.difficulty,
-          stability: nextCard.stability,
-          scheduled_days: nextCard.scheduled_days,
-          elapsed_days: nextCard.elapsed_days,
-          due_date: dueDateToUse.toISOString(),
-          last_review: now.toISOString(),
-          updated_at: now.toISOString()
-        })
-        .eq('card_id', cardId);
-      
-      if (updateError) throw updateError;
-
-      // Invalidate the Home page cache to ensure updated due dates are reflected
+      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ 
         queryKey: QUERY_KEYS.cardsWithDetails(user.id) 
       });
@@ -317,6 +180,7 @@ const Study = () => {
         queryKey: QUERY_KEYS.studyCards(user.id) 
       });
       
+      // Move to next card or complete study session
       const nextIndex = currentCardIndex + 1;
       if (nextIndex >= cards.length) {
         setStudyComplete(true);
@@ -325,39 +189,17 @@ const Study = () => {
         setShowAnswer(false);
       }
       
-      // Calculate time until next review for user feedback
-      let reviewTime = "";
-      if (dueDateToUse && !isNaN(dueDateToUse.getTime())) {
-        const timeDiff = dueDateToUse.getTime() - now.getTime();
-        
-        if (newState === 'Learning' || newState === 'Relearning') {
-          // For learning cards, show minutes/hours
-          const minutes = Math.ceil(timeDiff / (1000 * 60));
-          if (minutes < 60) {
-            reviewTime = `${minutes} minute${minutes === 1 ? '' : 's'}`;
-          } else {
-            const hours = Math.ceil(minutes / 60);
-            reviewTime = `${hours} hour${hours === 1 ? '' : 's'}`;
-          }
-        } else {
-          // For review cards, show days
-          const days = Math.max(1, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
-          reviewTime = `${days} day${days === 1 ? '' : 's'}`;
-        }
-      } else {
-        reviewTime = "1 day"; // Default fallback
-      }
-      
+      // Show success message with review timing
       toast({
         title: "Progress saved",
-        description: `Card reviewed. Next review in ${reviewTime}. ${cards.length - nextIndex} cards remaining.`,
+        description: `Card reviewed. Next review in ${result.nextReviewIn}. ${cards.length - nextIndex} cards remaining.`,
       });
       
     } catch (error) {
       console.error("Error updating card:", error);
       toast({
         title: "Error", 
-        description: "Failed to save your progress. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save your progress. Please try again.",
         variant: "destructive"
       });
     }
