@@ -245,68 +245,78 @@ const Home = () => {
           </p>
         </div>
 
-        {/* Summary Statistics */}
-        {cards.length > 0 && (
-          <div className="mb-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-destructive/10 mx-auto mb-2">
-                  <AlertCircle className="h-4 w-4 text-destructive" />
+        {/* Summary Statistics - Only show when there are cards to study */}
+        {(() => {
+          const cardsToStudy = cards.filter(card => {
+            const { isOverdue, isDueToday, isNew } = getDueDateStatus(card.due_date);
+            return isOverdue || isDueToday || isNew;
+          });
+          
+          if (cardsToStudy.length > 0) {
+            return (
+              <div className="mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-destructive/10 mx-auto mb-2">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                    </div>
+                    <div className="text-2xl font-bold text-destructive">{stats.overdue}</div>
+                    <div className="text-xs text-muted-foreground">Overdue</div>
+                  </div>
+                  
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mx-auto mb-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="text-2xl font-bold text-primary">{stats.dueToday}</div>
+                    <div className="text-xs text-muted-foreground">Due Today</div>
+                  </div>
+                  
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mx-auto mb-2">
+                      <TrendingUp className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="text-2xl font-bold text-primary">{stats.dueSoon}</div>
+                    <div className="text-xs text-muted-foreground">Due Soon</div>
+                  </div>
+                  
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/10 mx-auto mb-2">
+                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="text-2xl font-bold">{stats.total}</div>
+                    <div className="text-xs text-muted-foreground">Total Cards</div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-destructive">{stats.overdue}</div>
-                <div className="text-xs text-muted-foreground">Overdue</div>
-              </div>
-              
-              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mx-auto mb-2">
-                  <Clock className="h-4 w-4 text-primary" />
+                
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {stats.overdue > 0 && (
+                    <Button 
+                      size="lg" 
+                      className="shadow-lg"
+                      onClick={() => navigate("/study")}
+                    >
+                      <PlayCircle className="h-5 w-5 mr-2" />
+                      Study Overdue ({stats.overdue})
+                    </Button>
+                  )}
+                  {stats.dueToday > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      onClick={() => navigate("/study")}
+                    >
+                      <Clock className="h-5 w-5 mr-2" />
+                      Study Today ({stats.dueToday})
+                    </Button>
+                  )}
                 </div>
-                <div className="text-2xl font-bold text-primary">{stats.dueToday}</div>
-                <div className="text-xs text-muted-foreground">Due Today</div>
               </div>
-              
-              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mx-auto mb-2">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                </div>
-                <div className="text-2xl font-bold text-primary">{stats.dueSoon}</div>
-                <div className="text-xs text-muted-foreground">Due Soon</div>
-              </div>
-              
-              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted/10 mx-auto mb-2">
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="text-2xl font-bold">{stats.total}</div>
-                <div className="text-xs text-muted-foreground">Total Cards</div>
-              </div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 justify-center">
-              {stats.overdue > 0 && (
-                <Button 
-                  size="lg" 
-                  className="shadow-lg"
-                  onClick={() => navigate("/study")}
-                >
-                  <PlayCircle className="h-5 w-5 mr-2" />
-                  Study Overdue ({stats.overdue})
-                </Button>
-              )}
-              {stats.dueToday > 0 && (
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  onClick={() => navigate("/study")}
-                >
-                  <Clock className="h-5 w-5 mr-2" />
-                  Study Today ({stats.dueToday})
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
+            );
+          }
+          return null;
+        })()}
 
         {/* Filter cards to show only overdue, due today, and new cards */}
         {(() => {
