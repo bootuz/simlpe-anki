@@ -1062,6 +1062,14 @@ const Index = () => {
                                           {card.front}
                                         </h3>
                                         <div className="flex items-center gap-2 flex-shrink-0">
+                                          {card.state && (
+                                            <Badge 
+                                              variant="secondary"
+                                              className={`text-xs h-5 ${getStateBadgeColor(card.state)}`}
+                                            >
+                                              {card.state}
+                                            </Badge>
+                                          )}
                                           <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                               <Button
@@ -1151,7 +1159,7 @@ const Index = () => {
                                               card.state === 'Relearning' ? 'bg-yellow-500' :
                                               'bg-muted-foreground/40'
                                             }`} />
-                                            <span>{card.state}</span>
+                                            <span>{card.state === 'Review' ? 'Mastered' : card.state}</span>
                                           </div>
                                         )}
                                       </div>
