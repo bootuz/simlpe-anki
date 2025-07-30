@@ -473,14 +473,17 @@ const Study = () => {
                       {/* Action Buttons */}
                       <div className="pt-6">
                         {!showAnswer ? (
-                          <Button 
-                            onClick={() => setShowAnswer(true)}
-                            size="lg"
-                            className="w-full max-w-xs"
-                          >
-                            <Eye className="h-5 w-5 mr-2" />
-                            Show Answer
-                          </Button>
+                          <div className="space-y-2">
+                            <Button 
+                              onClick={() => setShowAnswer(true)}
+                              size="lg"
+                              className="w-full max-w-xs"
+                            >
+                              <Eye className="h-5 w-5 mr-2" />
+                              Show Answer
+                            </Button>
+                            <p className="text-xs text-muted-foreground">Press spacebar to reveal</p>
+                          </div>
                         ) : (
                           <div className="space-y-4">
                             <p className="text-sm text-muted-foreground">How well did you know this?</p>
