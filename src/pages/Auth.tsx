@@ -103,7 +103,7 @@ const Auth = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <BookOpen className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">FlashCards</h1>
+            <h1 className="text-2xl font-bold">Simple Anki</h1>
           </div>
           <CardTitle>Welcome</CardTitle>
           <CardDescription>Sign in to your account or create a new one</CardDescription>

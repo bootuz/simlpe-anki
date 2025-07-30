@@ -141,7 +141,7 @@ const Home = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <BookOpen className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold">FlashCards</h1>
+              <h1 className="text-2xl font-bold">Simple Anki</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="outline" onClick={handleManageDecks}>
@@ -165,7 +165,7 @@ const Home = () => {
           <div className="text-center py-16">
             <div className="max-w-md mx-auto">
               <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
-              <h2 className="text-2xl font-bold mb-4">Welcome to FlashCards!</h2>
+              <h2 className="text-2xl font-bold mb-4">Welcome to Simple Anki!</h2>
               <p className="text-muted-foreground mb-8">
                 Start your learning journey by creating your first deck of flashcards. 
                 Organize your study materials into folders and decks, then use our 
