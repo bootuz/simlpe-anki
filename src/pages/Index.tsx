@@ -972,13 +972,14 @@ const Index = () => {
                              return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
                            })
                            .map((card) => (
-                             <Card 
-                               key={card.id} 
-                               className={`
-                                 transition-all duration-200 hover:shadow-md cursor-pointer min-h-[110px]
-                                 ${selectedCards.has(card.id) ? 'ring-2 ring-primary' : ''}
-                               `}
-                             >
+                              <Card 
+                                key={card.id} 
+                                className={`
+                                  transition-all duration-200 hover:shadow-md cursor-pointer min-h-[110px]
+                                  ${selectedCards.has(card.id) ? 'ring-2 ring-primary' : ''}
+                                `}
+                                onClick={() => handleCardSelection(card.id)}
+                              >
                                <CardContent className="p-4">
                                  <div className="flex flex-col gap-3">
                                    <div className="flex items-start gap-3">
