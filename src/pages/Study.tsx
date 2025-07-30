@@ -220,6 +220,13 @@ const Study = () => {
         dueDate = now; // Use current time for new cards
       }
       
+      // Determine learning step based on card state and reps
+      let currentLearningStep = 0;
+      if (fsrsState === State.Learning || fsrsState === State.New) {
+        // For new/learning cards, use reps to determine which learning step
+        currentLearningStep = Math.min(fsrsData.reps, 1); // 0 for first step, 1 for second step
+      }
+
       const fsrsCard: FSRSCard = {
         due: dueDate,
         stability: fsrsData.stability,
@@ -230,7 +237,7 @@ const Study = () => {
         lapses: fsrsData.lapses,
         state: fsrsState,
         last_review: lastReview,
-        learning_steps: 0 // Current learning step index (0 for cards past initial learning)
+        learning_steps: currentLearningStep
       };
       
       // Map our difficulty to FSRS Rating
@@ -243,8 +250,11 @@ const Study = () => {
       
       const rating = ratingMap[difficulty];
       
-      // Initialize FSRS scheduler
-      const f = fsrs();
+      // Initialize FSRS scheduler with proper learning steps
+      const f = fsrs({
+        learning_steps: ["1m", "10m"], // 1 minute, then 10 minutes for new/learning cards
+        relearning_steps: ["10m"],     // 10 minutes for relearning
+      });
       
       // Calculate next review using FSRS
       const schedulingCards = f.repeat(fsrsCard, now);
@@ -315,15 +325,32 @@ const Study = () => {
         setShowAnswer(false);
       }
       
-      // Calculate days until next review for user feedback with validation
-      let daysUntilNextReview = 1; // Default fallback
+      // Calculate time until next review for user feedback
+      let reviewTime = "";
       if (dueDateToUse && !isNaN(dueDateToUse.getTime())) {
-        daysUntilNextReview = Math.max(1, Math.ceil((dueDateToUse.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+        const timeDiff = dueDateToUse.getTime() - now.getTime();
+        
+        if (newState === 'Learning' || newState === 'Relearning') {
+          // For learning cards, show minutes/hours
+          const minutes = Math.ceil(timeDiff / (1000 * 60));
+          if (minutes < 60) {
+            reviewTime = `${minutes} minute${minutes === 1 ? '' : 's'}`;
+          } else {
+            const hours = Math.ceil(minutes / 60);
+            reviewTime = `${hours} hour${hours === 1 ? '' : 's'}`;
+          }
+        } else {
+          // For review cards, show days
+          const days = Math.max(1, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+          reviewTime = `${days} day${days === 1 ? '' : 's'}`;
+        }
+      } else {
+        reviewTime = "1 day"; // Default fallback
       }
       
       toast({
         title: "Progress saved",
-        description: `Card reviewed. Next review in ${daysUntilNextReview} day${daysUntilNextReview === 1 ? '' : 's'}. ${cards.length - nextIndex} cards remaining.`,
+        description: `Card reviewed. Next review in ${reviewTime}. ${cards.length - nextIndex} cards remaining.`,
       });
       
     } catch (error) {
