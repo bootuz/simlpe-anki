@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, BarChart3, LogOut, Clock, Calendar, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useCardsWithDetails, useRealtimeSubscription } from "@/hooks/useOptimizedQueries";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CardWithDue {
   id: string;
@@ -21,11 +21,8 @@ interface CardWithDue {
 const Home = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  
-  // Use optimized query hook with caching
-  const { data: cardsData, isLoading: cardsLoading, error: cardsError } = useCardsWithDetails();
-  const { subscribeToCards } = useRealtimeSubscription();
-  
+  const [cards, setCards] = useState<CardWithDue[]>([]);
+  const [cardsLoading, setCardsLoading] = useState(true);
   const [showAnswers, setShowAnswers] = useState<Record<string, boolean>>({});
 
   // Redirect to auth if not logged in
@@ -35,30 +32,81 @@ const Home = () => {
     }
   }, [user, loading, navigate]);
 
-  // Set up real-time subscription for automatic updates
+  // Fetch cards data
+  useEffect(() => {
+    const fetchCards = async () => {
+      if (!user) return;
+      
+      try {
+        setCardsLoading(true);
+        const { data, error } = await supabase
+          .from('cards_with_details')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) {
+          console.error('Error fetching cards:', error);
+          return;
+        }
+
+        const transformedCards: CardWithDue[] = (data || []).map(card => ({
+          id: card.id,
+          front: card.front,
+          back: card.back,
+          deck_id: card.deck_id,
+          deck_name: card.deck_name || 'Unknown Deck',
+          folder_name: card.folder_name || 'Unknown Folder',
+          due_date: card.due_date,
+          created_at: card.created_at
+        }));
+
+        setCards(transformedCards);
+      } catch (error) {
+        console.error('Error fetching cards:', error);
+      } finally {
+        setCardsLoading(false);
+      }
+    };
+
+    fetchCards();
+  }, [user]);
+
+  // Set up real-time subscription
   useEffect(() => {
     if (!user) return;
-    return subscribeToCards();
-  }, [user, subscribeToCards]);
 
-  // Handle query errors
-  useEffect(() => {
-    if (cardsError) {
-      console.error("Error loading cards:", cardsError);
-    }
-  }, [cardsError]);
+    const subscription = supabase
+      .channel('cards_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cards' }, () => {
+        // Refetch cards when there are changes
+        const fetchCards = async () => {
+          const { data, error } = await supabase
+            .from('cards_with_details')
+            .select('*')
+            .eq('user_id', user.id);
 
-  // Transform cards data from the optimized query
-  const cards: CardWithDue[] = (cardsData || []).map(card => ({
-    id: card.id,
-    front: card.front,
-    back: card.back,
-    deck_id: card.deck_id,
-    deck_name: card.deck_name || 'Unknown Deck',
-    folder_name: card.folder_name || 'Unknown Folder',
-    due_date: card.due_date,
-    created_at: card.created_at
-  }));
+          if (!error && data) {
+            const transformedCards: CardWithDue[] = data.map(card => ({
+              id: card.id,
+              front: card.front,
+              back: card.back,
+              deck_id: card.deck_id,
+              deck_name: card.deck_name || 'Unknown Deck',
+              folder_name: card.folder_name || 'Unknown Folder',
+              due_date: card.due_date,
+              created_at: card.created_at
+            }));
+            setCards(transformedCards);
+          }
+        };
+        fetchCards();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user]);
 
   const totalCards = cards.length;
 
