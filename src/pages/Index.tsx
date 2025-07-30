@@ -996,30 +996,42 @@ const Index = () => {
                                   )}
                                 </div>
 
-                                {/* Quick action buttons - positioned below the badge area */}
-                                <div className="absolute top-8 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    className="h-7 w-7 p-0 shadow-sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      editCard(card.id, card.front, card.back);
-                                    }}
-                                  >
-                                    <Edit className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    className="h-7 w-7 p-0 shadow-sm hover:bg-destructive hover:text-destructive-foreground"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      deleteCard(card.id);
-                                    }}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
+                                {/* Dropdown menu next to status badge */}
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        className="h-7 w-7 p-0 shadow-sm"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <MoreHorizontal className="h-3 w-3" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-32 bg-background border shadow-md z-50">
+                                      <DropdownMenuItem
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          editCard(card.id, card.front, card.back);
+                                        }}
+                                        className="cursor-pointer"
+                                      >
+                                        <Edit className="h-4 w-4 mr-2" />
+                                        Edit
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          deleteCard(card.id);
+                                        }}
+                                        className="text-destructive cursor-pointer focus:text-destructive"
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
                                 </div>
 
                                 <CardContent className="p-4 pl-8">
