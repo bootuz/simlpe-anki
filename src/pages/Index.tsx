@@ -963,103 +963,119 @@ const Index = () => {
                            </CardContent>
                          </Card>
 
-                         {/* Existing Cards */}
-                         {filteredCards
-                           .sort((a, b) => {
-                             if (a.due_date && b.due_date) {
-                               return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
-                             }
-                             return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-                           })
-                           .map((card) => (
-                              <Card 
-                                key={card.id} 
-                                className={`
-                                  transition-all duration-200 hover:shadow-md cursor-pointer min-h-[110px]
-                                  ${selectedCards.has(card.id) ? 'ring-2 ring-primary' : ''}
-                                `}
-                                onClick={() => handleCardSelection(card.id)}
-                              >
-                               <CardContent className="p-4">
-                                 <div className="flex flex-col gap-3">
-                                   <div className="flex items-start gap-3">
-                                     <Checkbox
-                                       checked={selectedCards.has(card.id)}
-                                       onCheckedChange={() => handleCardSelection(card.id)}
-                                       className="mt-0.5 flex-shrink-0"
-                                     />
-                                     <div className="flex-1 min-w-0">
-                                       <div className="flex items-start justify-between gap-2 mb-2">
-                                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                                           <h3 className="font-medium text-card-foreground truncate">
-                                             {card.front}
-                                           </h3>
-                                           {card.state && (
-                                             <Badge 
-                                               variant="secondary"
-                                               className={`text-xs flex-shrink-0 ${getStateBadgeColor(card.state)}`}
-                                             >
-                                               {card.state}
-                                             </Badge>
-                                           )}
-                                         </div>
-                                         <DropdownMenu>
-                                           <DropdownMenuTrigger asChild>
-                                             <Button
-                                               size="sm"
-                                               variant="ghost"
-                                               className="h-6 w-6 p-0 flex-shrink-0"
-                                               onClick={(e) => e.stopPropagation()}
-                                             >
-                                               <MoreHorizontal className="h-3 w-3" />
-                                             </Button>
-                                           </DropdownMenuTrigger>
-                                           <DropdownMenuContent align="end" className="w-32">
-                                             <DropdownMenuItem
-                                               onClick={(e) => {
-                                                 e.stopPropagation();
-                                                 editCard(card.id, card.front, card.back);
-                                               }}
-                                               className="cursor-pointer"
-                                             >
-                                               <Edit className="h-4 w-4 mr-2" />
-                                               Edit
-                                             </DropdownMenuItem>
-                                             <DropdownMenuItem
-                                               onClick={(e) => {
-                                                 e.stopPropagation();
-                                                 deleteCard(card.id);
-                                               }}
-                                               className="text-destructive cursor-pointer focus:text-destructive"
-                                             >
-                                               <Trash2 className="h-4 w-4 mr-2" />
-                                               Delete
-                                             </DropdownMenuItem>
-                                           </DropdownMenuContent>
-                                         </DropdownMenu>
-                                       </div>
-                                       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                                         {card.back}
-                                       </p>
-                                       <div className="h-4 flex items-center">
-                                         {card.due_date ? (
-                                           <div className={`text-xs flex items-center gap-1 ${getDueDateColor(card.due_date)}`}>
-                                             <Clock className="h-3 w-3" />
-                                             Due: {new Date(card.due_date).toLocaleDateString()}
-                                           </div>
-                                         ) : (
-                                           <div className="text-xs flex items-center gap-1 text-muted-foreground">
-                                             <Calendar className="h-3 w-3" />
-                                             Not reviewed yet
-                                           </div>
-                                         )}
-                                       </div>
-                                     </div>
-                                   </div>
-                                 </div>
-                               </CardContent>
-                             </Card>
-                           ))}
+                          {/* Existing Cards */}
+                          {filteredCards
+                            .sort((a, b) => {
+                              if (a.due_date && b.due_date) {
+                                return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+                              }
+                              return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                            })
+                            .map((card) => (
+                               <Card 
+                                 key={card.id} 
+                                 className={`
+                                   group relative transition-all duration-200 hover:shadow-lg cursor-pointer min-h-[120px]
+                                   ${selectedCards.has(card.id) 
+                                     ? 'ring-2 ring-primary bg-primary/5 shadow-md' 
+                                     : 'hover:shadow-md'
+                                   }
+                                 `}
+                                 onClick={() => handleCardSelection(card.id)}
+                               >
+                                {/* Selection indicator */}
+                                <div className={`
+                                  absolute top-2 left-2 w-4 h-4 rounded-full border-2 transition-all duration-200
+                                  ${selectedCards.has(card.id) 
+                                    ? 'bg-primary border-primary' 
+                                    : 'border-muted-foreground/30 group-hover:border-primary/50'
+                                  }
+                                `}>
+                                  {selectedCards.has(card.id) && (
+                                    <div className="w-2 h-2 bg-primary-foreground rounded-full absolute top-0.5 left-0.5" />
+                                  )}
+                                </div>
+
+                                {/* Quick action buttons - shown on hover */}
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className="h-7 w-7 p-0 shadow-sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      editCard(card.id, card.front, card.back);
+                                    }}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className="h-7 w-7 p-0 shadow-sm hover:bg-destructive hover:text-destructive-foreground"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteCard(card.id);
+                                    }}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+
+                                <CardContent className="p-4 pl-8">
+                                  <div className="space-y-3">
+                                    {/* Front content - main focus */}
+                                    <div className="space-y-2">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <h3 className="font-medium text-card-foreground leading-tight line-clamp-2">
+                                          {card.front}
+                                        </h3>
+                                        {card.state && (
+                                          <Badge 
+                                            variant="secondary"
+                                            className={`text-xs flex-shrink-0 h-5 ${getStateBadgeColor(card.state)}`}
+                                          >
+                                            {card.state}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Back content preview - reduced prominence */}
+                                    <div className="text-xs text-muted-foreground/80 line-clamp-1 group-hover:line-clamp-2 transition-all duration-200">
+                                      {card.back}
+                                    </div>
+
+                                    {/* Footer with due date - minimal and clean */}
+                                    <div className="pt-1 border-t border-border/50">
+                                      {card.due_date ? (
+                                        <div className={`text-xs flex items-center gap-1.5 ${getDueDateColor(card.due_date)}`}>
+                                          <Clock className="h-3 w-3" />
+                                          <span className="font-medium">
+                                            {(() => {
+                                              const dueDate = new Date(card.due_date);
+                                              const today = new Date();
+                                              const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                                              
+                                              if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`;
+                                              if (diffDays === 0) return 'Due today';
+                                              if (diffDays === 1) return 'Due tomorrow';
+                                              if (diffDays < 7) return `Due in ${diffDays}d`;
+                                              return dueDate.toLocaleDateString();
+                                            })()}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <div className="text-xs flex items-center gap-1.5 text-muted-foreground/60">
+                                          <Calendar className="h-3 w-3" />
+                                          <span>New card</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
                        </div>
                     )}
                   </>
