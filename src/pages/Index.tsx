@@ -79,6 +79,8 @@ const Index = () => {
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [newCardFront, setNewCardFront] = useState("");
   const [newCardBack, setNewCardBack] = useState("");
+  const [showGetStartedInput, setShowGetStartedInput] = useState(false);
+  const [getStartedName, setGetStartedName] = useState("");
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -767,17 +769,45 @@ const Index = () => {
                     "Set up your study space by creating a folder to organize your learning topics"
                   }
                 </p>
-                <Button 
-                  onClick={() => currentFolder ? 
-                    handleCreateDeck(currentFolder.id, "My First Deck") : 
-                    handleCreateFolder("My First Folder")
-                  }
-                  size="lg"
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-5 w-5" />
-                  {currentFolder ? "Create My First Deck" : "Get Started"}
-                </Button>
+                {showGetStartedInput ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <Input
+                      value={getStartedName}
+                      onChange={(e) => setGetStartedName(e.target.value)}
+                      placeholder={currentFolder ? "Deck name..." : "Folder name..."}
+                      className="w-64 text-center border-primary/30 focus:border-primary"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && getStartedName.trim()) {
+                          if (currentFolder) {
+                            handleCreateDeck(currentFolder.id, getStartedName.trim());
+                          } else {
+                            handleCreateFolder(getStartedName.trim());
+                          }
+                          setGetStartedName("");
+                          setShowGetStartedInput(false);
+                        }
+                        if (e.key === 'Escape') {
+                          setShowGetStartedInput(false);
+                          setGetStartedName("");
+                        }
+                      }}
+                      onBlur={() => {
+                        setShowGetStartedInput(false);
+                        setGetStartedName("");
+                      }}
+                      autoFocus
+                    />
+                  </div>
+                ) : (
+                  <Button 
+                    onClick={() => setShowGetStartedInput(true)}
+                    size="lg"
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-5 w-5" />
+                    {currentFolder ? "Create My First Deck" : "Get Started"}
+                  </Button>
+                )}
               </div>
             ) : (
               <>
