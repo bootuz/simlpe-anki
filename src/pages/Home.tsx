@@ -84,23 +84,6 @@ const Home = () => {
     }
   };
 
-  const getCardStats = () => {
-    const stats = {
-      overdue: 0,
-      dueToday: 0,
-      dueSoon: 0,
-      total: totalCards
-    };
-
-    cards.forEach(card => {
-      const { status } = getDueDateStatus(card.due_date);
-      if (status === 'overdue') stats.overdue++;
-      else if (status === 'due-today') stats.dueToday++;
-      else if (status === 'due-soon') stats.dueSoon++;
-    });
-
-    return stats;
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -134,8 +117,6 @@ const Home = () => {
     );
   }
 
-  const stats = getCardStats();
-  
   // Cards that are due for study (overdue, due today, or new)
   const cardsToStudy = cards.filter(card => {
     const { status } = getDueDateStatus(card.due_date);
@@ -167,52 +148,6 @@ const Home = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-r from-red-500/10 to-red-600/10 border-red-200/50">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-              <Clock className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.overdue}</div>
-              <p className="text-xs text-muted-foreground">Cards past due date</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 border-orange-200/50">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Due Today</CardTitle>
-              <Calendar className="h-4 w-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats.dueToday}</div>
-              <p className="text-xs text-muted-foreground">Cards due today</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-200/50">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Due Soon</CardTitle>
-              <BarChart3 className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.dueSoon}</div>
-              <p className="text-xs text-muted-foreground">Due within 3 days</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-green-500/10 to-green-600/10 border-green-200/50">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Cards</CardTitle>
-              <BookOpen className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">In your collection</p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Main Content */}
         {totalCards === 0 ? (
