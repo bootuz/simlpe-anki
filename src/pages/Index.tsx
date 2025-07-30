@@ -1150,18 +1150,6 @@ const Index = () => {
                                           </div>
                                         )}
 
-                                        {/* Progress indicator from FSRS data */}
-                                        {card.state && card.state !== 'New' && (
-                                          <div className="text-xs flex items-center gap-1.5 text-muted-foreground/80">
-                                            <div className={`w-2 h-2 rounded-full ${
-                                              card.state === 'Review' ? 'bg-green-500' :
-                                              card.state === 'Learning' ? 'bg-blue-500' :
-                                              card.state === 'Relearning' ? 'bg-yellow-500' :
-                                              'bg-muted-foreground/40'
-                                            }`} />
-                                            <span>{card.state === 'Review' ? 'Mastered' : card.state}</span>
-                                          </div>
-                                        )}
                                       </div>
 
                                       {/* Quick study action */}
