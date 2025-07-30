@@ -187,7 +187,7 @@ const Auth = () => {
         <Card className="w-full max-w-lg bg-white shadow-2xl border-0 rounded-3xl animate-fade-in relative z-10">
           {/* Header with back arrow and dynamic sign in/up link */}
           <CardHeader className="text-left pb-2">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-end mb-6">
               <div className="text-sm text-gray-500">
                 {activeTab === "signup" ? (
                   <>Already member? <button onClick={() => setActiveTab("signin")} className="text-blue-600 cursor-pointer hover:underline">Sign in</button></>
