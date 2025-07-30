@@ -102,40 +102,32 @@ const Index = () => {
     try {
       setDataLoading(true);
       
-      // Use optimized single query with the new view
-      const { data: cardsData, error: cardsError } = await supabase
-        .from("cards_with_details")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at");
+      // Get all folders and decks separately to include empty ones
+      const [foldersResult, decksResult, cardsResult] = await Promise.all([
+        supabase
+          .from("folders")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at"),
+        supabase
+          .from("decks")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at"),
+        supabase
+          .from("cards_with_details")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at")
+      ]);
 
-      if (cardsError) throw cardsError;
+      if (foldersResult.error) throw foldersResult.error;
+      if (decksResult.error) throw decksResult.error;
+      if (cardsResult.error) throw cardsResult.error;
 
-      // Extract unique folders and decks from the cards data
-      const foldersMap = new Map();
-      const decksMap = new Map();
-      
-      (cardsData || []).forEach(card => {
-        // Add folder if not exists
-        if (card.folder_id && !foldersMap.has(card.folder_id)) {
-          foldersMap.set(card.folder_id, {
-            id: card.folder_id,
-            name: card.folder_name || 'Unknown Folder'
-          });
-        }
-        
-        // Add deck if not exists
-        if (!decksMap.has(card.deck_id)) {
-          decksMap.set(card.deck_id, {
-            id: card.deck_id,
-            name: card.deck_name || 'Unknown Deck',
-            folder_id: card.folder_id
-          });
-        }
-      });
-
-      const foldersData = Array.from(foldersMap.values());
-      const decksData = Array.from(decksMap.values());
+      const foldersData = foldersResult.data || [];
+      const decksData = decksResult.data || [];
+      const cardsData = cardsResult.data || [];
 
       // Transform data to match component structure
       const transformedFolders: StudyFolder[] = foldersData.map(folder => ({
