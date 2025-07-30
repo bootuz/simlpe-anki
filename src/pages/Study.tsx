@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check, Clock, Undo2, Target } from "lucide-react";
+import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -19,17 +19,6 @@ interface StudyCard {
   created_at: string;
 }
 
-interface StudySession {
-  startTime: Date;
-  cardsReviewed: number;
-  correctAnswers: number;
-  lastAnswer?: {
-    cardId: string;
-    difficulty: 'easy' | 'medium' | 'hard' | 'again';
-    timestamp: Date;
-  };
-}
-
 const Study = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -41,13 +30,6 @@ const Study = () => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [studyComplete, setStudyComplete] = useState(false);
-  const [session, setSession] = useState<StudySession>({
-    startTime: new Date(),
-    cardsReviewed: 0,
-    correctAnswers: 0
-  });
-  const [answerFeedback, setAnswerFeedback] = useState<string | null>(null);
-  const canUndo = useRef(false);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -62,52 +44,6 @@ const Study = () => {
       loadStudyCards();
     }
   }, [user]);
-
-  const currentCard = cards[currentCardIndex];
-
-  // Keyboard shortcuts
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (!currentCard) return;
-    
-    // Prevent action if user is typing in an input
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
-      return;
-    }
-
-    switch (event.key) {
-      case ' ':
-        event.preventDefault();
-        if (!showAnswer) {
-          setShowAnswer(true);
-        }
-        break;
-      case '1':
-        event.preventDefault();
-        if (showAnswer) handleAnswer('again');
-        break;
-      case '2':
-        event.preventDefault();
-        if (showAnswer) handleAnswer('hard');
-        break;
-      case '3':
-        event.preventDefault();
-        if (showAnswer) handleAnswer('medium');
-        break;
-      case '4':
-        event.preventDefault();
-        if (showAnswer) handleAnswer('easy');
-        break;
-      case 'u':
-        event.preventDefault();
-        if (canUndo.current) handleUndo();
-        break;
-    }
-  }, [currentCard, showAnswer]);
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [handleKeyPress]);
 
   const loadStudyCards = async () => {
     try {
@@ -215,63 +151,9 @@ const Study = () => {
     }
   };
 
-  const handleUndo = async () => {
-    if (!session.lastAnswer || !canUndo.current) return;
-
-    try {
-      // Get the FSRS data before the last update
-      const { data: fsrsData, error: fsrsError } = await supabase
-        .from('card_fsrs')
-        .select('*')
-        .eq('card_id', session.lastAnswer.cardId)
-        .single();
-      
-      if (fsrsError) throw fsrsError;
-
-      // Revert to previous card
-      setCurrentCardIndex(prev => Math.max(0, prev - 1));
-      setShowAnswer(false);
-      setSession(prev => ({
-        ...prev,
-        cardsReviewed: Math.max(0, prev.cardsReviewed - 1),
-        correctAnswers: prev.lastAnswer?.difficulty === 'easy' || prev.lastAnswer?.difficulty === 'medium' 
-          ? Math.max(0, prev.correctAnswers - 1) 
-          : prev.correctAnswers,
-        lastAnswer: undefined
-      }));
-      
-      canUndo.current = false;
-      setAnswerFeedback(null);
-      
-      toast({
-        title: "Undone",
-        description: "Last answer has been undone.",
-      });
-    } catch (error) {
-      console.error("Error undoing answer:", error);
-      toast({
-        title: "Error",
-        description: "Failed to undo last answer.",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleAnswer = async (difficulty: 'easy' | 'medium' | 'hard' | 'again') => {
     try {
       const cardId = currentCard.id;
-      
-      // Show visual feedback
-      const feedbackMap = {
-        'again': '❌ Again - Keep practicing!',
-        'hard': '⚠️ Hard - Getting there!',
-        'medium': '✓ Good - Well done!',
-        'easy': '🎉 Easy - Excellent!'
-      };
-      setAnswerFeedback(feedbackMap[difficulty]);
-      
-      // Clear feedback after animation
-      setTimeout(() => setAnswerFeedback(null), 2000);
       
       // Get current FSRS data for the card
       const { data: fsrsData, error: fsrsError } = await supabase
@@ -417,21 +299,6 @@ const Study = () => {
       
       if (updateError) throw updateError;
       
-      // Update session statistics
-      const isCorrect = difficulty === 'easy' || difficulty === 'medium';
-      setSession(prev => ({
-        ...prev,
-        cardsReviewed: prev.cardsReviewed + 1,
-        correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
-        lastAnswer: {
-          cardId,
-          difficulty,
-          timestamp: new Date()
-        }
-      }));
-      
-      canUndo.current = true;
-
       const nextIndex = currentCardIndex + 1;
       if (nextIndex >= cards.length) {
         setStudyComplete(true);
@@ -461,17 +328,8 @@ const Study = () => {
     }
   };
 
+  const currentCard = cards[currentCardIndex];
   const progress = cards.length > 0 ? (currentCardIndex / cards.length) * 100 : 0;
-  
-  const formatStudyTime = (startTime: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - startTime.getTime();
-    const minutes = Math.floor(diffMs / 60000);
-    const seconds = Math.floor((diffMs % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const accuracyRate = session.cardsReviewed > 0 ? Math.round((session.correctAnswers / session.cardsReviewed) * 100) : 0;
 
   if (loading || dataLoading) {
     return (
@@ -509,29 +367,6 @@ const Study = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              {currentCard && (
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{formatStudyTime(session.startTime)}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Target className="h-4 w-4" />
-                    <span>{accuracyRate}% accuracy</span>
-                  </div>
-                  {canUndo.current && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleUndo}
-                      className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                    >
-                      <Undo2 className="h-4 w-4" />
-                      Undo (U)
-                    </Button>
-                  )}
-                </div>
-              )}
               {user && (
                 <Button
                   variant="outline"
@@ -561,22 +396,6 @@ const Study = () => {
                 <p className="text-lg text-muted-foreground">
                   Great job! You've reviewed all your due cards.
                 </p>
-                
-                {/* Session Statistics */}
-                <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{session.cardsReviewed}</div>
-                    <div className="text-sm text-muted-foreground">Cards Reviewed</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{formatStudyTime(session.startTime)}</div>
-                    <div className="text-sm text-muted-foreground">Study Time</div>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">{accuracyRate}%</div>
-                    <div className="text-sm text-muted-foreground">Accuracy</div>
-                  </div>
-                </div>
                 <div className="flex justify-center gap-4">
                   <Button onClick={() => navigate("/")} size="lg">
                     <Home className="h-5 w-5 mr-2" />
@@ -591,16 +410,11 @@ const Study = () => {
             ) : currentCard ? (
               // Study Interface
               <div className="space-y-6">
-                {/* Progress Bar and Stats */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-muted-foreground">
-                      <span>Progress: {currentCardIndex + 1} of {cards.length}</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>⏱️ {formatStudyTime(session.startTime)}</span>
-                      <span>🎯 {accuracyRate}%</span>
-                    </div>
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Progress</span>
+                    <span>{currentCardIndex + 1} of {cards.length}</span>
                   </div>
                   <div className="w-full bg-muted/30 rounded-full h-2">
                     <div 
@@ -638,84 +452,57 @@ const Study = () => {
                         </div>
                       )}
 
-                      {/* Answer Feedback */}
-                      {answerFeedback && (
-                        <div className="animate-fade-in text-center py-2">
-                          <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium">
-                            {answerFeedback}
-                          </div>
-                        </div>
-                      )}
-
                       {/* Action Buttons */}
                       <div className="pt-6">
                         {!showAnswer ? (
-                          <div className="space-y-2">
-                            <Button 
-                              onClick={() => setShowAnswer(true)}
-                              size="lg"
-                              className="w-full max-w-xs animate-scale-in"
-                            >
-                              <Eye className="h-5 w-5 mr-2" />
-                              Show Answer
-                            </Button>
-                            <div className="text-xs text-muted-foreground">Press Space to reveal</div>
-                          </div>
+                          <Button 
+                            onClick={() => setShowAnswer(true)}
+                            size="lg"
+                            className="w-full max-w-xs"
+                          >
+                            <Eye className="h-5 w-5 mr-2" />
+                            Show Answer
+                          </Button>
                         ) : (
-                          <div className="space-y-4 animate-fade-in">
+                          <div className="space-y-4">
                             <p className="text-sm text-muted-foreground">How well did you know this?</p>
                             <div className="grid grid-cols-4 gap-2">
                                <Button 
                                  onClick={() => handleAnswer('again')}
                                  variant="outline"
                                  size="lg"
-                                 className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400 py-3 transition-all hover:scale-105"
+                                 className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400 py-3"
                                >
                                  <XCircle className="h-4 w-4 mr-1" />
-                                 <div className="flex flex-col">
-                                   <span>Again</span>
-                                   <span className="text-xs opacity-60">(1)</span>
-                                 </div>
+                                 Again
                                </Button>
                                <Button 
                                  onClick={() => handleAnswer('hard')}
                                  variant="outline"
                                  size="lg"
-                                 className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400 py-3 transition-all hover:scale-105"
+                                 className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400 py-3"
                                >
                                  <AlertTriangle className="h-4 w-4 mr-1" />
-                                 <div className="flex flex-col">
-                                   <span>Hard</span>
-                                   <span className="text-xs opacity-60">(2)</span>
-                                 </div>
+                                 Hard
                                </Button>
                                <Button 
                                  onClick={() => handleAnswer('medium')}
                                  variant="outline"
                                  size="lg"
-                                 className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 py-3 transition-all hover:scale-105"
+                                 className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 py-3"
                                >
                                  <Check className="h-4 w-4 mr-1" />
-                                 <div className="flex flex-col">
-                                   <span>Good</span>
-                                   <span className="text-xs opacity-60">(3)</span>
-                                 </div>
+                                 Good
                                </Button>
                                <Button 
                                  onClick={() => handleAnswer('easy')}
                                  variant="outline"
                                  size="lg"
-                                 className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3 transition-all hover:scale-105"
+                                 className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3"
                                >
                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                 <div className="flex flex-col">
-                                   <span>Easy</span>
-                                   <span className="text-xs opacity-60">(4)</span>
-                                 </div>
+                                 Easy
                                </Button>
-                            </div>
-                            <div className="text-xs text-muted-foreground text-center">
-                              Use keyboard shortcuts: 1 (Again), 2 (Hard), 3 (Good), 4 (Easy), U (Undo)
                             </div>
                           </div>
                         )}
