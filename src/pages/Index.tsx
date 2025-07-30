@@ -999,7 +999,7 @@ const Index = () => {
 
                                 <CardContent className="p-4 pl-8">
                                   <div className="space-y-3">
-                                    {/* Header with title, badge, and actions */}
+                                    {/* Front content - main focus */}
                                     <div className="space-y-2">
                                       <div className="flex items-start justify-between gap-2">
                                         <h3 className="font-medium text-card-foreground leading-tight line-clamp-2 flex-1">
@@ -1052,75 +1052,35 @@ const Index = () => {
                                       </div>
                                     </div>
 
-                                    {/* Back content preview - only visible on hover */}
-                                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 text-xs text-muted-foreground/80 line-clamp-2 border-l-2 border-muted pl-3">
-                                      <span className="font-medium text-muted-foreground">Answer:</span> {card.back}
+                                    {/* Back content preview - reduced prominence */}
+                                    <div className="text-xs text-muted-foreground/80 line-clamp-1 group-hover:line-clamp-2 transition-all duration-200">
+                                      {card.back}
                                     </div>
 
-                                    {/* Footer with progress and due date */}
-                                    <div className="pt-2 border-t border-border/50 flex items-center justify-between">
-                                      <div className="flex items-center gap-3">
-                                        {/* Due date with enhanced styling */}
-                                        {card.due_date ? (
-                                          <div className={`text-xs flex items-center gap-1.5 font-medium ${(() => {
-                                            const dueDate = new Date(card.due_date);
-                                            const today = new Date();
-                                            const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                                            
-                                            if (diffDays < 0) return 'text-destructive';
-                                            if (diffDays === 0) return 'text-orange-600 dark:text-orange-400';
-                                            if (diffDays <= 2) return 'text-yellow-600 dark:text-yellow-400';
-                                            return 'text-muted-foreground';
-                                          })()}`}>
-                                            <Clock className="h-3 w-3" />
-                                            <span>
-                                              {(() => {
-                                                const dueDate = new Date(card.due_date);
-                                                const today = new Date();
-                                                const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                                                
-                                                if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`;
-                                                if (diffDays === 0) return 'Due today';
-                                                if (diffDays === 1) return 'Due tomorrow';
-                                                if (diffDays < 7) return `Due in ${diffDays}d`;
-                                                return dueDate.toLocaleDateString();
-                                              })()}
-                                            </span>
-                                          </div>
-                                        ) : (
-                                          <div className="text-xs flex items-center gap-1.5 text-muted-foreground/60">
-                                            <Calendar className="h-3 w-3" />
-                                            <span>New card</span>
-                                          </div>
-                                        )}
-
-                                        {/* Progress indicator from FSRS data */}
-                                        {card.state && card.state !== 'New' && (
-                                          <div className="text-xs flex items-center gap-1.5 text-muted-foreground/80">
-                                            <div className={`w-2 h-2 rounded-full ${
-                                              card.state === 'Review' ? 'bg-green-500' :
-                                              card.state === 'Learning' ? 'bg-blue-500' :
-                                              card.state === 'Relearning' ? 'bg-yellow-500' :
-                                              'bg-muted-foreground/40'
-                                            }`} />
-                                            <span>{card.state === 'Review' ? 'Mastered' : card.state}</span>
-                                          </div>
-                                        )}
-                                      </div>
-
-                                      {/* Quick study action */}
-                                      {card.due_date && new Date(card.due_date) <= new Date() && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="h-6 text-xs px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigate('/study');
-                                          }}
-                                        >
-                                          Study Now
-                                        </Button>
+                                    {/* Footer with due date - minimal and clean */}
+                                    <div className="pt-1 border-t border-border/50">
+                                      {card.due_date ? (
+                                        <div className={`text-xs flex items-center gap-1.5 ${getDueDateColor(card.due_date)}`}>
+                                          <Clock className="h-3 w-3" />
+                                          <span className="font-medium">
+                                            {(() => {
+                                              const dueDate = new Date(card.due_date);
+                                              const today = new Date();
+                                              const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                                              
+                                              if (diffDays < 0) return `${Math.abs(diffDays)}d overdue`;
+                                              if (diffDays === 0) return 'Due today';
+                                              if (diffDays === 1) return 'Due tomorrow';
+                                              if (diffDays < 7) return `Due in ${diffDays}d`;
+                                              return dueDate.toLocaleDateString();
+                                            })()}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <div className="text-xs flex items-center gap-1.5 text-muted-foreground/60">
+                                          <Calendar className="h-3 w-3" />
+                                          <span>New card</span>
+                                        </div>
                                       )}
                                     </div>
                                   </div>
