@@ -79,8 +79,10 @@ const Index = () => {
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [newCardFront, setNewCardFront] = useState("");
   const [newCardBack, setNewCardBack] = useState("");
-  const [showGetStartedInput, setShowGetStartedInput] = useState(false);
-  const [getStartedName, setGetStartedName] = useState("");
+  
+  // Sidebar trigger state
+  const [triggerNewFolder, setTriggerNewFolder] = useState(false);
+  const [triggerNewDeck, setTriggerNewDeck] = useState<string | null>(null);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -710,6 +712,12 @@ const Index = () => {
         onDeleteFolder={handleDeleteFolder}
         onDeleteDeck={handleDeleteDeck}
         onToggleFolder={handleToggleFolder}
+        triggerNewFolder={triggerNewFolder}
+        triggerNewDeck={triggerNewDeck}
+        onResetTriggers={() => {
+          setTriggerNewFolder(false);
+          setTriggerNewDeck(null);
+        }}
       />
       
       <div className="flex-1 flex flex-col">
@@ -769,45 +777,20 @@ const Index = () => {
                     "Set up your study space by creating a folder to organize your learning topics"
                   }
                 </p>
-                {showGetStartedInput ? (
-                  <div className="flex flex-col items-center gap-4">
-                    <Input
-                      value={getStartedName}
-                      onChange={(e) => setGetStartedName(e.target.value)}
-                      placeholder={currentFolder ? "Deck name..." : "Folder name..."}
-                      className="w-64 text-center border-primary/30 focus:border-primary"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && getStartedName.trim()) {
-                          if (currentFolder) {
-                            handleCreateDeck(currentFolder.id, getStartedName.trim());
-                          } else {
-                            handleCreateFolder(getStartedName.trim());
-                          }
-                          setGetStartedName("");
-                          setShowGetStartedInput(false);
-                        }
-                        if (e.key === 'Escape') {
-                          setShowGetStartedInput(false);
-                          setGetStartedName("");
-                        }
-                      }}
-                      onBlur={() => {
-                        setShowGetStartedInput(false);
-                        setGetStartedName("");
-                      }}
-                      autoFocus
-                    />
-                  </div>
-                ) : (
-                  <Button 
-                    onClick={() => setShowGetStartedInput(true)}
-                    size="lg"
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="h-5 w-5" />
-                    {currentFolder ? "Create My First Deck" : "Get Started"}
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => {
+                    if (currentFolder) {
+                      setTriggerNewDeck(currentFolder.id);
+                    } else {
+                      setTriggerNewFolder(true);
+                    }
+                  }}
+                  size="lg"
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-5 w-5" />
+                  {currentFolder ? "Create My First Deck" : "Get Started"}
+                </Button>
               </div>
             ) : (
               <>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Folder, 
   FolderOpen, 
@@ -58,6 +58,9 @@ interface AppSidebarProps {
   onDeleteFolder: (folderId: string) => void;
   onDeleteDeck: (folderId: string, deckId: string) => void;
   onToggleFolder: (folderId: string) => void;
+  triggerNewFolder?: boolean;
+  triggerNewDeck?: string | null;
+  onResetTriggers?: () => void;
 }
 
 export function AppSidebar({
@@ -73,6 +76,9 @@ export function AppSidebar({
   onDeleteFolder,
   onDeleteDeck,
   onToggleFolder,
+  triggerNewFolder,
+  triggerNewDeck,
+  onResetTriggers,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -83,6 +89,21 @@ export function AppSidebar({
   const [editingFolder, setEditingFolder] = useState<string | null>(null);
   const [editingDeck, setEditingDeck] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+
+  // Handle external triggers
+  useEffect(() => {
+    if (triggerNewFolder) {
+      setShowNewFolder(true);
+      onResetTriggers?.();
+    }
+  }, [triggerNewFolder, onResetTriggers]);
+
+  useEffect(() => {
+    if (triggerNewDeck) {
+      setShowNewDeck(triggerNewDeck);
+      onResetTriggers?.();
+    }
+  }, [triggerNewDeck, onResetTriggers]);
 
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
