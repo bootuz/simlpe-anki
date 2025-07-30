@@ -99,9 +99,8 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary via-accent to-primary/20">
-      <Card className="w-full max-w-md mx-auto bg-card/90 backdrop-blur-2xl border border-primary/30 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_2px_16px_rgba(0,0,0,0.08)] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:from-primary/40 before:via-accent/30 before:to-primary/40 before:-z-10 relative overflow-hidden animate-fade-in hover:shadow-[0_12px_48px_rgba(0,0,0,0.15),0_4px_24px_rgba(0,0,0,0.1)] transition-all duration-300">
-        <div className="absolute inset-0 bg-gradient-to-br from-card/50 via-transparent to-accent/5 pointer-events-none"></div>
-        <CardHeader className="text-center relative z-10">
+      <Card className="w-full max-w-md mx-auto bg-card/95 backdrop-blur-xl border-2 border-primary/20 shadow-2xl shadow-primary/25 ring-1 ring-accent/50 animate-fade-in">
+        <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <BookOpen className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold">Simple Anki</h1>
@@ -109,7 +108,7 @@ const Auth = () => {
           <CardTitle>Welcome</CardTitle>
           <CardDescription>Sign in to your account or create a new one</CardDescription>
         </CardHeader>
-        <CardContent className="relative z-10">
+        <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
