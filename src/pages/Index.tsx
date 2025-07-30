@@ -997,7 +997,7 @@ const Index = () => {
                                 </div>
 
                                 {/* Dropdown menu next to status badge */}
-                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <div className="absolute top-2 right-2">
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button
