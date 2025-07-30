@@ -6,7 +6,7 @@ import { BookOpen, LogOut, RotateCcw, Eye, EyeOff, CheckCircle, XCircle, Home, A
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { fsrs, Card as FSRSCard, Rating, State } from "ts-fsrs";
+import { fsrs, Card as FSRSCard, Rating, State, date_diff, formatDate } from "ts-fsrs";
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from "@/hooks/useOptimizedQueries";
 

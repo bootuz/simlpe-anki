@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getDueDateInfo, isCardDueForStudy } from "@/utils/fsrsUtils";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,19 +69,29 @@ const Home = () => {
       return { status: 'new', daysUntilDue: 0, label: 'New' };
     }
 
-    const now = new Date();
-    const due = new Date(dueDate);
-    const diffTime = due.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) {
-      return { status: 'overdue', daysUntilDue: Math.abs(diffDays), label: `${Math.abs(diffDays)} days overdue` };
-    } else if (diffDays === 0) {
-      return { status: 'due-today', daysUntilDue: 0, label: 'Due today' };
-    } else if (diffDays <= 3) {
-      return { status: 'due-soon', daysUntilDue: diffDays, label: `Due in ${diffDays} days` };
-    } else {
-      return { status: 'future', daysUntilDue: diffDays, label: `Due in ${diffDays} days` };
+    const info = getDueDateInfo(dueDate);
+    
+    // Map FSRS status to Home page status for compatibility
+    switch (info.status) {
+      case 'overdue':
+        return { 
+          status: 'overdue', 
+          daysUntilDue: info.timeValue, 
+          label: info.label 
+        };
+      case 'due-now':
+      case 'due-soon':
+        return { 
+          status: 'due-today', 
+          daysUntilDue: 0, 
+          label: info.label 
+        };
+      default:
+        return { 
+          status: 'future', 
+          daysUntilDue: info.timeValue, 
+          label: info.label 
+        };
     }
   };
 
