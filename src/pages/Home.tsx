@@ -114,8 +114,6 @@ const Home = () => {
       }));
 
       setCards(transformedCards);
-      
-      console.log('Debug: totalCards =', totalCardCount, 'transformedCards =', transformedCards.length);
     } catch (error) {
       console.error("Error loading cards:", error);
       toast({
@@ -318,7 +316,6 @@ const Home = () => {
           });
 
           if (cardsToStudy.length === 0) {
-            console.log('Debug: Empty state - cardsToStudy.length =', cardsToStudy.length, 'totalCards =', totalCards);
             // Empty state handling
             if (totalCards === 0) {
               // No cards at all - new user onboarding
