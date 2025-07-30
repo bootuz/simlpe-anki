@@ -802,19 +802,25 @@ const Index = () => {
             ) : !currentDeck ? (
               <div className="flex flex-col items-center justify-center text-center py-16 px-4">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
-                  <Folder className="h-8 w-8 text-primary" />
+                  <BookOpen className="h-8 w-8 text-primary" />
                 </div>
                 <h2 className="text-2xl font-bold mb-3">No Deck Selected</h2>
                 <p className="text-muted-foreground mb-8 max-w-md">
-                  Create a folder and deck to start organizing your flashcards for effective learning
+                  {currentFolder ? 
+                    `Create a deck in "${currentFolder.name}" to start adding flashcards` :
+                    "Create a folder and deck to start organizing your flashcards for effective learning"
+                  }
                 </p>
                 <Button 
-                  onClick={() => handleCreateFolder("My First Folder")}
+                  onClick={() => currentFolder ? 
+                    handleCreateDeck(currentFolder.id, "My First Deck") : 
+                    handleCreateFolder("My First Folder")
+                  }
                   size="lg"
                   className="flex items-center gap-2"
                 >
                   <Plus className="h-5 w-5" />
-                  Create Your First Folder
+                  {currentFolder ? "Create Your First Deck" : "Create Your First Folder"}
                 </Button>
               </div>
             ) : (
