@@ -306,7 +306,102 @@ const Home = () => {
             return isOverdue || isDueToday || isNew;
           });
 
-          return cardsToStudy.length === 0 ? null : (
+          if (cardsToStudy.length === 0) {
+            // Empty state handling
+            if (cards.length === 0) {
+              // No cards at all - new user onboarding
+              return (
+                <div className="text-center py-16 space-y-8">
+                  <div className="space-y-4">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
+                      <BookOpen className="h-10 w-10 text-primary" />
+                    </div>
+                    <h3 className="text-2xl font-bold">Welcome to Simple Anki!</h3>
+                    <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+                      Get started by creating your first deck of flashcards. Organize your learning with spaced repetition.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button size="lg" onClick={() => navigate("/manage")} className="shadow-lg">
+                        <FolderOpen className="h-5 w-5 mr-2" />
+                        Create Your First Deck
+                      </Button>
+                      <Button variant="outline" size="lg" onClick={() => navigate("/study")}>
+                        <PlayCircle className="h-5 w-5 mr-2" />
+                        Learn How to Study
+                      </Button>
+                    </div>
+                    
+                    <div className="text-sm text-muted-foreground">
+                      <p>💡 Tip: Start with a small deck of 10-20 cards for your first topic</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            } else {
+              // Has cards but none are due for review
+              const nextDueCard = cards
+                .filter(card => card.due_date)
+                .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())[0];
+              
+              return (
+                <div className="text-center py-16 space-y-8">
+                  <div className="space-y-4">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/10 mb-4">
+                      <Calendar className="h-10 w-10 text-green-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold">You're all caught up! 🎉</h3>
+                    <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+                      Great job! All your cards are scheduled for future review. Your next cards will be ready soon.
+                    </p>
+                  </div>
+                  
+                  {nextDueCard && (
+                    <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 max-w-md mx-auto">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <Clock className="h-4 w-4" />
+                        <span>Next review:</span>
+                      </div>
+                      <div className="text-lg font-semibold">
+                        {new Date(nextDueCard.due_date).toLocaleString('en-US', { 
+                          weekday: 'long',
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {nextDueCard.deck_name} deck
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button variant="outline" size="lg" onClick={() => navigate("/manage")}>
+                        <FolderOpen className="h-5 w-5 mr-2" />
+                        Add More Cards
+                      </Button>
+                      <Button variant="outline" size="lg" onClick={() => navigate("/study")}>
+                        <PlayCircle className="h-5 w-5 mr-2" />
+                        Review All Cards
+                      </Button>
+                    </div>
+                    
+                    <div className="text-sm text-muted-foreground">
+                      <p>💪 Keep up the great work with your learning routine!</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+          }
+
+          return (
             <div className="w-full space-y-6">
               <div className="space-y-6">
                 {cardsToStudy.map((card, index) => {
