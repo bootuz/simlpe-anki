@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
+import { validateCardContent, sanitizeCardContent } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddCardFormProps {
   onAdd: (front: string, back: string) => void;
@@ -13,15 +15,41 @@ export const AddCardForm = ({ onAdd }: AddCardFormProps) => {
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (front.trim() && back.trim()) {
-      onAdd(front.trim(), back.trim());
-      setFront("");
-      setBack("");
-      setIsExpanded(false);
+    
+    // Validate front content
+    const frontValidation = validateCardContent(front);
+    if (!frontValidation.isValid) {
+      toast({
+        title: "Invalid front content",
+        description: frontValidation.error,
+        variant: "destructive",
+      });
+      return;
     }
+    
+    // Validate back content
+    const backValidation = validateCardContent(back);
+    if (!backValidation.isValid) {
+      toast({
+        title: "Invalid back content",
+        description: backValidation.error,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Sanitize and submit
+    const sanitizedFront = sanitizeCardContent(front);
+    const sanitizedBack = sanitizeCardContent(back);
+    
+    onAdd(sanitizedFront, sanitizedBack);
+    setFront("");
+    setBack("");
+    setIsExpanded(false);
   };
 
   if (!isExpanded) {
