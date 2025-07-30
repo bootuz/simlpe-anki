@@ -226,24 +226,30 @@ const Home = () => {
       {/* Main Content */}
       <main className="py-12 w-full">
         <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-            <Calendar className="h-6 w-6 text-primary" />
-          </div>
-          <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            {(() => {
-              const cardsToStudy = cards.filter(card => {
-                const { isOverdue, daysUntilDue } = getDueDateStatus(card.due_date);
-                const isDueToday = daysUntilDue === 0 && !isOverdue;
-                return isOverdue || isDueToday;
-              });
-              return cardsToStudy.length > 0 ? "Cards Due for Review" : "No cards to review right now";
-            })()}
-          </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Stay on top of your learning with spaced repetition flashcards
-          </p>
-        </div>
+        {/* Header - Only show when there are cards to study */}
+        {(() => {
+          const cardsToStudy = cards.filter(card => {
+            const { isOverdue, isDueToday, isNew } = getDueDateStatus(card.due_date);
+            return isOverdue || isDueToday || isNew;
+          });
+          
+          if (cardsToStudy.length > 0) {
+            return (
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+                  <Calendar className="h-6 w-6 text-primary" />
+                </div>
+                <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                  Cards Due for Review
+                </h2>
+                <p className="text-muted-foreground max-w-xl mx-auto">
+                  Stay on top of your learning with spaced repetition flashcards
+                </p>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {/* Summary Statistics - Only show when there are cards to study */}
         {(() => {
