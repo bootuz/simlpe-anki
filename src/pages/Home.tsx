@@ -413,8 +413,8 @@ const Home = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-3 mb-2">
                             <Badge 
-                              variant={status === 'overdue' ? 'destructive' : status === 'new' ? 'default' : 'secondary'}
-                              className="text-xs shrink-0"
+                              variant={status === 'overdue' ? 'destructive' : 'secondary'}
+                              className={`text-xs shrink-0 ${status === 'new' ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300 dark:hover:bg-green-800/50' : ''}`}
                             >
                               {status === 'new' ? 'New' : status === 'overdue' ? 'Overdue' : 'Due'}
                             </Badge>
