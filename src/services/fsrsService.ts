@@ -139,7 +139,7 @@ export class FSRSService {
   }
 
   /**
-   * Schedule next review for a card based on user rating
+   * Schedule the next review for a card based on user rating
    */
   scheduleReview(card: FSRSCard, rating: Rating, reviewDate?: Date): {
     updatedCard: FSRSCard;

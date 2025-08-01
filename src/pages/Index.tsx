@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 import { getDueDateInfo, getDueDateStatusClass } from "@/utils/fsrsUtils";
 import { useNavigate } from "react-router-dom";
-import { FlashCard } from "@/components/FlashCard";
 import { AppSidebar, StudyFolder, Deck } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,13 +21,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { 
-  ChevronLeft, 
-  ChevronRight, 
-  BookOpen, 
+  BookOpen,
   Folder, 
   Plus, 
   LogOut, 
@@ -38,7 +33,6 @@ import {
   Calendar,
   Clock,
   Trash2,
-  CheckSquare,
   MoreHorizontal,
   Edit,
   Layers3

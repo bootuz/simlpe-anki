@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { getDueDateInfo, isCardDueForStudy } from "@/utils/fsrsUtils";
+import { getDueDateInfo } from "@/utils/fsrsUtils";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, TrendingUp, LogOut, Plus, GraduationCap, Brain, Target, Sparkles, Clock, Users, BarChart3, Zap } from "lucide-react";
+import { BookOpen, TrendingUp, LogOut, Plus, GraduationCap, Brain, Target, Sparkles, Clock, Users, BarChart3, Zap, Folder } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCardsWithDetails, useRealtimeSubscription } from "@/hooks/useOptimizedQueries";
 
@@ -404,35 +404,42 @@ const Home = () => {
                   const cardBgClass = status === 'new' 
                     ? 'bg-green-50 border-green-200 hover:bg-green-100 hover:border-green-300 dark:bg-green-950/50 dark:border-green-800 dark:hover:bg-green-900/50 dark:hover:border-green-700'
                     : status === 'overdue'
-                    ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300 dark:bg-red-950/50 dark:border-red-800 dark:hover:bg-red-900/50 dark:hover:border-red-700'
+                    ? 'bg-red-50/60 border-red-200/60 hover:bg-red-100/80 hover:border-red-300/80 dark:bg-red-950/30 dark:border-red-800/50 dark:hover:bg-red-900/40 dark:hover:border-red-700/60'
                     : 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300 dark:bg-orange-950/50 dark:border-orange-800 dark:hover:bg-orange-900/50 dark:hover:border-orange-700';
                   
                   return (
-                    <div key={card.id} className={`group relative ${cardBgClass} rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer`}>
+                    <div key={card.id} className={`group relative ${cardBgClass} rounded-xl p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border`}>
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-3 mb-2">
                             <Badge 
                               variant={status === 'overdue' ? 'destructive' : 'secondary'}
-                              className={`text-xs shrink-0 ${status === 'new' ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300 dark:hover:bg-green-800/50' : ''}`}
+                              className={`text-xs shrink-0 ${
+                                status === 'new' 
+                                  ? 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:text-white dark:hover:bg-green-700' 
+                                  : status === 'due-today'
+                                  ? 'bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-600 dark:text-white dark:hover:bg-orange-700'
+                                  : ''
+                              }`}
                             >
                               {status === 'new' ? 'New' : status === 'overdue' ? 'Overdue' : 'Due'}
                             </Badge>
-                            <span className="text-xs text-muted-foreground truncate">
-                              {card.deck_name}
-                            </span>
+                            <div className="flex items-center space-x-1 text-xs text-muted-foreground/80">
+                              <Folder className="h-3 w-3" />
+                              <span className="font-medium">{card.folder_name}</span>
+                              <span>/</span>
+                              <BookOpen className="h-3 w-3" />
+                              <span className="font-medium">{card.deck_name}</span>
+                            </div>
                           </div>
-                          <p className="font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-base">
                             {card.front}
                           </p>
                         </div>
-                        <div className="flex items-center space-x-3 ml-4">
-                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        <div className="flex items-center space-x-4 ml-6">
+                          <span className="text-sm text-muted-foreground whitespace-nowrap font-medium">
                             {label}
                           </span>
-                          <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
-                            <span className="text-xs font-medium">{index + 1}</span>
-                          </div>
                         </div>
                       </div>
                     </div>
