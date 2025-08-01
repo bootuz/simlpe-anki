@@ -401,8 +401,14 @@ const Home = () => {
               <div className="space-y-3 max-w-4xl mx-auto">
                 {cardsToStudy.slice(0, 8).map((card, index) => {
                   const { status, label } = getDueDateStatus(card.due_date);
+                  const cardBgClass = status === 'new' 
+                    ? 'bg-green-50 border-green-200 hover:bg-green-100 hover:border-green-300 dark:bg-green-950/50 dark:border-green-800 dark:hover:bg-green-900/50 dark:hover:border-green-700'
+                    : status === 'overdue'
+                    ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300 dark:bg-red-950/50 dark:border-red-800 dark:hover:bg-red-900/50 dark:hover:border-red-700'
+                    : 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300 dark:bg-orange-950/50 dark:border-orange-800 dark:hover:bg-orange-900/50 dark:hover:border-orange-700';
+                  
                   return (
-                    <div key={card.id} className="group relative bg-card border border-border/50 rounded-lg p-4 hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer">
+                    <div key={card.id} className={`group relative ${cardBgClass} rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer`}>
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-3 mb-2">
