@@ -399,9 +399,12 @@ const Home = () => {
               }, {} as Record<string, {folder_name: string, deck_name: string, cards: CardWithDue[]}>);
 
               return (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-center">Your Study Queue</h3>
-                  <div className="grid gap-6 max-w-4xl mx-auto">
+                <div className="space-y-8">
+                  <div className="text-center space-y-2">
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Your Study Queue</h3>
+                    <p className="text-muted-foreground">Cards organized by deck and priority</p>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     {Object.values(groupedCards).slice(0, 3).map((group, groupIndex) => (
                       <div key={groupIndex} className="bg-card border rounded-lg overflow-hidden">
                         {/* Deck Header */}
