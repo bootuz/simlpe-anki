@@ -400,11 +400,21 @@ const Home = () => {
 
               return (
                 <div className="space-y-8">
-                  <div className="text-center space-y-2">
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Your Study Queue</h3>
-                    <p className="text-muted-foreground">Cards organized by deck and priority</p>
+                  <div className="flex items-center justify-between max-w-4xl mx-auto">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Clock className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold">Study Queue</h3>
+                        <p className="text-sm text-muted-foreground">Prioritized by urgency</p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="px-3 py-1">
+                      {Object.values(groupedCards).length} decks
+                    </Badge>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                  <div className="space-y-3 max-w-4xl mx-auto">
                     {Object.values(groupedCards).slice(0, 3).map((group, groupIndex) => (
                       <div key={groupIndex} className="bg-card border rounded-lg overflow-hidden">
                         {/* Deck Header */}
