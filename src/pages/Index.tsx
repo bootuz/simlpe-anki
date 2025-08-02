@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,9 +41,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCardMutations } from "@/hooks/useOptimizedQueries";
-import { EnhancedCard } from "@/components/EnhancedCard";
-import { EmptyState } from "@/components/EmptyState";
-import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 
 interface Card {
   id: string;
@@ -863,11 +859,45 @@ const Index = () => {
                 </Dialog>
 
                 {currentDeckCards.length === 0 ? (
-                  <EmptyState 
-                    type="no-cards"
-                    onAction={() => setIsAddCardModalOpen(true)}
-                    actionLabel="Add Your First Card"
-                  />
+                  <div className="flex flex-col items-center justify-center text-center py-12 px-4">
+                    {/* Enhanced Visual Elements */}
+                    <div className="relative mb-8">
+                      {/* Background decoration */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-full blur-3xl scale-150"></div>
+                      
+                      {/* Main icon stack */}
+                      <div className="relative flex items-center justify-center">
+                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse"></div>
+                        <div className="relative bg-background border-2 border-primary/20 rounded-full p-6 shadow-lg">
+                          <Layers3 className="h-12 w-12 text-primary" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Enhanced Headlines */}
+                    <div className="space-y-3 mb-8">
+                      <h3 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                        Your {currentDeck?.name} deck is empty
+                      </h3>
+                      <p className="text-lg text-muted-foreground/90 max-w-lg leading-relaxed">
+                        Add your first card to this deck and start building your knowledge.
+                      </p>
+                    </div>
+
+
+                    {/* Enhanced CTA Section */}
+                    <div className="flex justify-center">
+                      <Button 
+                        onClick={() => setIsAddCardModalOpen(true)}
+                        size="lg"
+                        className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25 transition-all duration-200"
+                      >
+                        <Plus className="h-5 w-5" />
+                        Create Your First Card
+                      </Button>
+                    </div>
+
+                  </div>
                 ) : (
                   <>
                     {/* Search and Filter Bar */}
@@ -942,24 +972,21 @@ const Index = () => {
 
                     {/* Cards Display */}
                     {filteredCards.length === 0 ? (
-                      <EmptyState 
-                        type="no-cards"
-                        onAction={() => setIsAddCardModalOpen(true)}
-                        actionLabel="Add New Card"
-                      />
+                      <div className="text-center py-12">
+                        <Filter className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold mb-2">No cards match your filters</h3>
+                        <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+                      </div>
                     ) : (
-                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                          {/* Add Card Button - Always first */}
                          <Card 
-                           className="group transition-all duration-200 hover:shadow-lg hover:-translate-y-1 cursor-pointer border-dashed border-2 border-muted-foreground/25 hover:border-primary/50 bg-muted/30"
+                           className="transition-all duration-200 hover:shadow-md cursor-pointer border-dashed border-2 hover:border-primary/50"
                            onClick={() => setIsAddCardModalOpen(true)}
                          >
-                           <CardContent className="p-6 h-full flex flex-col items-center justify-center min-h-[200px]">
-                             <div className="p-4 rounded-full bg-primary/10 mb-3 group-hover:bg-primary/20 transition-colors">
-                               <Plus className="h-8 w-8 text-primary" />
-                             </div>
-                             <span className="text-sm font-medium text-foreground">Add New Card</span>
-                             <span className="text-xs text-muted-foreground mt-1">Click to create</span>
+                           <CardContent className="p-4 h-full flex flex-col items-center justify-center min-h-[110px]">
+                             <Plus className="h-8 w-8 text-muted-foreground mb-2" />
+                             <span className="text-sm font-medium text-muted-foreground">Add New Card</span>
                            </CardContent>
                          </Card>
 
@@ -972,19 +999,129 @@ const Index = () => {
                               return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
                             })
                             .map((card) => (
-                              <EnhancedCard
-                                key={card.id}
-                                id={card.id}
-                                front={card.front}
-                                back={card.back}
-                                state={card.state}
-                                due_date={card.due_date}
-                                created_at={card.created_at}
-                                isSelected={selectedCards.has(card.id)}
-                                onSelect={handleCardSelection}
-                                onDelete={deleteCard}
-                                onEdit={editCard}
-                              />
+                               <Card 
+                                 key={card.id} 
+                                 className={`
+                                   group relative transition-all duration-200 hover:shadow-lg cursor-pointer min-h-[120px]
+                                   ${selectedCards.has(card.id) 
+                                     ? 'ring-2 ring-primary bg-primary/5 shadow-md' 
+                                     : 'hover:shadow-md'
+                                   }
+                                 `}
+                                 onClick={() => handleCardSelection(card.id)}
+                               >
+                                {/* Selection indicator */}
+                                <div className={`
+                                  absolute top-2 left-2 w-4 h-4 rounded-full border-2 transition-all duration-200
+                                  ${selectedCards.has(card.id) 
+                                    ? 'bg-primary border-primary' 
+                                    : 'border-muted-foreground/30 group-hover:border-primary/50'
+                                  }
+                                `}>
+                                  {selectedCards.has(card.id) && (
+                                    <div className="w-2 h-2 bg-primary-foreground rounded-full absolute top-0.5 left-0.5" />
+                                  )}
+                                </div>
+
+
+                                <CardContent className="p-4 pl-8">
+                                  <div className="space-y-3">
+                                    {/* Header with title, badge, and actions */}
+                                    <div className="space-y-2">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <h3 className="font-medium text-card-foreground leading-tight line-clamp-2 flex-1">
+                                          {card.front}
+                                        </h3>
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                          {card.state && (
+                                            <Badge 
+                                              variant="secondary"
+                                              className={`text-xs h-5 ${getStateBadgeColor(card.state)}`}
+                                            >
+                                              {card.state}
+                                            </Badge>
+                                          )}
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-6 w-6 p-0"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <MoreHorizontal className="h-3 w-3" />
+                                              </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-32 bg-background border shadow-md z-50">
+                                              <DropdownMenuItem
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  editCard(card.id, card.front, card.back);
+                                                }}
+                                                className="cursor-pointer"
+                                              >
+                                                <Edit className="h-4 w-4 mr-2" />
+                                                Edit
+                                              </DropdownMenuItem>
+                                              <DropdownMenuItem
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  deleteCard(card.id);
+                                                }}
+                                                className="text-destructive cursor-pointer focus:text-destructive"
+                                              >
+                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                Delete
+                                              </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                          </DropdownMenu>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Back content preview - only visible on hover */}
+                                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 text-xs text-muted-foreground/80 line-clamp-2 border-l-2 border-muted pl-3">
+                                      <span className="font-medium text-muted-foreground">Answer:</span> {card.back}
+                                    </div>
+
+                                    {/* Footer with progress and due date */}
+                                    <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                                      <div className="flex items-center gap-3">
+                                        {/* Due date with enhanced styling */}
+                                        {card.due_date ? (
+                                           <div className={`text-xs flex items-center gap-1.5 font-medium ${getDueDateStatusClass(getDueDateInfo(card.due_date))}`}>
+                                             <Clock className="h-3 w-3" />
+                                             <span>
+                                               {getDueDateInfo(card.due_date).label}
+                                             </span>
+                                           </div>
+                                        ) : (
+                                          <div className="text-xs flex items-center gap-1.5 text-muted-foreground/60">
+                                            <Calendar className="h-3 w-3" />
+                                            <span>New card</span>
+                                          </div>
+                                        )}
+
+                                      </div>
+
+                                      {/* Quick study action */}
+                                      {card.due_date && new Date(card.due_date) <= new Date() && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="h-6 text-xs px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate('/study');
+                                          }}
+                                        >
+                                          Study Now
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
                             ))}
                        </div>
                     )}
