@@ -233,8 +233,19 @@ function MemoryStrengthBadge({ card, userId }: { card: FSRSCard; userId: string 
       try {
         const fsrsService = await getFSRSServiceForUser(userId);
         const retrievability = fsrsService.getRetrievability(card);
-        setStrength(Math.round(retrievability * 100));
-      } catch {
+        
+        // Handle invalid retrievability values
+        if (isNaN(retrievability) || !isFinite(retrievability)) {
+          // For new cards or cards with invalid retrievability, don't show the badge
+          setStrength(null);
+          return;
+        }
+        
+        const strengthPercent = Math.round(retrievability * 100);
+        // Ensure the percentage is within valid range
+        setStrength(Math.max(0, Math.min(100, strengthPercent)));
+      } catch (error) {
+        console.warn('Error calculating memory strength:', error);
         setStrength(null);
       }
     };
@@ -242,7 +253,8 @@ function MemoryStrengthBadge({ card, userId }: { card: FSRSCard; userId: string 
     getStrength();
   }, [card, userId]);
 
-  if (strength === null) return null;
+  // Don't show memory badge for invalid values or if calculation failed
+  if (strength === null || isNaN(strength)) return null;
 
   const getVariant = (strength: number) => {
     if (strength >= 90) return 'default';

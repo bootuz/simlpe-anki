@@ -218,8 +218,28 @@ export class FSRSService {
    * Get card retrievability (memory strength)
    */
   getRetrievability(card: FSRSCard, reviewDate?: Date): number {
-    const reviewTime = reviewDate || new Date();
-    return this.fsrsInstance.get_retrievability(card, reviewTime);
+    try {
+      const reviewTime = reviewDate || new Date();
+      const retrievability = this.fsrsInstance.get_retrievability(card, reviewTime);
+      
+      // Ensure retrievability is a number and handle edge cases
+      const numRetrievability = Number(retrievability);
+      if (isNaN(numRetrievability) || !isFinite(numRetrievability)) {
+        // For new cards (State.New), return a default high retrievability
+        if (card.state === State.New) {
+          return 1.0; // 100% for new cards
+        }
+        // For other problematic cases, return 0
+        return 0.0;
+      }
+      
+      // Clamp the value between 0 and 1
+      return Math.max(0, Math.min(1, numRetrievability));
+    } catch (error) {
+      console.warn('Error getting retrievability:', error);
+      // Return default value based on card state
+      return card.state === State.New ? 1.0 : 0.0;
+    }
   }
 
   /**
