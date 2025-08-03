@@ -59,6 +59,8 @@ const Index = () => {
   const { toast } = useToast();
   const { addCard: addCardMutation } = useCardMutations();
   
+  const [isGeneratingSampleData, setIsGeneratingSampleData] = useState(false);
+  
   const [folders, setFolders] = useState<StudyFolder[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
   const [currentFolderId, setCurrentFolderId] = useState<string>("");
@@ -220,6 +222,37 @@ const Index = () => {
           : deck
       )
     })));
+  };
+
+  const handleGenerateSampleData = async () => {
+    if (!user) return;
+    
+    try {
+      setIsGeneratingSampleData(true);
+      
+      const { error } = await supabase.rpc('generate_english_sample_data', {
+        target_user_id: user.id
+      });
+
+      if (error) throw error;
+
+      // Reload data to show the new content
+      await loadUserData();
+      
+      toast({
+        title: "Success",
+        description: "Sample English learning content created! Check your sidebar for the new English folder."
+      });
+    } catch (error) {
+      console.error("Error generating sample data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate sample data",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingSampleData(false);
+    }
   };
 
 
@@ -753,7 +786,7 @@ const Index = () => {
                 <p className="text-muted-foreground">Loading...</p>
               </div>
             ) : !currentDeck ? (
-              <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+                <div className="flex flex-col items-center justify-center text-center py-16 px-4">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
                   <BookOpen className="h-8 w-8 text-primary" />
                 </div>
@@ -764,20 +797,35 @@ const Index = () => {
                     "Set up your study space by creating a folder to organize your learning topics"
                   }
                 </p>
-                <Button 
-                  onClick={() => {
-                    if (currentFolder) {
-                      setTriggerNewDeck(currentFolder.id);
-                    } else {
-                      setTriggerNewFolder(true);
-                    }
-                  }}
-                  size="lg"
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-5 w-5" />
-                  {currentFolder ? "Create My First Deck" : "Get Started"}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  <Button 
+                    onClick={() => {
+                      if (currentFolder) {
+                        setTriggerNewDeck(currentFolder.id);
+                      } else {
+                        setTriggerNewFolder(true);
+                      }
+                    }}
+                    size="lg"
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-5 w-5" />
+                    {currentFolder ? "Create My First Deck" : "Get Started"}
+                  </Button>
+                  
+                  <span className="text-muted-foreground text-sm">or</span>
+                  
+                  <Button 
+                    onClick={handleGenerateSampleData}
+                    disabled={isGeneratingSampleData}
+                    variant="outline"
+                    size="lg"
+                    className="flex items-center gap-2"
+                  >
+                    <Layers3 className="h-5 w-5" />
+                    {isGeneratingSampleData ? "Generating..." : "Try Sample Content"}
+                  </Button>
+                </div>
               </div>
             ) : (
               <>

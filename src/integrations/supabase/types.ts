@@ -437,6 +437,10 @@ export type Database = {
       }
     }
     Functions: {
+      generate_english_sample_data: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       get_deck_card_counts: {
         Args: { p_user_id: string }
         Returns: {
