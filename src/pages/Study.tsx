@@ -18,7 +18,8 @@ import { BookOpen, LogOut, Eye, CheckCircle, XCircle, Home, ArrowLeft, AlertTria
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { fsrsService, Rating } from "@/services/fsrsService";
+import { getFSRSServiceForUser, Rating, type FSRSCard } from "@/services/fsrsService";
+import { SchedulingPreview } from "@/components/SchedulingPreview";
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from "@/hooks/useOptimizedQueries";
 
@@ -48,6 +49,8 @@ const Study = () => {
   const [studyComplete, setStudyComplete] = useState(false);
   const [lastReviewedCardId, setLastReviewedCardId] = useState<string | null>(null);
   const [undoLoading, setUndoLoading] = useState(false);
+  const [currentFSRSCard, setCurrentFSRSCard] = useState<FSRSCard | null>(null);
+  const [fsrsCardLoading, setFsrsCardLoading] = useState(false);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -61,9 +64,49 @@ const Study = () => {
     if (user) {
       loadStudyCards();
     }
-  }, [user]);
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentCard = cards[currentCardIndex];
+
+  // Load FSRS card data when current card changes
+  useEffect(() => {
+    if (currentCard && user) {
+      loadCurrentFSRSCard();
+    }
+  }, [currentCard, user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadCurrentFSRSCard = async () => {
+    if (!currentCard || !user) return;
+    
+    try {
+      setFsrsCardLoading(true);
+      
+      // Get FSRS data for current card
+      const { data: fsrsData, error } = await supabase
+        .from('card_fsrs')
+        .select('*')
+        .eq('card_id', currentCard.id)
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error || !fsrsData) {
+        console.error('Error loading FSRS card data:', error);
+        setCurrentFSRSCard(null);
+        return;
+      }
+      
+      // Convert to FSRS Card using the service
+      const fsrsService = await getFSRSServiceForUser(user.id);
+      const fsrsCard = fsrsService.dbRecordToFSRSCard(fsrsData);
+      setCurrentFSRSCard(fsrsCard);
+      
+    } catch (error) {
+      console.error('Error loading FSRS card:', error);
+      setCurrentFSRSCard(null);
+    } finally {
+      setFsrsCardLoading(false);
+    }
+  };
 
   // Helper function to get card status for display
   const getCardStatus = (card: StudyCard) => {
@@ -199,21 +242,12 @@ const Study = () => {
     }
   };
 
-  const handleAnswer = async (difficulty: 'easy' | 'medium' | 'hard' | 'again') => {
+  const handleAnswer = async (rating: Rating) => {
     try {
       const cardId = currentCard.id;
       
-      // Map our difficulty to FSRS Rating
-      const ratingMap = {
-        'again': Rating.Again,
-        'hard': Rating.Hard, 
-        'medium': Rating.Good,
-        'easy': Rating.Easy
-      };
-      
-      const rating = ratingMap[difficulty];
-      
-      // Use FSRS service to process the review
+      // Use user-specific FSRS service to process the review
+      const fsrsService = await getFSRSServiceForUser(user.id);
       const result = await fsrsService.processReview(cardId, rating, user.id);
       
       if (!result.success) {
@@ -269,6 +303,7 @@ const Study = () => {
     try {
       setUndoLoading(true);
       
+      const fsrsService = await getFSRSServiceForUser(user.id);
       const result = await fsrsService.undoLastReview(lastReviewedCardId, user.id);
       
       if (!result.success) {
@@ -486,47 +521,60 @@ const Study = () => {
                             <p className="text-xs text-muted-foreground">Press spacebar to reveal</p>
                           </div>
                         ) : (
-                          <div className="space-y-4">
-                            <p className="text-sm text-muted-foreground">How well did you know this?</p>
-                            <div className="grid grid-cols-4 gap-2">
-                               <Button 
-                                 onClick={() => handleAnswer('again')}
-                                 variant="outline"
-                                 size="lg"
-                                 className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400 py-3"
-                               >
-                                 <XCircle className="h-4 w-4 mr-1" />
-                                 Again
-                               </Button>
-                               <Button 
-                                 onClick={() => handleAnswer('hard')}
-                                 variant="outline"
-                                 size="lg"
-                                 className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400 py-3"
-                               >
-                                 <AlertTriangle className="h-4 w-4 mr-1" />
-                                 Hard
-                               </Button>
-                               <Button 
-                                 onClick={() => handleAnswer('medium')}
-                                 variant="outline"
-                                 size="lg"
-                                 className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 py-3"
-                               >
-                                 <Check className="h-4 w-4 mr-1" />
-                                 Good
-                               </Button>
-                               <Button 
-                                 onClick={() => handleAnswer('easy')}
-                                 variant="outline"
-                                 size="lg"
-                                 className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3"
-                               >
-                                 <CheckCircle className="h-4 w-4 mr-1" />
-                                 Easy
-                               </Button>
+                          currentFSRSCard ? (
+                            <SchedulingPreview 
+                              card={currentFSRSCard}
+                              userId={user.id}
+                              onRatingSelect={handleAnswer}
+                              disabled={fsrsCardLoading}
+                            />
+                          ) : (
+                            <div className="space-y-4">
+                              <p className="text-sm text-muted-foreground">How well did you know this?</p>
+                              <div className="grid grid-cols-4 gap-2">
+                                <Button 
+                                  onClick={() => handleAnswer(Rating.Again)}
+                                  variant="outline"
+                                  size="lg"
+                                  disabled={fsrsCardLoading}
+                                  className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400 py-3"
+                                >
+                                  <XCircle className="h-4 w-4 mr-1" />
+                                  Again
+                                </Button>
+                                <Button 
+                                  onClick={() => handleAnswer(Rating.Hard)}
+                                  variant="outline"
+                                  size="lg"
+                                  disabled={fsrsCardLoading}
+                                  className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400 py-3"
+                                >
+                                  <AlertTriangle className="h-4 w-4 mr-1" />
+                                  Hard
+                                </Button>
+                                <Button 
+                                  onClick={() => handleAnswer(Rating.Good)}
+                                  variant="outline"
+                                  size="lg"
+                                  disabled={fsrsCardLoading}
+                                  className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 py-3"
+                                >
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Good
+                                </Button>
+                                <Button 
+                                  onClick={() => handleAnswer(Rating.Easy)}
+                                  variant="outline"
+                                  size="lg"
+                                  disabled={fsrsCardLoading}
+                                  className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  Easy
+                                </Button>
+                              </div>
                             </div>
-                          </div>
+                          )
                         )}
                       </div>
                     </div>

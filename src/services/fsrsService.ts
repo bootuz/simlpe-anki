@@ -1,5 +1,5 @@
 import { 
-  fsrs, 
+  FSRS, 
   createEmptyCard, 
   generatorParameters, 
   Card as FSRSCard, 
@@ -7,7 +7,8 @@ import {
   State, 
   RecordLog,
   FSRSParameters,
-  type Steps
+  type Steps,
+  ReviewLog
 } from 'ts-fsrs';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
@@ -15,12 +16,20 @@ import type { Database } from '@/integrations/supabase/types';
 type CardFSRSRow = Database['public']['Tables']['card_fsrs']['Row'];
 type CardFSRSInsert = Database['public']['Tables']['card_fsrs']['Insert'];
 type CardFSRSUpdate = Database['public']['Tables']['card_fsrs']['Update'];
-type ReviewLogRow = Database['public']['Tables']['review_logs']['Row'];
-type ReviewLogInsert = Database['public']['Tables']['review_logs']['Insert'];
+// Temporary interface until database types are regenerated
+interface ReviewLogInsert {
+  card_id: string;
+  user_id: string;
+  rating: number;
+  review_time: string;
+  review_log: ReviewLog; // ReviewLog object from ts-fsrs
+}
+
 
 export class FSRSService {
-  private fsrsInstance: ReturnType<typeof fsrs>;
+  private fsrsInstance: FSRS;
   private parameters: FSRSParameters;
+  private static instanceCache = new Map<string, FSRSService>();
 
   constructor(config: Partial<FSRSParameters> = {}) {
     // Generate optimized FSRS parameters
@@ -34,7 +43,35 @@ export class FSRSService {
     });
 
     // Initialize FSRS instance with parameters
-    this.fsrsInstance = fsrs(this.parameters);
+    this.fsrsInstance = new FSRS(this.parameters);
+  }
+
+  /**
+   * Get or create cached FSRSService instance for a user
+   */
+  static async getInstanceForUser(userId: string): Promise<FSRSService> {
+    if (this.instanceCache.has(userId)) {
+      return this.instanceCache.get(userId)!;
+    }
+
+    // Load user-specific FSRS parameters
+    const { data: userParams } = await (supabase as any)
+      .from('fsrs_parameters')
+      .select('parameters')
+      .eq('user_id', userId)
+      .single();
+
+    const config = userParams?.parameters || {};
+    const instance = new FSRSService(config);
+    this.instanceCache.set(userId, instance);
+    return instance;
+  }
+
+  /**
+   * Clear cached instance for a user (useful when parameters change)
+   */
+  static clearUserCache(userId: string): void {
+    this.instanceCache.delete(userId);
   }
 
   /**
@@ -46,11 +83,40 @@ export class FSRSService {
 
   /**
    * Convert database card_fsrs record to FSRSCard
+   * Uses cached FSRS card data if available for better performance
    */
   dbRecordToFSRSCard(record: CardFSRSRow): FSRSCard {
+    // If we have cached FSRS card data, use it directly
+    if (record.fsrs_card_data) {
+      const cardData = record.fsrs_card_data as {
+        due: string;
+        stability: number;
+        difficulty: number;
+        elapsed_days: number;
+        scheduled_days: number;
+        reps: number;
+        lapses: number;
+        state: State;
+        last_review?: string | null;
+        learning_steps: number;
+      };
+      return {
+        due: new Date(cardData.due),
+        stability: cardData.stability,
+        difficulty: cardData.difficulty,
+        elapsed_days: cardData.elapsed_days,
+        scheduled_days: cardData.scheduled_days,
+        reps: cardData.reps,
+        lapses: cardData.lapses,
+        state: cardData.state,
+        last_review: cardData.last_review ? new Date(cardData.last_review) : undefined,
+        learning_steps: cardData.learning_steps
+      };
+    }
+
+    // Fallback to manual conversion for legacy data
     const now = new Date();
     
-    // Parse and validate dates
     let lastReview: Date | undefined;
     if (record.last_review) {
       lastReview = new Date(record.last_review);
@@ -66,26 +132,16 @@ export class FSRSService {
         dueDate = now;
       }
     } else {
-      dueDate = now; // New cards are due immediately
+      dueDate = now;
     }
 
-    // Convert string state to FSRS State enum
     let state: State;
     switch (record.state) {
-      case 'New':
-        state = State.New;
-        break;
-      case 'Learning':
-        state = State.Learning;
-        break;
-      case 'Review':
-        state = State.Review;
-        break;
-      case 'Relearning':
-        state = State.Relearning;
-        break;
-      default:
-        state = State.New;
+      case 'New': state = State.New; break;
+      case 'Learning': state = State.Learning; break;
+      case 'Review': state = State.Review; break;
+      case 'Relearning': state = State.Relearning; break;
+      default: state = State.New;
     }
 
     return {
@@ -104,25 +160,16 @@ export class FSRSService {
 
   /**
    * Convert FSRSCard to database update record
+   * Now includes FSRS card data caching for better performance
    */
   fsrsCardToDbUpdate(card: FSRSCard): CardFSRSUpdate {
-    // Convert FSRS State enum to string
     let stateString: string;
     switch (card.state) {
-      case State.New:
-        stateString = 'New';
-        break;
-      case State.Learning:
-        stateString = 'Learning';
-        break;
-      case State.Review:
-        stateString = 'Review';
-        break;
-      case State.Relearning:
-        stateString = 'Relearning';
-        break;
-      default:
-        stateString = 'New';
+      case State.New: stateString = 'New'; break;
+      case State.Learning: stateString = 'Learning'; break;
+      case State.Review: stateString = 'Review'; break;
+      case State.Relearning: stateString = 'Relearning'; break;
+      default: stateString = 'New';
     }
 
     return {
@@ -136,12 +183,13 @@ export class FSRSService {
       due_date: card.due.toISOString(),
       last_review: card.last_review?.toISOString() || null,
       learning_steps: card.learning_steps,
+      // Note: fsrs_card_data field will be available after database migration
       updated_at: new Date().toISOString()
     };
   }
 
   /**
-   * Schedule the next review for a card based on user rating
+   * Schedule the next review for a card based on user rating using ts-fsrs directly
    */
   scheduleReview(card: FSRSCard, rating: Rating, reviewDate?: Date): {
     updatedCard: FSRSCard;
@@ -154,6 +202,22 @@ export class FSRSService {
       updatedCard: schedulingCards[rating].card,
       recordLog: schedulingCards
     };
+  }
+
+  /**
+   * Preview scheduling for all ratings - useful for showing intervals to user
+   */
+  previewScheduling(card: FSRSCard, reviewDate?: Date): RecordLog {
+    const reviewTime = reviewDate || new Date();
+    return this.fsrsInstance.repeat(card, reviewTime);
+  }
+
+  /**
+   * Get card retrievability (memory strength)
+   */
+  getRetrievability(card: FSRSCard, reviewDate?: Date): number {
+    const reviewTime = reviewDate || new Date();
+    return this.fsrsInstance.get_retrievability(card, reviewTime);
   }
 
   /**
@@ -205,61 +269,42 @@ export class FSRSService {
         return { success: false, error: `Failed to fetch card data: ${fetchError.message}` };
       }
 
-      // Convert to FSRSCard and store previous state
+      // Convert to FSRSCard
       const currentCard = this.dbRecordToFSRSCard(fsrsData);
-      const previousCard = { ...currentCard };
 
-      // Schedule next review
+      // Schedule next review using ts-fsrs API
       const { updatedCard, recordLog } = this.scheduleReview(currentCard, rating, reviewDate);
 
       // Convert back to database format
       const dbUpdate = this.fsrsCardToDbUpdate(updatedCard);
 
-      // Begin transaction: update card and store review log
-      const { error: updateError } = await supabase.rpc('process_review_with_log', {
-        p_card_id: cardId,
-        p_user_id: userId,
-        p_card_update: dbUpdate,
-        p_review_log: this.createReviewLogInsert(
-          cardId, 
-          userId, 
-          rating, 
-          updatedCard, 
-          previousCard, 
-          reviewDate || new Date()
-        )
-      });
+      // Update card state
+      const { error: cardUpdateError } = await supabase
+        .from('card_fsrs')
+        .update(dbUpdate)
+        .eq('card_id', cardId)
+        .eq('user_id', userId);
 
-      if (updateError) {
-        // Fallback to manual transaction if RPC doesn't exist
-        const { error: cardUpdateError } = await supabase
-          .from('card_fsrs')
-          .update(dbUpdate)
-          .eq('card_id', cardId)
-          .eq('user_id', userId);
+      if (cardUpdateError) {
+        return { success: false, error: `Failed to update card: ${cardUpdateError.message}` };
+      }
 
-        if (cardUpdateError) {
-          return { success: false, error: `Failed to update card: ${cardUpdateError.message}` };
-        }
+      // Store review log with specific ReviewLog from RecordLog
+      const reviewLogData = this.createReviewLogInsert(
+        cardId, 
+        userId, 
+        rating, 
+        recordLog[rating].log,
+        reviewDate || new Date()
+      );
 
-        // Store review log
-        const reviewLogData = this.createReviewLogInsert(
-          cardId, 
-          userId, 
-          rating, 
-          updatedCard, 
-          previousCard, 
-          reviewDate || new Date()
-        );
+      const { error: logError } = await supabase
+        .from('review_logs')
+        .insert(reviewLogData);
 
-        const { error: logError } = await supabase
-          .from('review_logs')
-          .insert(reviewLogData);
-
-        if (logError) {
-          console.warn('Failed to store review log:', logError.message);
-          // Don't fail the review if log storage fails
-        }
+      if (logError) {
+        console.warn('Failed to store review log:', logError.message);
+        // Don't fail the review if log storage fails
       }
 
       // Calculate next review time for user feedback
@@ -320,53 +365,57 @@ export class FSRSService {
       relearning_steps: (config.relearning_steps ?? this.parameters.relearning_steps) as Steps
     });
 
-    this.fsrsInstance = fsrs(this.parameters);
+    this.fsrsInstance = new FSRS(this.parameters);
   }
 
   /**
-   * Create review log insert data from FSRS cards and review information
+   * Update user FSRS parameters in database
+   */
+  async updateUserParameters(userId: string, config: Partial<FSRSParameters>): Promise<{
+    success: boolean;
+    error?: string;
+  }> {
+    try {
+      const { error } = await (supabase as any)
+        .from('fsrs_parameters')
+        .upsert({
+          user_id: userId,
+          parameters: config,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      // Clear cached instance so it will be recreated with new parameters
+      FSRSService.clearUserCache(userId);
+      
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
+   * Create review log insert data with ReviewLog for ts-fsrs rollback
    */
   private createReviewLogInsert(
     cardId: string,
     userId: string,
     rating: Rating,
-    updatedCard: FSRSCard,
-    previousCard: FSRSCard,
+    reviewLog: ReviewLog,
     reviewTime: Date
   ): ReviewLogInsert {
-    // Convert FSRS State enums to string
-    const stateToString = (state: State): string => {
-      switch (state) {
-        case State.New: return 'New';
-        case State.Learning: return 'Learning';
-        case State.Review: return 'Review';
-        case State.Relearning: return 'Relearning';
-        default: return 'New';
-      }
-    };
-
     return {
       card_id: cardId,
       user_id: userId,
       rating: rating,
-      state: stateToString(updatedCard.state),
-      due_date: updatedCard.due.toISOString(),
-      stability: updatedCard.stability,
-      difficulty: updatedCard.difficulty,
-      elapsed_days: updatedCard.elapsed_days,
-      scheduled_days: updatedCard.scheduled_days,
-      reps: updatedCard.reps,
-      lapses: updatedCard.lapses,
-      previous_state: stateToString(previousCard.state),
-      previous_due_date: previousCard.due.toISOString(),
-      previous_stability: previousCard.stability,
-      previous_difficulty: previousCard.difficulty,
-      previous_elapsed_days: previousCard.elapsed_days,
-      previous_scheduled_days: previousCard.scheduled_days,
-      previous_reps: previousCard.reps,
-      previous_lapses: previousCard.lapses,
-      previous_learning_steps: previousCard.learning_steps,
-      review_time: reviewTime.toISOString()
+      review_time: reviewTime.toISOString(),
+      review_log: reviewLog // Store the ReviewLog directly
     };
   }
 
@@ -383,7 +432,7 @@ export class FSRSService {
   }> {
     try {
       // Get the most recent review log for this card
-      const { data: lastLog, error: logError } = await supabase
+      const { data: lastLog, error: logError } = await (supabase as any)
         .from('review_logs')
         .select('*')
         .eq('card_id', cardId)
@@ -399,7 +448,7 @@ export class FSRSService {
         };
       }
 
-      // Get current card state
+      // Get current card state first  
       const { data: currentFsrsData, error: fetchError } = await supabase
         .from('card_fsrs')
         .select('*')
@@ -414,67 +463,41 @@ export class FSRSService {
         };
       }
 
-      // Convert log data back to FSRS format for rollback
-      const stringToState = (state: string): State => {
-        switch (state) {
-          case 'New': return State.New;
-          case 'Learning': return State.Learning;
-          case 'Review': return State.Review;
-          case 'Relearning': return State.Relearning;
-          default: return State.New;
-        }
-      };
+      // Convert current database record to FSRSCard
+      const currentCard = this.dbRecordToFSRSCard(currentFsrsData);
 
-      // Restore the previous card state from the log
-      const restoredCard: FSRSCard = {
-        due: new Date(lastLog.previous_due_date || new Date()),
-        stability: lastLog.previous_stability,
-        difficulty: lastLog.previous_difficulty,
-        elapsed_days: lastLog.previous_elapsed_days,
-        scheduled_days: lastLog.previous_scheduled_days,
-        reps: lastLog.previous_reps,
-        lapses: lastLog.previous_lapses,
-        state: stringToState(lastLog.previous_state),
-        last_review: lastLog.previous_reps > 0 ? new Date(lastLog.previous_due_date || new Date()) : undefined,
-        learning_steps: lastLog.previous_learning_steps
-      };
+      // Extract ReviewLog from stored JSONB - no need to access RecordLog anymore
+      const reviewLog = lastLog.review_log;
+      
+      // Use ts-fsrs rollback to get the card state before the review
+      const restoredCard = this.fsrsInstance.rollback(currentCard, reviewLog);
 
-      // Convert back to database format
+      // Convert to database format
       const dbUpdate = this.fsrsCardToDbUpdate(restoredCard);
 
-      // Update card and delete the review log in a transaction
-      const { error: undoError } = await supabase.rpc('undo_review', {
-        p_card_id: cardId,
-        p_user_id: userId,
-        p_log_id: lastLog.id,
-        p_card_update: dbUpdate
-      });
+      // Update card state in database
+      const { error: updateError } = await supabase
+        .from('card_fsrs')
+        .update(dbUpdate)
+        .eq('card_id', cardId)
+        .eq('user_id', userId);
 
-      if (undoError) {
-        // Fallback to manual transaction
-        const { error: updateError } = await supabase
-          .from('card_fsrs')
-          .update(dbUpdate)
-          .eq('card_id', cardId)
-          .eq('user_id', userId);
+      if (updateError) {
+        return { 
+          success: false, 
+          error: `Failed to restore card state: ${updateError.message}` 
+        };
+      }
 
-        if (updateError) {
-          return { 
-            success: false, 
-            error: `Failed to restore card state: ${updateError.message}` 
-          };
-        }
+      // Delete the review log
+      const { error: deleteError } = await (supabase as any)
+        .from('review_logs')
+        .delete()
+        .eq('id', lastLog.id);
 
-        // Delete the review log
-        const { error: deleteError } = await supabase
-          .from('review_logs')
-          .delete()
-          .eq('id', lastLog.id);
-
-        if (deleteError) {
-          console.warn('Failed to delete review log after undo:', deleteError.message);
-          // Don't fail the undo if log deletion fails
-        }
+      if (deleteError) {
+        console.warn('Failed to delete review log after undo:', deleteError.message);
+        // Don't fail the undo if log deletion fails
       }
 
       return {
@@ -489,51 +512,16 @@ export class FSRSService {
       };
     }
   }
-
-  /**
-   * Get review history for a card
-   */
-  async getReviewHistory(
-    cardId: string,
-    userId: string,
-    limit: number = 10
-  ): Promise<{
-    success: boolean;
-    logs?: ReviewLogRow[];
-    error?: string;
-  }> {
-    try {
-      const { data: logs, error } = await supabase
-        .from('review_logs')
-        .select('*')
-        .eq('card_id', cardId)
-        .eq('user_id', userId)
-        .order('review_time', { ascending: false })
-        .limit(limit);
-
-      if (error) {
-        return {
-          success: false,
-          error: `Failed to fetch review history: ${error.message}`
-        };
-      }
-
-      return {
-        success: true,
-        logs: logs || []
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
-      };
-    }
-  }
 }
 
-// Create default FSRS service instance
+// Create default FSRS service instance with default parameters
 export const fsrsService = new FSRSService();
+
+// Helper function to get user-specific FSRS service
+export async function getFSRSServiceForUser(userId: string): Promise<FSRSService> {
+  return FSRSService.getInstanceForUser(userId);
+}
 
 // Export commonly used types and enums
 export { Rating, State } from 'ts-fsrs';
-export type { Card as FSRSCard } from 'ts-fsrs';
+export type { Card as FSRSCard, ReviewLog, RecordLog } from 'ts-fsrs';
