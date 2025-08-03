@@ -21,6 +21,7 @@ export type Database = {
           difficulty: number
           due_date: string | null
           elapsed_days: number
+          fsrs_card_data: Json | null
           id: string
           lapses: number
           last_review: string | null
@@ -38,6 +39,7 @@ export type Database = {
           difficulty?: number
           due_date?: string | null
           elapsed_days?: number
+          fsrs_card_data?: Json | null
           id?: string
           lapses?: number
           last_review?: string | null
@@ -55,6 +57,7 @@ export type Database = {
           difficulty?: number
           due_date?: string | null
           elapsed_days?: number
+          fsrs_card_data?: Json | null
           id?: string
           lapses?: number
           last_review?: string | null
@@ -250,6 +253,30 @@ export type Database = {
         }
         Relationships: []
       }
+      fsrs_parameters: {
+        Row: {
+          created_at: string | null
+          id: string
+          parameters: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          parameters?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          parameters?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -273,6 +300,64 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      review_logs: {
+        Row: {
+          card_id: string
+          created_at: string | null
+          id: string
+          rating: number
+          record_log: Json
+          review_log: Json
+          review_time: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          card_id: string
+          created_at?: string | null
+          id?: string
+          rating: number
+          record_log?: Json
+          review_log?: Json
+          review_time?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          card_id?: string
+          created_at?: string | null
+          id?: string
+          rating?: number
+          record_log?: Json
+          review_log?: Json
+          review_time?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_review_logs_card_id"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_review_logs_card_id"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards_with_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_review_logs_card_id"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "study_cards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
