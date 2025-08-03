@@ -82,12 +82,10 @@ export class FSRSService {
   }
 
   /**
-   * Convert database card_fsrs record to FSRSCard
-   * Uses cached FSRS card data if available for better performance
+   * Convert database card_fsrs record to FSRSCard object
    */
   dbRecordToFSRSCard(record: CardFSRSRow): FSRSCard {
-    // Note: fsrs_card_data field not yet available in database schema
-    // Fallback to manual conversion for all records for now
+    // Convert database record to FSRS Card object
 
     // Fallback to manual conversion for legacy data
     const now = new Date();
@@ -160,7 +158,6 @@ export class FSRSService {
       due_date: card.due.toISOString(),
       last_review: card.last_review?.toISOString() || null,
       learning_steps: card.learning_steps,
-      // Note: fsrs_card_data field will be available after database migration
       updated_at: new Date().toISOString()
     };
   }
@@ -377,7 +374,7 @@ export class FSRSService {
         .from('fsrs_parameters')
         .upsert({
           user_id: userId,
-          parameters: config,
+          parameters: config as any,
           updated_at: new Date().toISOString()
         });
 
@@ -412,7 +409,7 @@ export class FSRSService {
       user_id: userId,
       rating: rating,
       review_time: reviewTime.toISOString(),
-      review_log: reviewLog // Store the ReviewLog directly
+      review_log: reviewLog as any // Store the ReviewLog directly
     };
   }
 
@@ -464,7 +461,7 @@ export class FSRSService {
       const currentCard = this.dbRecordToFSRSCard(currentFsrsData);
 
       // Extract ReviewLog from stored JSONB (single ReviewLog from chosen outcome)
-      const reviewLog = lastLog.review_log;
+      const reviewLog = lastLog.review_log as any;
       
       // Use ts-fsrs rollback to get the card state before the review
       const restoredCard = this.fsrsInstance.rollback(currentCard, reviewLog);
