@@ -33,13 +33,46 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
     try {
       setLoading(true);
       const fsrsService = await getFSRSServiceForUser(userId);
-      const recordLog: RecordLog = fsrsService.previewScheduling(card);
+      const now = new Date();
+      
+      // Debug: Log card state
+      console.log('Generating preview for card:', {
+        state: card.state,
+        due: card.due.toISOString(),
+        now: now.toISOString(),
+        timeDiff: card.due.getTime() - now.getTime(),
+        reps: card.reps,
+        stability: card.stability,
+        difficulty: card.difficulty
+      });
+      
+      const recordLog: RecordLog = fsrsService.previewScheduling(card, now);
+      
+      // Debug: Log scheduling results
+      console.log('Scheduling results:', {
+        Again: {
+          due: recordLog[Rating.Again].card.due.toISOString(),
+          interval: formatInterval(recordLog[Rating.Again].card, now)
+        },
+        Hard: {
+          due: recordLog[Rating.Hard].card.due.toISOString(),
+          interval: formatInterval(recordLog[Rating.Hard].card, now)
+        },
+        Good: {
+          due: recordLog[Rating.Good].card.due.toISOString(),
+          interval: formatInterval(recordLog[Rating.Good].card, now)
+        },
+        Easy: {
+          due: recordLog[Rating.Easy].card.due.toISOString(),
+          interval: formatInterval(recordLog[Rating.Easy].card, now)
+        }
+      });
 
       const previewData: PreviewData[] = [
         {
           rating: Rating.Again,
           label: 'Again',
-          interval: formatInterval(recordLog[Rating.Again].card),
+          interval: formatInterval(recordLog[Rating.Again].card, now),
           icon: <XCircle className="h-4 w-4" />,
           className: 'border-red-300 text-red-700 hover:bg-red-50 hover:border-red-400',
           description: 'I need to study this more'
@@ -47,7 +80,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
         {
           rating: Rating.Hard,
           label: 'Hard',
-          interval: formatInterval(recordLog[Rating.Hard].card),
+          interval: formatInterval(recordLog[Rating.Hard].card, now),
           icon: <AlertTriangle className="h-4 w-4" />,
           className: 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400',
           description: 'It was difficult to remember'
@@ -55,7 +88,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
         {
           rating: Rating.Good,
           label: 'Good',
-          interval: formatInterval(recordLog[Rating.Good].card),
+          interval: formatInterval(recordLog[Rating.Good].card, now),
           icon: <Check className="h-4 w-4" />,
           className: 'border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400',
           description: 'I remembered it correctly'
@@ -63,7 +96,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
         {
           rating: Rating.Easy,
           label: 'Easy',
-          interval: formatInterval(recordLog[Rating.Easy].card),
+          interval: formatInterval(recordLog[Rating.Easy].card, now),
           icon: <CheckCircle className="h-4 w-4" />,
           className: 'border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400',
           description: 'It was very easy to remember'
@@ -80,20 +113,21 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
     }
   };
 
-  const formatInterval = (futureCard: FSRSCard): string => {
-    const now = new Date();
+  const formatInterval = (futureCard: FSRSCard, baseTime?: Date): string => {
+    const now = baseTime || new Date();
     const timeDiff = futureCard.due.getTime() - now.getTime();
 
-    if (timeDiff <= 0) {
+    // For very small differences (less than 30 seconds), show minimum meaningful interval
+    if (timeDiff < 30000) {
       return 'Now';
     }
 
-    const minutes = Math.floor(timeDiff / (1000 * 60));
+    const minutes = Math.ceil(timeDiff / (1000 * 60)); // Use ceil to avoid showing 0m
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
     if (minutes < 60) {
-      return `${minutes}m`;
+      return `${Math.max(1, minutes)}m`; // Ensure minimum 1 minute
     } else if (hours < 24) {
       return `${hours}h`;
     } else if (days < 30) {

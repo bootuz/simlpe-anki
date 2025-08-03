@@ -132,7 +132,9 @@ export class FSRSService {
         dueDate = now;
       }
     } else {
-      dueDate = now;
+      // For new cards with no due_date, use the created_at time
+      // This ensures the card is treated as a true new card by FSRS
+      dueDate = new Date(record.created_at);
     }
 
     let state: State;
