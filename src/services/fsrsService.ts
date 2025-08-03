@@ -86,33 +86,8 @@ export class FSRSService {
    * Uses cached FSRS card data if available for better performance
    */
   dbRecordToFSRSCard(record: CardFSRSRow): FSRSCard {
-    // If we have cached FSRS card data, use it directly
-    if (record.fsrs_card_data) {
-      const cardData = record.fsrs_card_data as {
-        due: string;
-        stability: number;
-        difficulty: number;
-        elapsed_days: number;
-        scheduled_days: number;
-        reps: number;
-        lapses: number;
-        state: State;
-        last_review?: string | null;
-        learning_steps: number;
-      };
-      return {
-        due: new Date(cardData.due),
-        stability: cardData.stability,
-        difficulty: cardData.difficulty,
-        elapsed_days: cardData.elapsed_days,
-        scheduled_days: cardData.scheduled_days,
-        reps: cardData.reps,
-        lapses: cardData.lapses,
-        state: cardData.state,
-        last_review: cardData.last_review ? new Date(cardData.last_review) : undefined,
-        learning_steps: cardData.learning_steps
-      };
-    }
+    // Note: fsrs_card_data field not yet available in database schema
+    // Fallback to manual conversion for all records for now
 
     // Fallback to manual conversion for legacy data
     const now = new Date();
@@ -320,14 +295,15 @@ export class FSRSService {
         reviewDate || new Date()
       );
 
-      const { error: logError } = await supabase
-        .from('review_logs')
-        .insert(reviewLogData);
+      // Note: review_logs table not yet implemented, skipping log storage
+      // const { error: logError } = await supabase
+      //   .from('review_logs')
+      //   .insert(reviewLogData);
 
-      if (logError) {
-        console.warn('Failed to store review log:', logError.message);
-        // Don't fail the review if log storage fails
-      }
+      // if (logError) {
+      //   console.warn('Failed to store review log:', logError.message);
+      //   // Don't fail the review if log storage fails
+      // }
 
       // Calculate next review time for user feedback
       const nextReviewIn = this.calculateNextReviewTime(updatedCard);
