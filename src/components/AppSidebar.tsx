@@ -8,7 +8,8 @@ import {
   Edit,
   Trash2,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  Settings
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -391,6 +392,31 @@ export function AppSidebar({
                   ))}
                 </div>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Navigation Section */}
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <NavLink
+                  to="/settings"
+                  className={({ isActive }) => 
+                    `flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                      isActive 
+                        ? "bg-primary/10 text-primary border border-primary/20 shadow-sm" 
+                        : "hover:bg-muted/60 hover:shadow-sm text-muted-foreground hover:text-foreground"
+                    }`
+                  }
+                >
+                  <Settings className="h-4 w-4 mr-3" />
+                  {!isCollapsed && (
+                    <span className="text-sm font-medium">Settings</span>
+                  )}
+                </NavLink>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

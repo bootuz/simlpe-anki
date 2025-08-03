@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import Study from "./pages/Study";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,11 @@ const App = () => (
                 </SidebarProvider>
               } />
               <Route path="/study" element={<Study />} />
+              <Route path="/settings" element={
+                <SidebarProvider>
+                  <Settings />
+                </SidebarProvider>
+              } />
               <Route path="/auth" element={<Auth />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
