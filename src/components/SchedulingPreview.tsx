@@ -34,39 +34,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
       setLoading(true);
       const fsrsService = await getFSRSServiceForUser(userId);
       const now = new Date();
-      
-      // Debug: Log card state
-      console.log('Generating preview for card:', {
-        state: card.state,
-        due: card.due.toISOString(),
-        now: now.toISOString(),
-        timeDiff: card.due.getTime() - now.getTime(),
-        reps: card.reps,
-        stability: card.stability,
-        difficulty: card.difficulty
-      });
-      
       const recordLog: RecordLog = fsrsService.previewScheduling(card, now);
-      
-      // Debug: Log scheduling results
-      console.log('Scheduling results:', {
-        Again: {
-          due: recordLog[Rating.Again].card.due.toISOString(),
-          interval: formatInterval(recordLog[Rating.Again].card, now)
-        },
-        Hard: {
-          due: recordLog[Rating.Hard].card.due.toISOString(),
-          interval: formatInterval(recordLog[Rating.Hard].card, now)
-        },
-        Good: {
-          due: recordLog[Rating.Good].card.due.toISOString(),
-          interval: formatInterval(recordLog[Rating.Good].card, now)
-        },
-        Easy: {
-          due: recordLog[Rating.Easy].card.due.toISOString(),
-          interval: formatInterval(recordLog[Rating.Easy].card, now)
-        }
-      });
 
       const previewData: PreviewData[] = [
         {
