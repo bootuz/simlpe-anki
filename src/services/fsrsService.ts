@@ -22,7 +22,7 @@ interface ReviewLogInsert {
   user_id: string;
   rating: number;
   review_time: string;
-  review_log: ReviewLog; // ReviewLog object from ts-fsrs
+  review_log: ReviewLog; // Single ReviewLog from chosen RecordLogItem for rollback
 }
 
 
@@ -55,7 +55,7 @@ export class FSRSService {
     }
 
     // Load user-specific FSRS parameters
-    const { data: userParams } = await (supabase as any)
+    const { data: userParams } = await supabase
       .from('fsrs_parameters')
       .select('parameters')
       .eq('user_id', userId)
@@ -286,7 +286,7 @@ export class FSRSService {
         return { success: false, error: `Failed to update card: ${cardUpdateError.message}` };
       }
 
-      // Store review log with specific ReviewLog from RecordLog
+      // Store review log with specific ReviewLog from chosen RecordLogItem
       const reviewLogData = this.createReviewLogInsert(
         cardId, 
         userId, 
@@ -295,15 +295,14 @@ export class FSRSService {
         reviewDate || new Date()
       );
 
-      // Note: review_logs table not yet implemented, skipping log storage
-      // const { error: logError } = await supabase
-      //   .from('review_logs')
-      //   .insert(reviewLogData);
+      const { error: logError } = await supabase
+        .from('review_logs')
+        .insert(reviewLogData);
 
-      // if (logError) {
-      //   console.warn('Failed to store review log:', logError.message);
-      //   // Don't fail the review if log storage fails
-      // }
+      if (logError) {
+        console.warn('Failed to store review log:', logError.message);
+        // Don't fail the review if log storage fails
+      }
 
       // Calculate next review time for user feedback
       const nextReviewIn = this.calculateNextReviewTime(updatedCard);
@@ -374,7 +373,7 @@ export class FSRSService {
     error?: string;
   }> {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('fsrs_parameters')
         .upsert({
           user_id: userId,
@@ -399,7 +398,7 @@ export class FSRSService {
   }
 
   /**
-   * Create review log insert data with ReviewLog for ts-fsrs rollback
+   * Create review log insert data with single ReviewLog from chosen outcome
    */
   private createReviewLogInsert(
     cardId: string,
@@ -430,7 +429,7 @@ export class FSRSService {
   }> {
     try {
       // Get the most recent review log for this card
-      const { data: lastLog, error: logError } = await (supabase as any)
+      const { data: lastLog, error: logError } = await supabase
         .from('review_logs')
         .select('*')
         .eq('card_id', cardId)
@@ -464,7 +463,7 @@ export class FSRSService {
       // Convert current database record to FSRSCard
       const currentCard = this.dbRecordToFSRSCard(currentFsrsData);
 
-      // Extract ReviewLog from stored JSONB - no need to access RecordLog anymore
+      // Extract ReviewLog from stored JSONB (single ReviewLog from chosen outcome)
       const reviewLog = lastLog.review_log;
       
       // Use ts-fsrs rollback to get the card state before the review
@@ -488,7 +487,7 @@ export class FSRSService {
       }
 
       // Delete the review log
-      const { error: deleteError } = await (supabase as any)
+      const { error: deleteError } = await supabase
         .from('review_logs')
         .delete()
         .eq('id', lastLog.id);
