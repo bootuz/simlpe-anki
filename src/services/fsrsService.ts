@@ -119,6 +119,13 @@ export class FSRSService {
       default: state = State.New;
     }
 
+    // Validate learning_steps for New cards
+    let learningSteps = record.learning_steps;
+    if (state === State.New && learningSteps !== 0) {
+      console.warn(`New card has learning_steps=${learningSteps}, should be 0. Correcting.`);
+      learningSteps = 0;
+    }
+
     return {
       due: dueDate,
       stability: record.stability,
@@ -129,7 +136,7 @@ export class FSRSService {
       lapses: record.lapses,
       state: state,
       last_review: lastReview,
-      learning_steps: record.learning_steps
+      learning_steps: learningSteps
     };
   }
 
@@ -220,6 +227,11 @@ export class FSRSService {
   createInitialFSRSData(cardId: string, userId: string, createdAt?: Date): CardFSRSInsert {
     const newCard = this.createNewCard(createdAt);
     
+    // Ensure new cards always have learning_steps = 0 (step index 0)
+    if (newCard.learning_steps !== 0) {
+      console.warn('createEmptyCard returned learning_steps !== 0, forcing to 0');
+    }
+    
     return {
       card_id: cardId,
       user_id: userId,
@@ -232,7 +244,7 @@ export class FSRSService {
       elapsed_days: newCard.elapsed_days,
       due_date: null, // New cards have no due date until first review
       last_review: null,
-      learning_steps: newCard.learning_steps
+      learning_steps: 0 // Always 0 for new cards (step index 0)
     };
   }
 
