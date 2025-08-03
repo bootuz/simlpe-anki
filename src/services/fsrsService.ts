@@ -15,6 +15,8 @@ import type { Database } from '@/integrations/supabase/types';
 type CardFSRSRow = Database['public']['Tables']['card_fsrs']['Row'];
 type CardFSRSInsert = Database['public']['Tables']['card_fsrs']['Insert'];
 type CardFSRSUpdate = Database['public']['Tables']['card_fsrs']['Update'];
+type ReviewLogRow = Database['public']['Tables']['review_logs']['Row'];
+type ReviewLogInsert = Database['public']['Tables']['review_logs']['Insert'];
 
 export class FSRSService {
   private fsrsInstance: ReturnType<typeof fsrs>;
@@ -177,7 +179,7 @@ export class FSRSService {
   }
 
   /**
-   * Process a review and update the database
+   * Process a review and update the database with review log storage
    */
   async processReview(
     cardId: string, 
@@ -203,24 +205,61 @@ export class FSRSService {
         return { success: false, error: `Failed to fetch card data: ${fetchError.message}` };
       }
 
-      // Convert to FSRSCard
+      // Convert to FSRSCard and store previous state
       const currentCard = this.dbRecordToFSRSCard(fsrsData);
+      const previousCard = { ...currentCard };
 
       // Schedule next review
-      const { updatedCard } = this.scheduleReview(currentCard, rating, reviewDate);
+      const { updatedCard, recordLog } = this.scheduleReview(currentCard, rating, reviewDate);
 
       // Convert back to database format
       const dbUpdate = this.fsrsCardToDbUpdate(updatedCard);
 
-      // Update database
-      const { error: updateError } = await supabase
-        .from('card_fsrs')
-        .update(dbUpdate)
-        .eq('card_id', cardId)
-        .eq('user_id', userId);
+      // Begin transaction: update card and store review log
+      const { error: updateError } = await supabase.rpc('process_review_with_log', {
+        p_card_id: cardId,
+        p_user_id: userId,
+        p_card_update: dbUpdate,
+        p_review_log: this.createReviewLogInsert(
+          cardId, 
+          userId, 
+          rating, 
+          updatedCard, 
+          previousCard, 
+          reviewDate || new Date()
+        )
+      });
 
       if (updateError) {
-        return { success: false, error: `Failed to update card: ${updateError.message}` };
+        // Fallback to manual transaction if RPC doesn't exist
+        const { error: cardUpdateError } = await supabase
+          .from('card_fsrs')
+          .update(dbUpdate)
+          .eq('card_id', cardId)
+          .eq('user_id', userId);
+
+        if (cardUpdateError) {
+          return { success: false, error: `Failed to update card: ${cardUpdateError.message}` };
+        }
+
+        // Store review log
+        const reviewLogData = this.createReviewLogInsert(
+          cardId, 
+          userId, 
+          rating, 
+          updatedCard, 
+          previousCard, 
+          reviewDate || new Date()
+        );
+
+        const { error: logError } = await supabase
+          .from('review_logs')
+          .insert(reviewLogData);
+
+        if (logError) {
+          console.warn('Failed to store review log:', logError.message);
+          // Don't fail the review if log storage fails
+        }
       }
 
       // Calculate next review time for user feedback
@@ -282,6 +321,213 @@ export class FSRSService {
     });
 
     this.fsrsInstance = fsrs(this.parameters);
+  }
+
+  /**
+   * Create review log insert data from FSRS cards and review information
+   */
+  private createReviewLogInsert(
+    cardId: string,
+    userId: string,
+    rating: Rating,
+    updatedCard: FSRSCard,
+    previousCard: FSRSCard,
+    reviewTime: Date
+  ): ReviewLogInsert {
+    // Convert FSRS State enums to string
+    const stateToString = (state: State): string => {
+      switch (state) {
+        case State.New: return 'New';
+        case State.Learning: return 'Learning';
+        case State.Review: return 'Review';
+        case State.Relearning: return 'Relearning';
+        default: return 'New';
+      }
+    };
+
+    return {
+      card_id: cardId,
+      user_id: userId,
+      rating: rating,
+      state: stateToString(updatedCard.state),
+      due_date: updatedCard.due.toISOString(),
+      stability: updatedCard.stability,
+      difficulty: updatedCard.difficulty,
+      elapsed_days: updatedCard.elapsed_days,
+      scheduled_days: updatedCard.scheduled_days,
+      reps: updatedCard.reps,
+      lapses: updatedCard.lapses,
+      previous_state: stateToString(previousCard.state),
+      previous_due_date: previousCard.due.toISOString(),
+      previous_stability: previousCard.stability,
+      previous_difficulty: previousCard.difficulty,
+      previous_elapsed_days: previousCard.elapsed_days,
+      previous_scheduled_days: previousCard.scheduled_days,
+      previous_reps: previousCard.reps,
+      previous_lapses: previousCard.lapses,
+      previous_learning_steps: previousCard.learning_steps,
+      review_time: reviewTime.toISOString()
+    };
+  }
+
+  /**
+   * Undo the last review for a card using ts-fsrs rollback functionality
+   */
+  async undoLastReview(
+    cardId: string,
+    userId: string
+  ): Promise<{
+    success: boolean;
+    restoredCard?: FSRSCard;
+    error?: string;
+  }> {
+    try {
+      // Get the most recent review log for this card
+      const { data: lastLog, error: logError } = await supabase
+        .from('review_logs')
+        .select('*')
+        .eq('card_id', cardId)
+        .eq('user_id', userId)
+        .order('review_time', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (logError || !lastLog) {
+        return { 
+          success: false, 
+          error: 'No review found to undo' 
+        };
+      }
+
+      // Get current card state
+      const { data: currentFsrsData, error: fetchError } = await supabase
+        .from('card_fsrs')
+        .select('*')
+        .eq('card_id', cardId)
+        .eq('user_id', userId)
+        .single();
+
+      if (fetchError) {
+        return { 
+          success: false, 
+          error: `Failed to fetch current card data: ${fetchError.message}` 
+        };
+      }
+
+      // Convert log data back to FSRS format for rollback
+      const stringToState = (state: string): State => {
+        switch (state) {
+          case 'New': return State.New;
+          case 'Learning': return State.Learning;
+          case 'Review': return State.Review;
+          case 'Relearning': return State.Relearning;
+          default: return State.New;
+        }
+      };
+
+      // Restore the previous card state from the log
+      const restoredCard: FSRSCard = {
+        due: new Date(lastLog.previous_due_date || new Date()),
+        stability: lastLog.previous_stability,
+        difficulty: lastLog.previous_difficulty,
+        elapsed_days: lastLog.previous_elapsed_days,
+        scheduled_days: lastLog.previous_scheduled_days,
+        reps: lastLog.previous_reps,
+        lapses: lastLog.previous_lapses,
+        state: stringToState(lastLog.previous_state),
+        last_review: lastLog.previous_reps > 0 ? new Date(lastLog.previous_due_date || new Date()) : undefined,
+        learning_steps: lastLog.previous_learning_steps
+      };
+
+      // Convert back to database format
+      const dbUpdate = this.fsrsCardToDbUpdate(restoredCard);
+
+      // Update card and delete the review log in a transaction
+      const { error: undoError } = await supabase.rpc('undo_review', {
+        p_card_id: cardId,
+        p_user_id: userId,
+        p_log_id: lastLog.id,
+        p_card_update: dbUpdate
+      });
+
+      if (undoError) {
+        // Fallback to manual transaction
+        const { error: updateError } = await supabase
+          .from('card_fsrs')
+          .update(dbUpdate)
+          .eq('card_id', cardId)
+          .eq('user_id', userId);
+
+        if (updateError) {
+          return { 
+            success: false, 
+            error: `Failed to restore card state: ${updateError.message}` 
+          };
+        }
+
+        // Delete the review log
+        const { error: deleteError } = await supabase
+          .from('review_logs')
+          .delete()
+          .eq('id', lastLog.id);
+
+        if (deleteError) {
+          console.warn('Failed to delete review log after undo:', deleteError.message);
+          // Don't fail the undo if log deletion fails
+        }
+      }
+
+      return {
+        success: true,
+        restoredCard
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error: `Unexpected error during undo: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Get review history for a card
+   */
+  async getReviewHistory(
+    cardId: string,
+    userId: string,
+    limit: number = 10
+  ): Promise<{
+    success: boolean;
+    logs?: ReviewLogRow[];
+    error?: string;
+  }> {
+    try {
+      const { data: logs, error } = await supabase
+        .from('review_logs')
+        .select('*')
+        .eq('card_id', cardId)
+        .eq('user_id', userId)
+        .order('review_time', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        return {
+          success: false,
+          error: `Failed to fetch review history: ${error.message}`
+        };
+      }
+
+      return {
+        success: true,
+        logs: logs || []
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
   }
 }
 

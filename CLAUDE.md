@@ -82,3 +82,47 @@ The app requires Supabase environment variables and uses:
 - Row Level Security (RLS) for data access control
 - Real-time subscriptions for live updates
 - Typed queries using generated TypeScript interfaces
+
+## FSRS Integration
+
+This application uses the [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) library (v5.2.1) to implement the Free Spaced Repetition Scheduler (FSRS) algorithm for optimized flashcard scheduling.
+
+### FSRS Service Architecture
+
+The `FSRSService` class (`src/services/fsrsService.ts`) provides a clean abstraction layer between the ts-fsrs library and the application:
+
+- **Initialization**: Configures FSRS with optimized parameters (90% retention, learning steps: "1m, 10m")
+- **Database Integration**: Seamless conversion between FSRS Card objects and Supabase records
+- **Review Processing**: Handles card scheduling using the `repeat()` method
+- **State Management**: Maps between FSRS enums and database string representations
+
+### Database Schema Mapping
+
+The `card_fsrs` table stores all FSRS scheduling data:
+
+```sql
+- state: 'New' | 'Learning' | 'Review' | 'Relearning'
+- reps: Total review count
+- lapses: Times the card was forgotten  
+- difficulty: Card difficulty (1-10)
+- stability: Memory stability (90% recall interval)
+- scheduled_days: Current interval in days
+- elapsed_days: Days since last review
+- due_date: Next review date
+- last_review: Previous review date
+- learning_steps: Current step index for Learning/Relearning cards
+```
+
+### Card State Transitions
+
+Cards progress through FSRS states based on user ratings:
+- **New** → **Learning** (Again/Hard/Good) or **Review** (Easy)
+- **Learning** → Next step (Good), first step (Again), or **Review** (Easy/completion)
+- **Review** → **Relearning** (Again) or updated intervals (Hard/Good/Easy)
+- **Relearning** → Same as Learning but increments lapses
+
+### Learning Steps Configuration
+
+- **New cards**: "1m, 10m" (1 minute, then 10 minutes)
+- **Relearning**: "10m" (10 minutes for forgotten cards)
+- Supports micro-learning with sub-day intervals for optimal retention

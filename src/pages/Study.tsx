@@ -3,7 +3,18 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, LogOut, Eye, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check, Clock, Repeat } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { BookOpen, LogOut, Eye, CheckCircle, XCircle, Home, ArrowLeft, AlertTriangle, Check, Clock, Repeat, Undo2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +46,8 @@ const Study = () => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [studyComplete, setStudyComplete] = useState(false);
+  const [lastReviewedCardId, setLastReviewedCardId] = useState<string | null>(null);
+  const [undoLoading, setUndoLoading] = useState(false);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -215,6 +228,9 @@ const Study = () => {
         queryKey: QUERY_KEYS.studyCards(user.id) 
       });
       
+      // Store the reviewed card ID for potential undo
+      setLastReviewedCardId(cardId);
+
       // Move to next card or complete study session
       const nextIndex = currentCardIndex + 1;
       if (nextIndex >= cards.length) {
@@ -237,6 +253,56 @@ const Study = () => {
         description: error instanceof Error ? error.message : "Failed to save your progress. Please try again.",
         variant: "destructive"
       });
+    }
+  };
+
+  const handleUndoLastReview = async () => {
+    if (!lastReviewedCardId) {
+      toast({
+        title: "No review to undo",
+        description: "There's no recent review to undo.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setUndoLoading(true);
+      
+      const result = await fsrsService.undoLastReview(lastReviewedCardId, user.id);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to undo review');
+      }
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ 
+        queryKey: QUERY_KEYS.cardsWithDetails(user.id) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: QUERY_KEYS.studyCards(user.id) 
+      });
+
+      // Move back to the previous card
+      const prevIndex = Math.max(0, currentCardIndex - 1);
+      setCurrentCardIndex(prevIndex);
+      setShowAnswer(false);
+      setLastReviewedCardId(null);
+
+      toast({
+        title: "Review undone",
+        description: "The last review has been successfully undone.",
+      });
+
+    } catch (error) {
+      console.error("Error undoing review:", error);
+      toast({
+        title: "Undo failed",
+        description: error instanceof Error ? error.message : "Failed to undo the review. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setUndoLoading(false);
     }
   };
 
@@ -278,6 +344,39 @@ const Study = () => {
             </div>
             
             <div className="flex items-center gap-4">
+              {lastReviewedCardId && currentCardIndex > 0 && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={undoLoading}
+                      className="flex items-center gap-2"
+                    >
+                      <Undo2 className="h-4 w-4" />
+                      {undoLoading ? 'Undoing...' : 'Undo Last Review'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Undo Last Review?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will restore the previous card state and remove the last review from your history. 
+                        This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleUndoLastReview}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Undo Review
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
               {user && (
                 <Button
                   variant="outline"
