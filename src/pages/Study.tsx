@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getFSRSServiceForUser, Rating, type FSRSCard } from "@/services/fsrsService";
 import { SchedulingPreview } from "@/components/SchedulingPreview";
+import { ReviewHistory } from "@/components/ReviewHistory";
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from "@/hooks/useOptimizedQueries";
 
@@ -570,16 +571,24 @@ const Study = () => {
                                   className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3"
                                 >
                                   <CheckCircle className="h-4 w-4 mr-1" />
-                                  Easy
-                                </Button>
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                                   Easy
+                                 </Button>
+                               </div>
+                             </div>
+                           )
+                         )}
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+
+                 {/* Review History */}
+                 <div className="mt-8">
+                   <ReviewHistory 
+                     cardId={currentCard.id} 
+                     userId={user.id} 
+                   />
+                 </div>
               </div>
             ) : (
               // No Cards to Study
