@@ -200,13 +200,10 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
             className={`${preview.className} py-3 flex flex-col h-auto relative group`}
             title={preview.description}
           >
-            <div className="flex items-center gap-1 mb-1">
+            <div className="flex items-center gap-1">
               {preview.icon}
               <span className="font-medium">{preview.label}</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs opacity-75">
-              <Clock className="h-3 w-3" />
-              <span>{preview.interval}</span>
+              <span className="text-xs opacity-75">({preview.interval})</span>
             </div>
             
             {/* Tooltip on hover */}
