@@ -42,7 +42,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
           label: 'Again',
           interval: formatInterval(recordLog[Rating.Again].card, now),
           icon: <XCircle className="h-4 w-4" />,
-          className: 'border-red-300 text-red-700 hover:bg-red-50 hover:border-red-400',
+          className: 'border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive',
           description: 'I need to study this more'
         },
         {
@@ -50,7 +50,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
           label: 'Hard',
           interval: formatInterval(recordLog[Rating.Hard].card, now),
           icon: <AlertTriangle className="h-4 w-4" />,
-          className: 'border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400',
+          className: 'border-amber-500 text-amber-700 hover:bg-amber-50 hover:text-amber-800',
           description: 'It was difficult to remember'
         },
         {
@@ -58,7 +58,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
           label: 'Good',
           interval: formatInterval(recordLog[Rating.Good].card, now),
           icon: <Check className="h-4 w-4" />,
-          className: 'border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400',
+          className: 'border-primary text-primary hover:bg-primary/10 hover:text-primary',
           description: 'I remembered it correctly'
         },
         {
@@ -66,7 +66,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
           label: 'Easy',
           interval: formatInterval(recordLog[Rating.Easy].card, now),
           icon: <CheckCircle className="h-4 w-4" />,
-          className: 'border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400',
+          className: 'border-green-600 text-green-700 hover:bg-green-50 hover:text-green-800',
           description: 'It was very easy to remember'
         }
       ];
@@ -142,7 +142,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
             variant="outline"
             size="lg"
             disabled={disabled}
-            className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400 py-3"
+            className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive py-3"
           >
             <XCircle className="h-4 w-4 mr-1" />
             Again
@@ -152,7 +152,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
             variant="outline"
             size="lg"
             disabled={disabled}
-            className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400 py-3"
+            className="border-amber-500 text-amber-700 hover:bg-amber-50 hover:text-amber-800 py-3"
           >
             <AlertTriangle className="h-4 w-4 mr-1" />
             Hard
@@ -162,7 +162,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
             variant="outline"
             size="lg"
             disabled={disabled}
-            className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 py-3"
+            className="border-primary text-primary hover:bg-primary/10 hover:text-primary py-3"
           >
             <Check className="h-4 w-4 mr-1" />
             Good
@@ -172,7 +172,7 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
             variant="outline"
             size="lg"
             disabled={disabled}
-            className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3"
+            className="border-green-600 text-green-700 hover:bg-green-50 hover:text-green-800 py-3"
           >
             <CheckCircle className="h-4 w-4 mr-1" />
             Easy

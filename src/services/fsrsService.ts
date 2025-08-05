@@ -61,7 +61,7 @@ export class FSRSService {
       .eq('user_id', userId)
       .single();
 
-    const config = userParams?.parameters || {};
+    const config = userParams?.parameters as Partial<FSRSParameters> || {};
     const instance = new FSRSService(config);
     this.instanceCache.set(userId, instance);
     return instance;
@@ -306,7 +306,7 @@ export class FSRSService {
 
       const { error: logError } = await supabase
         .from('review_logs')
-        .insert(reviewLogData);
+        .insert(reviewLogData as any);
 
       if (logError) {
         console.warn('Failed to store review log:', logError.message);
