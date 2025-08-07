@@ -360,19 +360,21 @@ const Home = () => {
               </div>
               
               {/* Study Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-8">
                 <div className="bg-card border rounded-lg p-4">
                   <div className="text-2xl font-bold text-primary">{cardsToStudy.filter(c => getDueDateStatus(c.due_date).status === 'new').length}</div>
                   <div className="text-sm text-muted-foreground">New Cards</div>
                 </div>
                 <div className="bg-card border rounded-lg p-4">
-                  <div className="text-2xl font-bold text-orange-600">{cardsToStudy.filter(c => getDueDateStatus(c.due_date).status === 'due-today').length}</div>
-                  <div className="text-sm text-muted-foreground">Due Today</div>
+                  <div className="text-2xl font-bold text-primary">
+                    {cardsToStudy.filter(c => {
+                      const s = getDueDateStatus(c.due_date).status;
+                      return s === 'due-today' || s === 'overdue';
+                    }).length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Ready</div>
                 </div>
-                <div className="bg-card border rounded-lg p-4">
-                  <div className="text-2xl font-bold text-red-600">{cardsToStudy.filter(c => getDueDateStatus(c.due_date).status === 'overdue').length}</div>
-                  <div className="text-sm text-muted-foreground">Overdue</div>
-                </div>
+              </div>
               </div>
 
               {/* Prominent CTA */}
@@ -380,7 +382,6 @@ const Home = () => {
                 <Zap className="h-6 w-6 mr-2" />
                 Start Studying Now
               </Button>
-            </div>
 
             {/* Individual Cards Timeline */}
             <div className="space-y-8">
@@ -422,7 +423,7 @@ const Home = () => {
                                   : ''
                               }`}
                             >
-                              {status === 'new' ? 'New' : status === 'overdue' ? 'Overdue' : 'Due'}
+                              {status === 'new' ? 'New' : 'Ready'}
                             </Badge>
                             <div className="flex items-center space-x-1 text-xs text-muted-foreground/80">
                               <Folder className="h-3 w-3" />

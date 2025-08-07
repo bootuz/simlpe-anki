@@ -128,13 +128,13 @@ const Study = () => {
     
     if (dueDate <= now) {
       const hoursOverdue = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60));
-      if (hoursOverdue > 24) {
-        return { label: `${Math.floor(hoursOverdue / 24)}d overdue`, variant: 'destructive' as const, icon: <AlertTriangle className="h-3 w-3" /> };
-      } else if (hoursOverdue > 0) {
-        return { label: `${hoursOverdue}h overdue`, variant: 'destructive' as const, icon: <Clock className="h-3 w-3" /> };
-      } else {
-        return { label: 'Due now', variant: 'secondary' as const, icon: <Clock className="h-3 w-3" /> };
-      }
+        if (hoursOverdue > 24) {
+          return { label: 'Ready', variant: 'destructive' as const, icon: <AlertTriangle className="h-3 w-3" /> };
+        } else if (hoursOverdue > 0) {
+          return { label: 'Ready', variant: 'destructive' as const, icon: <Clock className="h-3 w-3" /> };
+        } else {
+          return { label: 'Ready', variant: 'secondary' as const, icon: <Clock className="h-3 w-3" /> };
+        }
     }
     
     return { label: 'Review', variant: 'outline' as const, icon: <BookOpen className="h-3 w-3" /> };
