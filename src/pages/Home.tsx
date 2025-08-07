@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { getDueDateInfo } from "@/utils/fsrsUtils";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { BookOpen, TrendingUp, LogOut, Plus, GraduationCap, Brain, Target, Sparkles, Clock, Users, BarChart3, Zap, Folder } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCardsWithDetails, useRealtimeSubscription } from "@/hooks/useOptimizedQueries";
+import HomeHeader from "./home/HomeHeader";
+import EmptyState from "./home/EmptyState";
+import CaughtUp from "./home/CaughtUp";
+import StudyReady from "./home/StudyReady";
 
 interface CardWithDue {
   id: string;
@@ -201,27 +202,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
-      {/* Header */}
-      <div className="bg-card/80 backdrop-blur border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <BookOpen className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold">Simple Anki</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={handleManageDecks}>
-                <Plus className="h-4 w-4 mr-2" />
-                Manage Cards
-              </Button>
-              <Button variant="ghost" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <HomeHeader onManageDecks={handleManageDecks} onSignOut={handleSignOut} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
