@@ -112,7 +112,9 @@ const Home = () => {
     }
   };
 
-  const getDueDateStatus = (dueDate: string | null) => {
+  const getDueDateStatus = (
+    dueDate: string | null
+  ): { status: 'new' | 'overdue' | 'due-today' | 'future'; label: string; daysUntilDue?: number } => {
     // Handle null due_date for new cards
     if (!dueDate) {
       return { status: 'new', daysUntilDue: 0, label: 'New' };
@@ -128,13 +130,13 @@ const Home = () => {
           status: 'overdue', 
           daysUntilDue: info.timeValue, 
           label: exactLabel 
-        };
+        } as const;
       case 'due-now':
         return { 
           status: 'due-today', 
           daysUntilDue: 0, 
           label: exactLabel 
-        };
+        } as const;
       case 'due-soon': {
         // Check if card is due today (same calendar day)
         const due = new Date(dueDate);
@@ -146,21 +148,21 @@ const Home = () => {
             status: 'due-today', 
             daysUntilDue: 0, 
             label: exactLabel 
-          };
+          } as const;
         }
         // Cards due tomorrow or later are future
         return { 
           status: 'future', 
           daysUntilDue: info.timeValue, 
           label: exactLabel 
-        };
+        } as const;
       }
       default:
         return { 
           status: 'future', 
           daysUntilDue: info.timeValue, 
           label: exactLabel 
-        };
+        } as const;
     }
   };
 
@@ -210,234 +212,15 @@ const Home = () => {
 
         {/* Main Content */}
         {totalCards === 0 ? (
-          /* Enhanced New User Experience */
-          <div className="max-w-4xl mx-auto">
-            {/* Hero Section */}
-            <div className="text-center mb-12">
-              <div className="relative mb-8">
-                {/* Enhanced icon design */}
-                <div className="relative mx-auto w-32 h-32 mb-6">
-                  {/* Background decoration */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/20 to-accent/10 rounded-full blur-2xl scale-110"></div>
-                  
-                  {/* Main icon container */}
-                  <div className="relative flex items-center justify-center">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl animate-pulse"></div>
-                    <div className="relative bg-background border-2 border-primary/20 rounded-2xl p-8 shadow-lg w-32 h-32 flex items-center justify-center">
-                      <GraduationCap className="h-16 w-16 text-primary" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
-                Start Your Learning Journey
-              </h2>
-              <p className="text-xl text-muted-foreground/90 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Master any subject with spaced repetition. Create flashcards, organize them into decks, 
-                and let our smart algorithm optimize your learning.
-              </p>
-            </div>
-
-            {/* Benefits Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="group text-center p-6 rounded-lg bg-card border border-border/50 hover:shadow-md transition-all duration-200 hover:border-primary/20">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                  <Brain className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-3 text-lg">Smart Learning</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Advanced FSRS algorithm shows you cards precisely when you're about to forget them
-                </p>
-              </div>
-              <div className="group text-center p-6 rounded-lg bg-card border border-border/50 hover:shadow-md transition-all duration-200 hover:border-green-500/20">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-green-500/10 to-green-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                  <TrendingUp className="h-7 w-7 text-green-600" />
-                </div>
-                <h3 className="font-semibold mb-3 text-lg">Track Progress</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Monitor your learning journey with detailed analytics and progress insights
-                </p>
-              </div>
-              <div className="group text-center p-6 rounded-lg bg-card border border-border/50 hover:shadow-md transition-all duration-200 hover:border-blue-500/20">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-                  <Target className="h-7 w-7 text-blue-600" />
-                </div>
-                <h3 className="font-semibold mb-3 text-lg">Efficient Study</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Focus on what matters most with personalized study schedules and priorities
-                </p>
-              </div>
-            </div>
-
-            {/* Card Preview */}
-            <div className="mb-12">
-              <h3 className="text-2xl font-semibold text-center mb-8">See How It Works</h3>
-              <div className="max-w-sm mx-auto">
-                <div className="group cursor-pointer">
-                  <div className="relative bg-gradient-to-br from-primary via-primary to-accent text-white p-8 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                    <div className="text-center space-y-6">
-                      <div>
-                        <p className="text-sm opacity-80 mb-3 uppercase tracking-wide">Question</p>
-                        <h4 className="text-xl font-semibold leading-tight">What is the capital of France?</h4>
-                      </div>
-                      <div className="border-t border-white/20 pt-6">
-                        <p className="text-sm opacity-80 mb-3 uppercase tracking-wide">Answer</p>
-                        <p className="text-xl font-medium">Paris</p>
-                      </div>
-                    </div>
-                    
-                    {/* Decorative elements */}
-                    <div className="absolute top-4 right-4 opacity-20">
-                      <Sparkles className="h-6 w-6" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                onClick={handleManageDecks} 
-                size="lg" 
-                className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25 transition-all duration-200"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Create your first cards
-              </Button>
-            </div>
-          </div>
+          <EmptyState onManageDecks={handleManageDecks} />
         ) : cardsToStudy.length === 0 ? (
-          /* All Caught Up */
-          <div className="text-center py-16">
-            <div className="max-w-md mx-auto">
-              <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <BookOpen className="h-8 w-8 text-green-600" />
-              </div>
-              <h2 className="text-2xl font-bold mb-4">All Caught Up! 🎉</h2>
-              <p className="text-muted-foreground mb-8">
-                Great job! You've reviewed all your cards that are due today. 
-                Keep up the great work and check back later for more reviews.
-              </p>
-              <div className="flex justify-center">
-                <Button variant="outline" onClick={handleManageDecks}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add More Cards
-                </Button>
-              </div>
-            </div>
-          </div>
+          <CaughtUp onManageDecks={handleManageDecks} />
         ) : (
-          /* Cards Due for Review - Enhanced Design */
-          <div className="space-y-8">
-            {/* Header with Stats */}
-            <div className="text-center space-y-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 mb-4">
-                <BookOpen className="h-10 w-10 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-3xl font-bold mb-2">Ready to Study!</h2>
-                <p className="text-lg text-muted-foreground mb-6">
-                  You have <span className="font-semibold text-primary">{cardsToStudy.length}</span> cards ready for review
-                </p>
-              </div>
-              
-              {/* Study Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
-                <div className="bg-card border rounded-lg p-4">
-                  <div className="text-2xl font-bold text-primary">{cardsToStudy.filter(c => getDueDateStatus(c.due_date).status === 'new').length}</div>
-                  <div className="text-sm text-muted-foreground">New Cards</div>
-                </div>
-                <div className="bg-card border rounded-lg p-4">
-                  <div className="text-2xl font-bold text-orange-600">{cardsToStudy.filter(c => getDueDateStatus(c.due_date).status === 'due-today').length}</div>
-                  <div className="text-sm text-muted-foreground">Due Today</div>
-                </div>
-                <div className="bg-card border rounded-lg p-4">
-                  <div className="text-2xl font-bold text-red-600">{cardsToStudy.filter(c => getDueDateStatus(c.due_date).status === 'overdue').length}</div>
-                  <div className="text-sm text-muted-foreground">Overdue</div>
-                </div>
-              </div>
-
-              {/* Prominent CTA */}
-              <Button onClick={handleStartStudy} size="lg" className="px-8 py-6 text-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25">
-                <Zap className="h-6 w-6 mr-2" />
-                Start Studying Now
-              </Button>
-            </div>
-
-            {/* Individual Cards Timeline */}
-            <div className="space-y-8">
-              <div className="flex items-center justify-between max-w-4xl mx-auto">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Clock className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold">Study Queue</h3>
-                    <p className="text-sm text-muted-foreground">Prioritized by urgency</p>
-                  </div>
-                </div>
-                <Badge variant="secondary" className="px-3 py-1">
-                  {cardsToStudy.length} cards
-                </Badge>
-              </div>
-              <div className="space-y-3 max-w-4xl mx-auto">
-                {cardsToStudy.slice(0, 8).map((card, index) => {
-                  const { status, label } = getDueDateStatus(card.due_date);
-                  const cardBgClass = status === 'new' 
-                    ? 'bg-green-50 border-green-200 hover:bg-green-100 hover:border-green-300 dark:bg-green-950/50 dark:border-green-800 dark:hover:bg-green-900/50 dark:hover:border-green-700'
-                    : status === 'overdue'
-                    ? 'bg-red-50/60 border-red-200/60 hover:bg-red-100/80 hover:border-red-300/80 dark:bg-red-950/30 dark:border-red-800/50 dark:hover:bg-red-900/40 dark:hover:border-red-700/60'
-                    : 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300 dark:bg-orange-950/50 dark:border-orange-800 dark:hover:bg-orange-900/50 dark:hover:border-orange-700';
-                  
-                  return (
-                    <div key={card.id} className={`group relative ${cardBgClass} rounded-xl p-4 hover:shadow-lg transition-all duration-200 cursor-pointer border`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <Badge 
-                              variant={status === 'overdue' ? 'destructive' : 'secondary'}
-                              className={`text-xs shrink-0 ${
-                                status === 'new' 
-                                  ? 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:text-white dark:hover:bg-green-700' 
-                                  : status === 'due-today'
-                                  ? 'bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-600 dark:text-white dark:hover:bg-orange-700'
-                                  : ''
-                              }`}
-                            >
-                              {status === 'new' ? 'New' : status === 'overdue' ? 'Overdue' : 'Due'}
-                            </Badge>
-                            <div className="flex items-center space-x-1 text-xs text-muted-foreground/80">
-                              <Folder className="h-3 w-3" />
-                              <span className="font-medium">{card.folder_name}</span>
-                              <span>/</span>
-                              <BookOpen className="h-3 w-3" />
-                              <span className="font-medium">{card.deck_name}</span>
-                            </div>
-                          </div>
-                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-base">
-                            {card.front}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-4 ml-6">
-                          <span className="text-sm text-muted-foreground whitespace-nowrap font-medium">
-                            {label}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                {cardsToStudy.length > 8 && (
-                  <div className="text-center pt-4">
-                    <p className="text-sm text-muted-foreground">
-                      And {cardsToStudy.length - 8} more cards waiting...
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <StudyReady
+            cards={cardsToStudy}
+            getDueDateStatus={getDueDateStatus}
+            onStartStudy={handleStartStudy}
+          />
         )}
       </div>
     </div>
