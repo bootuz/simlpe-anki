@@ -7,7 +7,9 @@ import HomeHeader from "./home/HomeHeader";
 import EmptyState from "./home/EmptyState";
 import CaughtUp from "./home/CaughtUp";
 import StudyReady from "./home/StudyReady";
-
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, GraduationCap, Brain, TrendingUp, Target, Sparkles, Plus, Zap, Clock, Folder } from "lucide-react";
 interface CardWithDue {
   id: string;
   front: string;
