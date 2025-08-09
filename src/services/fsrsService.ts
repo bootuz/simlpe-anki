@@ -384,11 +384,11 @@ export class FSRSService {
     try {
       const { error } = await supabase
         .from('fsrs_parameters')
-        .upsert({
-          user_id: userId,
+        .update({
           parameters: config as any,
           updated_at: new Date().toISOString()
-        });
+        })
+        .eq('user_id', userId);
 
       if (error) {
         return { success: false, error: error.message };

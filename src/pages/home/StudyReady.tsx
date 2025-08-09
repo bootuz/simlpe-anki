@@ -28,9 +28,9 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
   const overdue = cards.filter((c) => getDueDateStatus(c.due_date).status === "overdue").length;
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative">
       {/* Background elements */}
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-20 overflow-hidden">
         <div className="absolute top-32 left-16 w-20 h-20 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-xl animate-pulse" />
         <div className="absolute bottom-40 right-20 w-24 h-24 bg-gradient-to-br from-accent/30 to-primary/30 rounded-full blur-xl animate-pulse delay-1000" />
       </div>
@@ -39,7 +39,7 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
         {/* Hero Header */}
         <div className="text-center space-y-8">
           <div className="relative">
-            <div className="relative mx-auto w-24 h-24 mb-6">
+            <div className="relative mx-auto w-24 h-24 mb-6 overflow-visible">
               {/* Pulsing rings */}
               <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
               <div className="absolute inset-2 rounded-full border border-accent/40 animate-ping delay-300" />
