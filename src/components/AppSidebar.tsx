@@ -9,7 +9,8 @@ import {
   Trash2,
   ChevronRight,
   ChevronDown,
-  Settings
+  Settings,
+  Inbox
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -329,7 +330,7 @@ export function AppSidebar({
                         >
                           <div className="flex items-center justify-between w-full py-1">
                             <div className="flex items-center min-w-0 flex-1">
-                              <BookOpen className="h-4 w-4 mr-3 text-current shrink-0" />
+                              <Inbox className="h-4 w-4 mr-3 text-current shrink-0" />
                               {!isCollapsed && (
                                 <span className="text-sm font-medium truncate">
                                   {editingDeck === deck.id ? (

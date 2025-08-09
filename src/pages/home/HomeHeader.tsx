@@ -32,12 +32,12 @@ export default function HomeHeader({ onManageDecks, onSignOut }: HomeHeaderProps
           <Button 
             variant="outline" 
             onClick={onManageDecks} 
-            className="relative group overflow-hidden border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
+            className="relative group overflow-hidden border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover:text-foreground transition-all duration-300"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <Plus className="h-4 w-4 mr-2 relative z-10 group-hover:scale-110 transition-transform duration-200" />
-            <span className="relative z-10 hidden sm:inline font-medium">Manage Cards</span>
-            <span className="relative z-10 sm:hidden font-medium">Manage</span>
+            <span className="relative z-10 hidden sm:inline font-medium text-current">Manage Cards</span>
+            <span className="relative z-10 sm:hidden font-medium text-current">Manage</span>
           </Button>
           
           <Button 

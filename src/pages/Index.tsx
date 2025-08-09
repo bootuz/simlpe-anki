@@ -30,12 +30,14 @@ import {
   LogOut, 
   Search, 
   Filter, 
-  Calendar,
   Clock,
   Trash2,
   MoreHorizontal,
   Edit,
-  Layers3
+  Layers3,
+  Sparkles,
+  Zap,
+  Inbox
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -742,35 +744,50 @@ const Index = () => {
       
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex items-center justify-between h-full px-6">
+        <header className="relative h-16 border-b bg-card/60 supports-[backdrop-filter]:backdrop-blur-xl border-border/40 sticky top-0 z-30">
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+          
+          <div className="relative flex items-center justify-between h-full px-6">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-6 w-6 text-primary" />
-                <h1 className="text-xl font-semibold">Simple Anki</h1>
+              <div className="flex items-center gap-3">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
+                  <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center shadow-sm border border-primary/20">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent">
+                    Simple Anki
+                  </h1>
+                  <Sparkles className="h-4 w-4 text-primary/60 animate-pulse" />
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 variant="outline"
                 onClick={() => navigate("/")}
-                className="flex items-center gap-2"
+                className="relative group overflow-hidden border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover:text-foreground transition-all duration-300"
               >
-                <BookOpen className="h-4 w-4" />
-                Study
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
+                <BookOpen className="h-4 w-4 mr-2 relative z-10 group-hover:scale-105 transition-transform duration-150" />
+                <span className="relative z-10 hidden sm:inline font-medium text-current">Study Session</span>
+                <span className="relative z-10 sm:hidden font-medium text-current">Study</span>
               </Button>
               
               {user && (
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost"
                   onClick={signOut}
-                  className="flex items-center gap-2"
+                  className="hover:bg-destructive/5 hover:text-destructive transition-all duration-150"
                 >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
+                  <LogOut className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                  <span className="sm:hidden">Logout</span>
                 </Button>
               )}
             </div>
@@ -778,85 +795,176 @@ const Index = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 bg-gradient-to-br from-background via-muted/30 to-accent/10">
-          <div className="container mx-auto px-6 py-8">
+        <main className="flex-1 bg-gradient-to-br from-background via-background to-primary/5 relative">
+          {/* Subtle background pattern */}
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+          </div>
+          <div className="relative z-10 container mx-auto px-6 py-8">
             {loading || dataLoading ? (
-              <div className="flex flex-col items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-4"></div>
-                <p className="text-muted-foreground">Loading...</p>
+              <div className="relative flex flex-col items-center justify-center h-96">
+                {/* Background decoration */}
+                <div className="absolute inset-0 opacity-30">
+                  <div className="absolute top-16 left-16 w-12 h-12 bg-gradient-to-br from-primary/30 to-transparent rounded-full blur-xl animate-pulse" />
+                  <div className="absolute bottom-16 right-16 w-16 h-16 bg-gradient-to-br from-accent/30 to-transparent rounded-full blur-xl animate-pulse delay-1000" />
+                </div>
+                
+                <div className="relative z-10 text-center space-y-6">
+                  {/* Enhanced loading spinner */}
+                  <div className="relative">
+                    <div className="w-20 h-20 mx-auto">
+                      <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+                      <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                      <div className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <BookOpen className="h-6 w-6 text-primary animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-semibold text-foreground">Loading Your Collection</h3>
+                    <p className="text-muted-foreground">Preparing your flashcards...</p>
+                  </div>
+                </div>
               </div>
             ) : !currentDeck ? (
-                <div className="flex flex-col items-center justify-center text-center py-16 px-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
-                  <BookOpen className="h-8 w-8 text-primary" />
+                <div className="relative flex flex-col items-center justify-center text-center py-20 px-4">
+                {/* Background elements */}
+                <div className="absolute inset-0 opacity-30">
+                  <div className="absolute top-16 left-16 w-20 h-20 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-xl animate-pulse" />
+                  <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-accent/30 to-primary/30 rounded-full blur-xl animate-pulse delay-1000" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3">Ready to Start Learning?</h2>
-                <p className="text-muted-foreground mb-8 max-w-md">
-                  {currentFolder ? 
-                    `Create your first deck in "${currentFolder.name}" and start adding cards to study` :
-                    "Set up your study space by creating a folder to organize your learning topics"
-                  }
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
-                  <Button 
-                    onClick={() => {
-                      if (currentFolder) {
-                        setTriggerNewDeck(currentFolder.id);
-                      } else {
-                        setTriggerNewFolder(true);
+                
+                <div className="relative z-10 space-y-8">
+                  {/* Enhanced icon with animation */}
+                  <div className="relative mx-auto w-32 h-32 mb-8">
+                    {/* Pulsing rings */}
+                    <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
+                    <div className="absolute inset-4 rounded-full border border-accent/40 animate-ping delay-300" />
+                    
+                    {/* Central icon */}
+                    <div className="absolute inset-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-2xl">
+                      <BookOpen className="h-12 w-12 text-white" />
+                    </div>
+                    
+                    {/* Floating elements */}
+                    <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-accent animate-pulse" />
+                    <Plus className="absolute -bottom-2 -left-2 h-5 w-5 text-primary animate-pulse delay-500" />
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <h2 className="text-4xl md:text-5xl font-bold">
+                      <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                        Ready to Learn?
+                      </span>
+                    </h2>
+                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                      {currentFolder ? 
+                        `Create your first deck in "${currentFolder.name}" and start building your knowledge base` :
+                        "Set up your learning journey by creating organized study spaces"
                       }
-                    }}
-                    size="lg"
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="h-5 w-5" />
-                    {currentFolder ? "Create My First Deck" : "Get Started"}
-                  </Button>
+                    </p>
+                  </div>
                   
-                  <span className="text-muted-foreground text-sm">or</span>
-                  
-                  <Button 
-                    onClick={handleGenerateSampleData}
-                    disabled={isGeneratingSampleData}
-                    variant="outline"
-                    size="lg"
-                    className="flex items-center gap-2"
-                  >
-                    <Layers3 className="h-5 w-5" />
-                    {isGeneratingSampleData ? "Generating..." : "Try Sample Content"}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-4 items-center pt-4">
+                    <Button 
+                      onClick={() => {
+                        if (currentFolder) {
+                          setTriggerNewDeck(currentFolder.id);
+                        } else {
+                          setTriggerNewFolder(true);
+                        }
+                      }}
+                      size="lg"
+                      className="group relative px-8 py-4 text-lg font-semibold bg-gradient-to-r from-primary via-primary to-accent hover:from-accent hover:via-primary hover:to-primary transition-all duration-500 shadow-xl hover:shadow-primary/30 transform hover:scale-105"
+                    >
+                      <span className="relative z-10 flex items-center gap-3">
+                        <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
+                        {currentFolder ? "Create My First Deck" : "Start Your Journey"}
+                      </span>
+                      <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/20 to-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
+                    </Button>
+                    
+                    <div className="flex items-center gap-4">
+                      <span className="text-muted-foreground text-sm font-medium">or</span>
+                      
+                      <Button 
+                        onClick={handleGenerateSampleData}
+                        disabled={isGeneratingSampleData}
+                        variant="outline"
+                        size="lg"
+                        className="group border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 px-6 py-4"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md" />
+                        <Layers3 className="h-5 w-5 mr-2 relative z-10 group-hover:scale-110 transition-transform duration-200" />
+                        <span className="relative z-10">
+                          {isGeneratingSampleData ? "Generating..." : "Try Sample Content"}
+                        </span>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
               <>
-                {/* Breadcrumb - Only show when deck has cards */}
-                {currentFolder && currentDeck && currentDeckCards.length > 0 && (
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
-                    <Folder className="h-4 w-4" />
-                    <span>{currentFolder.name}</span>
-                    <span>/</span>
-                    <BookOpen className="h-4 w-4" />
-                    <span>{currentDeck.name}</span>
-                  </div>
-                )}
-
-                {/* Deck Header - Only show when deck has cards */}
-                {currentDeckCards.length > 0 && (
-                  <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold mb-2">{currentDeck.name}</h2>
-                    <p className="text-muted-foreground">
-                      Your flashcards collection
-                    </p>
+                {/* Enhanced Breadcrumb & Header - Show when deck exists */}
+                {currentFolder && currentDeck && (
+                  <div className="relative text-center mb-10">
+                    {/* Background decoration */}
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute top-4 left-1/4 w-8 h-8 bg-gradient-to-br from-primary/30 to-transparent rounded-full blur-lg animate-pulse" />
+                      <div className="absolute top-8 right-1/4 w-6 h-6 bg-gradient-to-br from-accent/30 to-transparent rounded-full blur-lg animate-pulse delay-700" />
+                    </div>
+                    
+                    <div className="relative z-10 space-y-6">
+                      {/* Breadcrumb */}
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-card/60 backdrop-blur-sm rounded-full border border-border/50">
+                          <Folder className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium text-foreground">{currentFolder.name}</span>
+                          <span className="text-muted-foreground">/</span>
+                          <Inbox className="h-4 w-4 text-accent" />
+                          <span className="text-sm font-medium text-foreground">{currentDeck.name}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Main Header */}
+                      <div className="space-y-4">
+                        <h2 className="text-4xl md:text-5xl font-bold">
+                          <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                            {currentDeck.name}
+                          </span>
+                        </h2>
+                        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                          Your personalized flashcard collection for mastering{" "}
+                          <span className="font-semibold text-primary">{currentDeck.name.toLowerCase()}</span>
+                        </p>
+                        
+                        {/* Quick stats */}
+                        {currentDeckCards.length > 0 && (
+                          <div className="flex items-center justify-center gap-6 pt-4">
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                              <Layers3 className="h-4 w-4 text-primary" />
+                              <span className="text-sm font-medium text-primary">
+                                {currentDeckCards.length} {currentDeckCards.length === 1 ? 'card' : 'cards'}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* Add Card Modal */}
                 <Dialog open={isAddCardModalOpen} onOpenChange={setIsAddCardModalOpen}>
-                  <DialogContent className="sm:max-w-[500px]">
+                  <DialogContent className="sm:max-w-[500px] bg-card/95 backdrop-blur-md border-border/50">
                     <DialogHeader>
-                      <DialogTitle>Add New Card</DialogTitle>
-                      <DialogDescription>
-                        Create a new flashcard for your {currentDeck?.name} deck.
+                      <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        Add New Card
+                      </DialogTitle>
+                      <DialogDescription className="text-muted-foreground">
+                        Create a new flashcard for your <span className="font-semibold text-primary">{currentDeck?.name}</span> deck.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -907,134 +1015,206 @@ const Index = () => {
                 </Dialog>
 
                 {currentDeckCards.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center py-12 px-4">
+                  <div className="relative flex flex-col items-center justify-center text-center py-16 px-4">
+                    {/* Background elements */}
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute top-8 left-8 w-16 h-16 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-xl animate-pulse" />
+                      <div className="absolute bottom-8 right-8 w-20 h-20 bg-gradient-to-br from-accent/30 to-primary/30 rounded-full blur-xl animate-pulse delay-1000" />
+                    </div>
+                    
                     {/* Enhanced Visual Elements */}
-                    <div className="relative mb-8">
-                      {/* Background decoration */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-full blur-3xl scale-150"></div>
-                      
-                      {/* Main icon stack */}
-                      <div className="relative flex items-center justify-center">
-                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse"></div>
-                        <div className="relative bg-background border-2 border-primary/20 rounded-full p-6 shadow-lg">
-                          <Layers3 className="h-12 w-12 text-primary" />
+                    <div className="relative mb-12">
+                      <div className="relative mx-auto w-40 h-40">
+                        {/* Pulsing rings */}
+                        <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-pulse" />
+                        <div className="absolute inset-4 rounded-full border-2 border-accent/30 animate-pulse delay-300" />
+                        <div className="absolute inset-8 rounded-full border border-primary/40 animate-pulse delay-700" />
+                        
+                        {/* Central icon */}
+                        <div className="absolute inset-12 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                          <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-2xl">
+                            <Layers3 className="h-8 w-8 text-white" />
+                          </div>
                         </div>
+                        
+                        {/* Floating elements */}
+                        <Sparkles className="absolute -top-4 -right-4 h-6 w-6 text-accent animate-pulse" />
+                        <Plus className="absolute -bottom-4 -left-4 h-5 w-5 text-primary animate-pulse delay-500" />
                       </div>
                     </div>
                     
                     {/* Enhanced Headlines */}
-                    <div className="space-y-3 mb-8">
-                      <h3 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                        Your {currentDeck?.name} deck is empty
+                    <div className="relative z-10 space-y-6 mb-12">
+                      <h3 className="text-4xl md:text-5xl font-bold">
+                        <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                          Empty Deck
+                        </span>
+                        <br />
+                        <span className="text-foreground text-2xl md:text-3xl">
+                          Ready for Knowledge
+                        </span>
                       </h3>
-                      <p className="text-lg text-muted-foreground/90 max-w-lg leading-relaxed">
-                        Add your first card to this deck and start building your knowledge.
+                      <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                        Your <span className="font-semibold text-primary">{currentDeck?.name}</span> deck is waiting for its first card.
+                        <span className="block mt-2 text-lg">Let's start building your knowledge base! 🚀</span>
                       </p>
                     </div>
 
-
                     {/* Enhanced CTA Section */}
-                    <div className="flex justify-center">
+                    <div className="relative z-10">
                       <Button 
                         onClick={() => setIsAddCardModalOpen(true)}
                         size="lg"
-                        className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-primary/25 transition-all duration-200"
+                        className="group relative px-12 py-6 text-xl font-bold bg-gradient-to-r from-primary via-primary to-accent hover:from-accent hover:via-primary hover:to-primary transition-all duration-500 shadow-2xl hover:shadow-primary/40 transform hover:scale-105"
                       >
-                        <Plus className="h-5 w-5" />
-                        Create Your First Card
+                        <span className="relative z-10 flex items-center gap-3">
+                          <Plus className="h-6 w-6 group-hover:rotate-90 transition-transform duration-300" />
+                          Create Your First Card
+                        </span>
+                        <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/30 to-accent/30 blur-xl group-hover:blur-2xl transition-all duration-300" />
                       </Button>
                     </div>
-
                   </div>
                 ) : (
                   <>
-                    {/* Search and Filter Bar */}
-                    <div className="bg-card rounded-lg border p-4 mb-6">
-                      <div className="flex flex-col lg:flex-row gap-4">
+
+
+                    {/* Header with Search */}
+                    <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                            <Inbox className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-bold text-foreground">
+                              Your Cards
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {filteredCards.length} {filteredCards.length === 1 ? 'card' : 'cards'} in {currentDeck?.name}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {selectedCards.size > 0 && (
+                          <div className="flex items-center gap-3 ml-6">
+                            <div className="px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                              <span className="text-sm font-medium text-primary">
+                                {selectedCards.size} selected
+                              </span>
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={handleBulkDelete}
+                              className="flex items-center gap-2 hover:scale-102 transition-transform duration-150"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete Selected
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Search and Filters */}
+                      <div className="flex flex-col sm:flex-row gap-3 lg:min-w-[500px]">
                         {/* Search */}
                         <div className="flex-1">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <div className="relative group">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors duration-150 z-10" />
                             <Input
                               placeholder="Search cards..."
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
-                              className="pl-10"
+                              className="pl-10 h-10 bg-card border-border/50 focus:border-primary/50 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200"
                             />
                           </div>
                         </div>
 
-                        {/* Filters */}
-                        <div className="flex flex-wrap gap-3">
+                        {/* Filter */}
+                        <div>
                           <Select value={filterState} onValueChange={setFilterState}>
-                            <SelectTrigger className="w-32">
-                              <SelectValue placeholder="State" />
+                            <SelectTrigger className="w-40 h-10 bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-150">
+                              <div className="flex items-center gap-1">
+                                <Filter className="h-3 w-3 text-primary" />
+                                <SelectValue placeholder="State" />
+                              </div>
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-card/95 backdrop-blur-md border-border/50">
                               <SelectItem value="all">All States</SelectItem>
-                              <SelectItem value="new">New</SelectItem>
-                              <SelectItem value="learning">Learning</SelectItem>
-                              <SelectItem value="review">Review</SelectItem>
-                              <SelectItem value="relearning">Relearning</SelectItem>
+                              <SelectItem value="new">🌟 New</SelectItem>
+                              <SelectItem value="learning">📚 Learning</SelectItem>
+                              <SelectItem value="review">🔄 Review</SelectItem>
+                              <SelectItem value="relearning">🔁 Relearning</SelectItem>
                             </SelectContent>
                           </Select>
-
-                          <Select value={filterDueDate} onValueChange={setFilterDueDate}>
-                            <SelectTrigger className="w-32">
-                              <SelectValue placeholder="Due Date" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">All Cards</SelectItem>
-                              <SelectItem value="overdue">Overdue</SelectItem>
-                              <SelectItem value="today">Due Today</SelectItem>
-                              <SelectItem value="week">This Week</SelectItem>
-                              <SelectItem value="month">This Month</SelectItem>
-                            </SelectContent>
-                          </Select>
-
                         </div>
-                      </div>
-
-                    </div>
-
-                    {/* Header */}
-                    <div className="flex justify-between items-center mb-6 min-h-[2.5rem]">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold">
-                          Cards ({filteredCards.length})
-                        </h3>
-                        {selectedCards.size > 0 && (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={handleBulkDelete}
-                            className="flex items-center gap-2"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete ({selectedCards.size})
-                          </Button>
-                        )}
                       </div>
                     </div>
 
 
                     {/* Cards Display */}
                     {filteredCards.length === 0 ? (
-                      <div className="text-center py-12">
-                        <Filter className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold mb-2">No cards match your filters</h3>
-                        <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+                      <div className="relative text-center py-16">
+                        {/* Background decoration */}
+                        <div className="absolute inset-0 opacity-20">
+                          <div className="absolute top-8 left-1/4 w-12 h-12 bg-gradient-to-br from-primary/30 to-transparent rounded-full blur-lg animate-pulse" />
+                          <div className="absolute bottom-8 right-1/4 w-16 h-16 bg-gradient-to-br from-accent/30 to-transparent rounded-full blur-lg animate-pulse delay-500" />
+                        </div>
+                        
+                        <div className="relative z-10 space-y-6">
+                          {/* Enhanced icon */}
+                          <div className="relative mx-auto w-24 h-24 mb-6">
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full animate-pulse" />
+                            <div className="absolute inset-2 bg-card rounded-full flex items-center justify-center shadow-lg">
+                              <Filter className="h-10 w-10 text-primary" />
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            <h3 className="text-2xl font-bold">
+                              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                No Matches Found
+                              </span>
+                            </h3>
+                            <p className="text-lg text-muted-foreground max-w-md mx-auto">
+                              Try adjusting your search or filter criteria to find your cards
+                            </p>
+                          </div>
+                          
+                          {/* Suggestion */}
+                          <div className="mt-8">
+                                                      <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setSearchQuery("");
+                              setFilterState("all");
+                              setFilterDueDate("all");
+                            }}
+                            className="border-primary/30 hover:bg-primary/5 transition-all duration-150"
+                          >
+                              Clear All Filters
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     ) : (
-                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                          {/* Add Card Button - Always first */}
                          <Card 
-                           className="transition-all duration-200 hover:shadow-md cursor-pointer border-dashed border-2 hover:border-primary/50"
+                           className="group relative transition-all duration-200 hover:shadow-lg hover:shadow-primary/15 cursor-pointer border-dashed border-2 border-primary/30 hover:border-primary/60 bg-card/60 backdrop-blur-sm hover:scale-[1.01] overflow-hidden"
                            onClick={() => setIsAddCardModalOpen(true)}
                          >
-                           <CardContent className="p-4 h-full flex flex-col items-center justify-center min-h-[110px]">
-                             <Plus className="h-8 w-8 text-muted-foreground mb-2" />
-                             <span className="text-sm font-medium text-muted-foreground">Add New Card</span>
+                           {/* Gradient hover effect */}
+                           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                           
+                           <CardContent className="relative z-10 p-6 h-full flex flex-col items-center justify-center min-h-[140px] space-y-3">
+                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-150">
+                               <Plus className="h-6 w-6 text-primary group-hover:rotate-45 transition-transform duration-150" />
+                             </div>
+                             <div className="text-center">
+                               <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-150">Add New Card</span>
+                             </div>
                            </CardContent>
                          </Card>
 
@@ -1050,29 +1230,42 @@ const Index = () => {
                                <Card 
                                  key={card.id} 
                                  className={`
-                                   group relative transition-all duration-200 hover:shadow-lg cursor-pointer min-h-[120px]
+                                   group relative transition-all duration-200 hover:shadow-lg hover:shadow-primary/8 cursor-pointer min-h-[140px] bg-card/60 backdrop-blur-sm border-border/50 hover:border-primary/30 hover:scale-[1.01] overflow-hidden
                                    ${selectedCards.has(card.id) 
-                                     ? 'ring-2 ring-primary bg-primary/5 shadow-md' 
-                                     : 'hover:shadow-md'
+                                     ? 'ring-2 ring-primary bg-primary/10 shadow-lg shadow-primary/15 scale-[1.01]' 
+                                     : ''
                                    }
                                  `}
                                  onClick={() => handleCardSelection(card.id)}
                                >
-                                {/* Selection indicator */}
+                                {/* Glass morphism overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                                {/* Selection indicator - Checkbox style */}
                                 <div className={`
-                                  absolute top-2 left-2 w-4 h-4 rounded-full border-2 transition-all duration-200
+                                  absolute top-4 left-4 w-4 h-4 rounded-md border-2 transition-all duration-150 flex items-center justify-center
                                   ${selectedCards.has(card.id) 
                                     ? 'bg-primary border-primary' 
                                     : 'border-muted-foreground/30 group-hover:border-primary/50'
                                   }
                                 `}>
                                   {selectedCards.has(card.id) && (
-                                    <div className="w-2 h-2 bg-primary-foreground rounded-full absolute top-0.5 left-0.5" />
+                                    <svg 
+                                      className="w-3 h-3 text-primary-foreground animate-scale-in" 
+                                      fill="none" 
+                                      stroke="currentColor" 
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round" 
+                                        strokeWidth={3} 
+                                        d="M5 13l4 4L19 7" 
+                                      />
+                                    </svg>
                                   )}
                                 </div>
 
-
-                                <CardContent className="p-4 pl-8">
+                                <CardContent className="p-4 pl-10">
                                   <div className="space-y-3">
                                     {/* Header with title, badge, and actions */}
                                     <div className="space-y-2">
@@ -1145,7 +1338,7 @@ const Index = () => {
                                            </div>
                                         ) : (
                                           <div className="text-xs flex items-center gap-1.5 text-muted-foreground/60">
-                                            <Calendar className="h-3 w-3" />
+                                            <Sparkles className="h-3 w-3" />
                                             <span>New card</span>
                                           </div>
                                         )}
