@@ -1,48 +1,29 @@
-import { useState, useEffect } from "react";
-import { getDueDateInfo, getDueDateStatusClass } from "@/utils/fsrsUtils";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppSidebar, StudyFolder, Deck } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { 
   BookOpen,
   Folder, 
   Plus, 
   LogOut, 
-  Search, 
-  Filter, 
-  Clock,
-  Trash2,
-  MoreHorizontal,
-  Edit,
   Layers3,
   Sparkles,
-  Zap,
-  Inbox
+  Inbox,
+  Trash2,
+  Filter,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCardMutations } from "@/hooks/useOptimizedQueries";
+import CardItem from "@/components/CardItem";
+import SearchAndFilters from "@/components/SearchAndFilters";
+import AddCardModal from "@/components/AddCardModal";
+import { useCardManagement } from "@/hooks/useCardManagement";
+import { useCardFiltering } from "@/hooks/useCardFiltering";
 
 interface Card {
   id: string;
@@ -62,19 +43,16 @@ const Index = () => {
   const { addCard: addCardMutation } = useCardMutations();
   
   const [isGeneratingSampleData, setIsGeneratingSampleData] = useState(false);
-  
   const [folders, setFolders] = useState<StudyFolder[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
   const [currentFolderId, setCurrentFolderId] = useState<string>("");
   const [currentDeckId, setCurrentDeckId] = useState<string>("");
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
+  const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
   
-  // Modern UI state
+  // UI state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterState, setFilterState] = useState<string>("all");
-  const [filterDueDate, setFilterDueDate] = useState<string>("all");
-  const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [newCardFront, setNewCardFront] = useState("");
   const [newCardBack, setNewCardBack] = useState("");
@@ -82,6 +60,22 @@ const Index = () => {
   // Sidebar trigger state
   const [triggerNewFolder, setTriggerNewFolder] = useState(false);
   const [triggerNewDeck, setTriggerNewDeck] = useState<string | null>(null);
+
+  // Helper function to update deck card counts
+  const updateDeckCardCount = useCallback((deckId: string, change: number) => {
+    setFolders(prev => prev.map(folder => ({
+      ...folder,
+      decks: folder.decks.map(deck => 
+        deck.id === deckId 
+          ? { ...deck, cardCount: Math.max(0, deck.cardCount + change) }
+          : deck
+      )
+    })));
+  }, []);
+
+  // Use custom hooks
+  const cardManagement = useCardManagement(cards, setCards, updateDeckCardCount);
+  const { filteredCards } = useCardFiltering(cards, searchQuery, filterState);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -176,10 +170,8 @@ const Index = () => {
     }
   };
 
-  // Get current deck cards
+  // Get current deck cards and info
   const currentDeckCards = cards.filter(card => card.deck_id === currentDeckId);
-
-  // Get current deck and folder info
   const currentFolder = folders.find(f => f.id === currentFolderId);
   const currentDeck = currentFolder?.decks.find(d => d.id === currentDeckId);
 
@@ -214,17 +206,6 @@ const Index = () => {
     }
   };
 
-  // Helper function to update deck card counts
-  const updateDeckCardCount = (deckId: string, change: number) => {
-    setFolders(folders.map(folder => ({
-      ...folder,
-      decks: folder.decks.map(deck => 
-        deck.id === deckId 
-          ? { ...deck, cardCount: Math.max(0, deck.cardCount + change) }
-          : deck
-      )
-    })));
-  };
 
   const handleGenerateSampleData = async () => {
     if (!user) return;
@@ -315,17 +296,6 @@ const Index = () => {
     }
   };
 
-  const nextCard = () => {
-    if (currentIndex < currentDeckCards.length) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
-
-  const prevCard = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
 
   // Sidebar handlers
   const handleFolderSelect = (folderId: string) => {
@@ -333,14 +303,12 @@ const Index = () => {
     const folder = folders.find(f => f.id === folderId);
     if (folder && folder.decks.length > 0) {
       setCurrentDeckId(folder.decks[0].id);
-      setCurrentIndex(0);
     }
   };
 
   const handleDeckSelect = (folderId: string, deckId: string) => {
     setCurrentFolderId(folderId);
     setCurrentDeckId(deckId);
-    setCurrentIndex(0);
   };
 
   const handleCreateFolder = async (name: string) => {
@@ -582,53 +550,6 @@ const Index = () => {
     ));
   };
 
-  // Modern UI functions
-  const filteredCards = currentDeckCards.filter(card => {
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (!card.front.toLowerCase().includes(query) && 
-          !card.back.toLowerCase().includes(query)) {
-        return false;
-      }
-    }
-
-    // State filter
-    if (filterState !== "all") {
-      if (!card.state || card.state.toLowerCase() !== filterState.toLowerCase()) {
-        return false;
-      }
-    }
-
-    // Due date filter - New cards (NULL due_date) should always be shown
-    if (filterDueDate !== "all") {
-      if (card.due_date === null) {
-        return true; // Always show new cards
-      }
-      
-      const now = new Date();
-      const dueDate = new Date(card.due_date);
-      const diffTime = dueDate.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      switch (filterDueDate) {
-        case "overdue":
-          if (diffDays >= 0) return false;
-          break;
-        case "today":
-          if (diffDays !== 0) return false;
-          break;
-        case "week":
-          if (diffDays < 0 || diffDays > 7) return false;
-          break;
-        case "month":
-          if (diffDays < 0 || diffDays > 30) return false;
-          break;
-      }
-    }
-
-    return true;
-  });
 
   const handleCardSelection = (cardId: string) => {
     const newSelected = new Set(selectedCards);
@@ -685,16 +606,6 @@ const Index = () => {
     }
   };
 
-  const getStateVariant = (state?: string) => {
-    switch (state) {
-      case "New": return "default";
-      case "Learning": return "secondary";
-      case "Review": return "outline";
-      case "Relearning": return "destructive";
-      default: return "secondary";
-    }
-  };
-
   const getStateBadgeColor = (state?: string) => {
     switch (state) {
       case "New": return "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30";
@@ -703,20 +614,6 @@ const Index = () => {
       case "Relearning": return "bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/30";
       default: return "bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30";
     }
-  };
-
-  const getDueDateColor = (dueDate?: string) => {
-    if (!dueDate) return "text-muted-foreground";
-    
-    const now = new Date();
-    const due = new Date(dueDate);
-    const diffTime = due.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return "text-red-500";
-    if (diffDays === 0) return "text-orange-500";
-    if (diffDays <= 3) return "text-yellow-500";
-    return "text-muted-foreground";
   };
 
   return (
@@ -907,8 +804,8 @@ const Index = () => {
               </div>
             ) : (
               <>
-                {/* Enhanced Breadcrumb & Header - Show when deck exists */}
-                {currentFolder && currentDeck && (
+                {/* Enhanced Breadcrumb & Header - Show when deck has cards */}
+                {currentFolder && currentDeck && currentDeckCards.length > 0 && (
                   <div className="relative text-center mb-10">
                     {/* Background decoration */}
                     <div className="absolute inset-0 opacity-20">
@@ -941,78 +838,29 @@ const Index = () => {
                         </p>
                         
                         {/* Quick stats */}
-                        {currentDeckCards.length > 0 && (
-                          <div className="flex items-center justify-center gap-6 pt-4">
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
-                              <Layers3 className="h-4 w-4 text-primary" />
-                              <span className="text-sm font-medium text-primary">
-                                {currentDeckCards.length} {currentDeckCards.length === 1 ? 'card' : 'cards'}
-                              </span>
-                            </div>
+                        <div className="flex items-center justify-center gap-6 pt-4">
+                          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+                            <Layers3 className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium text-primary">
+                              {currentDeckCards.length} {currentDeckCards.length === 1 ? 'card' : 'cards'}
+                            </span>
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Add Card Modal */}
-                <Dialog open={isAddCardModalOpen} onOpenChange={setIsAddCardModalOpen}>
-                  <DialogContent className="sm:max-w-[500px] bg-card/95 backdrop-blur-md border-border/50">
-                    <DialogHeader>
-                      <DialogTitle className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        Add New Card
-                      </DialogTitle>
-                      <DialogDescription className="text-muted-foreground">
-                        Create a new flashcard for your <span className="font-semibold text-primary">{currentDeck?.name}</span> deck.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="space-y-2">
-                        <label htmlFor="card-front" className="text-sm font-medium">
-                          Front of card
-                        </label>
-                        <Textarea
-                          id="card-front"
-                          placeholder="Enter the question or prompt..."
-                          value={newCardFront}
-                          onChange={(e) => setNewCardFront(e.target.value)}
-                          className="min-h-[100px] resize-none"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="card-back" className="text-sm font-medium">
-                          Back of card
-                        </label>
-                        <Textarea
-                          id="card-back"
-                          placeholder="Enter the answer or explanation..."
-                          value={newCardBack}
-                          onChange={(e) => setNewCardBack(e.target.value)}
-                          className="min-h-[100px] resize-none"
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setIsAddCardModalOpen(false);
-                          setNewCardFront("");
-                          setNewCardBack("");
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleAddCard}
-                        disabled={!newCardFront.trim() || !newCardBack.trim()}
-                      >
-                        Add Card
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                <AddCardModal
+                  isOpen={isAddCardModalOpen}
+                  onClose={() => setIsAddCardModalOpen(false)}
+                  onSubmit={handleAddCard}
+                  frontText={newCardFront}
+                  backText={newCardBack}
+                  onFrontChange={setNewCardFront}
+                  onBackChange={setNewCardBack}
+                  deckName={currentDeck?.name}
+                />
 
                 {currentDeckCards.length === 0 ? (
                   <div className="relative flex flex-col items-center justify-center text-center py-16 px-4">
@@ -1116,40 +964,12 @@ const Index = () => {
                         )}
                       </div>
                       
-                      {/* Search and Filters */}
-                      <div className="flex flex-col sm:flex-row gap-3 lg:min-w-[500px]">
-                        {/* Search */}
-                        <div className="flex-1">
-                          <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors duration-150 z-10" />
-                            <Input
-                              placeholder="Search cards..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              className="pl-10 h-10 bg-card border-border/50 focus:border-primary/50 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Filter */}
-                        <div>
-                          <Select value={filterState} onValueChange={setFilterState}>
-                            <SelectTrigger className="w-40 h-10 bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-150">
-                              <div className="flex items-center gap-1">
-                                <Filter className="h-3 w-3 text-primary" />
-                                <SelectValue placeholder="State" />
-                              </div>
-                            </SelectTrigger>
-                            <SelectContent className="bg-card/95 backdrop-blur-md border-border/50">
-                              <SelectItem value="all">All States</SelectItem>
-                              <SelectItem value="new">🌟 New</SelectItem>
-                              <SelectItem value="learning">📚 Learning</SelectItem>
-                              <SelectItem value="review">🔄 Review</SelectItem>
-                              <SelectItem value="relearning">🔁 Relearning</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
+                      <SearchAndFilters
+                        searchQuery={searchQuery}
+                        filterState={filterState}
+                        onSearchChange={setSearchQuery}
+                        onFilterStateChange={setFilterState}
+                      />
                     </div>
 
 
@@ -1189,7 +1009,6 @@ const Index = () => {
                             onClick={() => {
                               setSearchQuery("");
                               setFilterState("all");
-                              setFilterDueDate("all");
                             }}
                             className="border-primary/30 hover:bg-primary/5 transition-all duration-150"
                           >
@@ -1227,142 +1046,16 @@ const Index = () => {
                               return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
                             })
                             .map((card) => (
-                               <Card 
-                                 key={card.id} 
-                                 className={`
-                                   group relative transition-all duration-200 hover:shadow-lg hover:shadow-primary/8 cursor-pointer min-h-[140px] bg-card/60 backdrop-blur-sm border-border/50 hover:border-primary/30 hover:scale-[1.01] overflow-hidden
-                                   ${selectedCards.has(card.id) 
-                                     ? 'ring-2 ring-primary bg-primary/10 shadow-lg shadow-primary/15 scale-[1.01]' 
-                                     : ''
-                                   }
-                                 `}
-                                 onClick={() => handleCardSelection(card.id)}
-                               >
-                                {/* Glass morphism overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                                {/* Selection indicator - Checkbox style */}
-                                <div className={`
-                                  absolute top-4 left-4 w-4 h-4 rounded-md border-2 transition-all duration-150 flex items-center justify-center
-                                  ${selectedCards.has(card.id) 
-                                    ? 'bg-primary border-primary' 
-                                    : 'border-muted-foreground/30 group-hover:border-primary/50'
-                                  }
-                                `}>
-                                  {selectedCards.has(card.id) && (
-                                    <svg 
-                                      className="w-3 h-3 text-primary-foreground animate-scale-in" 
-                                      fill="none" 
-                                      stroke="currentColor" 
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path 
-                                        strokeLinecap="round" 
-                                        strokeLinejoin="round" 
-                                        strokeWidth={3} 
-                                        d="M5 13l4 4L19 7" 
-                                      />
-                                    </svg>
-                                  )}
-                                </div>
-
-                                <CardContent className="p-4 pl-10">
-                                  <div className="space-y-3">
-                                    {/* Header with title, badge, and actions */}
-                                    <div className="space-y-2">
-                                      <div className="flex items-start justify-between gap-2">
-                                        <h3 className="font-medium text-card-foreground leading-tight line-clamp-2 flex-1">
-                                          {card.front}
-                                        </h3>
-                                        <div className="flex items-center gap-2 flex-shrink-0">
-                                          {card.state && (
-                                            <Badge 
-                                              variant="secondary"
-                                              className={`text-xs h-5 ${getStateBadgeColor(card.state)}`}
-                                            >
-                                              {card.state}
-                                            </Badge>
-                                          )}
-                                          <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                className="h-6 w-6 p-0"
-                                                onClick={(e) => e.stopPropagation()}
-                                              >
-                                                <MoreHorizontal className="h-3 w-3" />
-                                              </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-32 bg-background border shadow-md z-50">
-                                              <DropdownMenuItem
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  editCard(card.id, card.front, card.back);
-                                                }}
-                                                className="cursor-pointer"
-                                              >
-                                                <Edit className="h-4 w-4 mr-2" />
-                                                Edit
-                                              </DropdownMenuItem>
-                                              <DropdownMenuItem
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  deleteCard(card.id);
-                                                }}
-                                                className="text-destructive cursor-pointer focus:text-destructive"
-                                              >
-                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                Delete
-                                              </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                          </DropdownMenu>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Back content preview - only visible on hover */}
-                                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 text-xs text-muted-foreground/80 line-clamp-2 border-l-2 border-muted pl-3">
-                                      <span className="font-medium text-muted-foreground">Answer:</span> {card.back}
-                                    </div>
-
-                                    {/* Footer with progress and due date */}
-                                    <div className="pt-2 border-t border-border/50 flex items-center justify-between">
-                                      <div className="flex items-center gap-3">
-                                        {/* Due date with enhanced styling */}
-                                        {card.due_date ? (
-                                           <div className={`text-xs flex items-center gap-1.5 font-medium ${getDueDateStatusClass(getDueDateInfo(card.due_date))}`}>
-                                             <Clock className="h-3 w-3" />
-                                             <span>
-                                               {getDueDateInfo(card.due_date).label}
-                                             </span>
-                                           </div>
-                                        ) : (
-                                          <div className="text-xs flex items-center gap-1.5 text-muted-foreground/60">
-                                            <Sparkles className="h-3 w-3" />
-                                            <span>New card</span>
-                                          </div>
-                                        )}
-
-                                      </div>
-
-                                      {/* Quick study action */}
-                                      {card.due_date && new Date(card.due_date) <= new Date() && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="h-6 text-xs px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigate('/study');
-                                          }}
-                                        >
-                                          Study Now
-                                        </Button>
-                                      )}
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
+                              <CardItem
+                                key={card.id}
+                                card={card}
+                                isSelected={selectedCards.has(card.id)}
+                                onSelect={handleCardSelection}
+                                onEdit={editCard}
+                                onDelete={deleteCard}
+                                onStudy={() => navigate('/study')}
+                                getStateBadgeColor={getStateBadgeColor}
+                              />
                             ))}
                        </div>
                     )}
