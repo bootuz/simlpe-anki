@@ -44,5 +44,50 @@ export function sanitizeCardContent(content: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
+    .replace(/'/g, '&#x27;')
+    .replace(/&/g, '&amp;') // Fix ampersand encoding order
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, ''); // Remove event handlers
+}
+
+// Additional security utilities
+export function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/\.{2,}/g, '_')
+    .substring(0, 255);
+}
+
+export function validateDeckName(name: string): { isValid: boolean; error?: string } {
+  if (!name.trim()) {
+    return { isValid: false, error: "Deck name cannot be empty" };
+  }
+  
+  if (name.length > 100) {
+    return { isValid: false, error: "Deck name must be less than 100 characters" };
+  }
+  
+  // Check for potentially dangerous characters
+  if (/[<>\"'&]/.test(name)) {
+    return { isValid: false, error: "Deck name contains invalid characters" };
+  }
+  
+  return { isValid: true };
+}
+
+export function validateFolderName(name: string): { isValid: boolean; error?: string } {
+  if (!name.trim()) {
+    return { isValid: false, error: "Folder name cannot be empty" };
+  }
+  
+  if (name.length > 100) {
+    return { isValid: false, error: "Folder name must be less than 100 characters" };
+  }
+  
+  // Check for potentially dangerous characters
+  if (/[<>\"'&]/.test(name)) {
+    return { isValid: false, error: "Folder name contains invalid characters" };
+  }
+  
+  return { isValid: true };
 }
