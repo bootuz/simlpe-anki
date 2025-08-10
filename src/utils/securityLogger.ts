@@ -27,10 +27,23 @@ export function detectXSSAttempt(input: string): boolean {
     /<iframe\b/i,
     /<object\b/i,
     /<embed\b/i,
+    /<svg\b.*onload/i,
+    /<math\b/i,
     /javascript:/i,
+    /vbscript:/i,
+    /data:text\/html/i,
+    /data:.*base64/i,
     /on\w+\s*=/i,
     /<img[^>]+src\s*=\s*["']javascript:/i,
     /<svg[^>]*onload/i,
+    /expression\s*\(/i,
+    /@import/i,
+    /behavior\s*:/i,
+    /&#x[0-9a-f]/i,
+    /&#\d/i,
+    /\\u[0-9a-f]{4}/i,
+    /feed:/i,
+    /livescript:/i,
   ];
 
   return xssPatterns.some(pattern => pattern.test(input));
