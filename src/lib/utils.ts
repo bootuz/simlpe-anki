@@ -15,9 +15,24 @@ export function validateCardContent(content: string): { isValid: boolean; error?
     return { isValid: false, error: "Content must be less than 1000 characters" };
   }
   
-  // Basic XSS prevention - check for script tags
-  if (content.toLowerCase().includes('<script')) {
-    return { isValid: false, error: "Invalid content detected" };
+  // Enhanced XSS prevention - check for dangerous HTML elements and attributes
+  const dangerousPatterns = [
+    /<script\b/i,
+    /<iframe\b/i,
+    /<object\b/i,
+    /<embed\b/i,
+    /<link\b/i,
+    /<meta\b/i,
+    /<form\b/i,
+    /javascript:/i,
+    /on\w+\s*=/i, // onclick, onerror, onload, etc.
+    /<\s*\/?\s*\w+\s+[^>]*\bon\w+\s*=/i, // any tag with event handlers
+  ];
+  
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(content)) {
+      return { isValid: false, error: "Invalid content detected" };
+    }
   }
   
   return { isValid: true };
