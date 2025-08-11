@@ -1,7 +1,7 @@
 // Content Security Policy utilities for enhanced security
 export const CSP_DIRECTIVES = {
   'default-src': "'self'",
-  'script-src': "'self' 'unsafe-inline'", // Note: Consider removing unsafe-inline in production
+  'script-src': "'self'", // Removed unsafe-inline for better security
   'style-src': "'self' 'unsafe-inline'",
   'img-src': "'self' data: https:",
   'font-src': "'self' data:",
@@ -13,10 +13,21 @@ export const CSP_DIRECTIVES = {
   'frame-ancestors': "'none'",
 } as const;
 
-export function generateCSPHeader(): string {
+export function generateCSPHeader(nonce?: string): string {
   return Object.entries(CSP_DIRECTIVES)
-    .map(([directive, value]) => `${directive} ${value}`)
+    .map(([directive, value]) => {
+      // Add nonce to script-src if provided
+      if (directive === 'script-src' && nonce) {
+        return `${directive} ${value} 'nonce-${nonce}'`;
+      }
+      return `${directive} ${value}`;
+    })
     .join('; ');
+}
+
+// Generate secure nonce for CSP
+export function generateCSPNonce(): string {
+  return generateSecureToken().substring(0, 16);
 }
 
 // Input sanitization for user-generated content
