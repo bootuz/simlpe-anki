@@ -21,7 +21,6 @@ export type Database = {
           difficulty: number
           due_date: string | null
           elapsed_days: number
-          fsrs_card_data: Json | null
           id: string
           lapses: number
           last_review: string | null
@@ -39,7 +38,6 @@ export type Database = {
           difficulty?: number
           due_date?: string | null
           elapsed_days?: number
-          fsrs_card_data?: Json | null
           id?: string
           lapses?: number
           last_review?: string | null
@@ -57,7 +55,6 @@ export type Database = {
           difficulty?: number
           due_date?: string | null
           elapsed_days?: number
-          fsrs_card_data?: Json | null
           id?: string
           lapses?: number
           last_review?: string | null
@@ -88,6 +85,13 @@ export type Database = {
             foreignKeyName: "card_fsrs_card_id_fkey"
             columns: ["card_id"]
             isOneToOne: true
+            referencedRelation: "cards_with_tag_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_fsrs_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: true
             referencedRelation: "study_cards"
             referencedColumns: ["id"]
           },
@@ -109,6 +113,13 @@ export type Database = {
             foreignKeyName: "fk_card_fsrs_card_id"
             columns: ["card_id"]
             isOneToOne: true
+            referencedRelation: "cards_with_tag_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_card_fsrs_card_id"
+            columns: ["card_id"]
+            isOneToOne: true
             referencedRelation: "study_cards"
             referencedColumns: ["id"]
           },
@@ -121,6 +132,7 @@ export type Database = {
           deck_id: string
           front: string
           id: string
+          tags: string[] | null
           updated_at: string
           user_id: string
         }
@@ -130,6 +142,7 @@ export type Database = {
           deck_id: string
           front: string
           id?: string
+          tags?: string[] | null
           updated_at?: string
           user_id: string
         }
@@ -139,6 +152,7 @@ export type Database = {
           deck_id?: string
           front?: string
           id?: string
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
@@ -307,7 +321,6 @@ export type Database = {
           created_at: string | null
           id: string
           rating: number
-          record_log: Json
           review_log: Json
           review_time: string
           updated_at: string | null
@@ -318,7 +331,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           rating: number
-          record_log?: Json
           review_log?: Json
           review_time?: string
           updated_at?: string | null
@@ -329,7 +341,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           rating?: number
-          record_log?: Json
           review_log?: Json
           review_time?: string
           updated_at?: string | null
@@ -348,6 +359,13 @@ export type Database = {
             columns: ["card_id"]
             isOneToOne: false
             referencedRelation: "cards_with_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_review_logs_card_id"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards_with_tag_stats"
             referencedColumns: ["id"]
           },
           {
@@ -398,6 +416,57 @@ export type Database = {
           },
         ]
       }
+      cards_with_tag_stats: {
+        Row: {
+          back: string | null
+          created_at: string | null
+          deck_id: string | null
+          front: string | null
+          id: string | null
+          tag_count: number | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          back?: string | null
+          created_at?: string | null
+          deck_id?: string | null
+          front?: string | null
+          id?: string | null
+          tag_count?: never
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          back?: string | null
+          created_at?: string | null
+          deck_id?: string | null
+          front?: string | null
+          id?: string | null
+          tag_count?: never
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_cards_deck_id"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_cards: {
         Row: {
           back: string | null
@@ -412,6 +481,7 @@ export type Database = {
           id: string | null
           lapses: number | null
           last_review: string | null
+          ready_status: string | null
           reps: number | null
           stability: number | null
           state: string | null
@@ -446,6 +516,26 @@ export type Database = {
         Returns: {
           deck_id: string
           card_count: number
+        }[]
+      }
+      get_user_tags: {
+        Args: { user_uuid: string }
+        Returns: {
+          tag: string
+          count: number
+        }[]
+      }
+      search_cards_by_tags: {
+        Args: { tag_query: string[] }
+        Returns: {
+          id: string
+          front: string
+          back: string
+          deck_id: string
+          user_id: string
+          tags: string[]
+          created_at: string
+          updated_at: string
         }[]
       }
     }

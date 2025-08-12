@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/hooks/useAuth";
+import { useSecurityMonitor } from "@/hooks/useSecurityMonitor";
+import { SecurityMeta } from "@/components/SecurityMeta";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -32,13 +34,20 @@ const queryClient = new QueryClient({
   },
 });
 
+function SecurityWrapper({ children }: { children: React.ReactNode }) {
+  useSecurityMonitor();
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <SecurityWrapper>
+        <SecurityMeta />
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <div className="min-h-screen w-full">
             <Routes>
               <Route path="/" element={<Home />} />
@@ -60,6 +69,7 @@ const App = () => (
           </div>
         </BrowserRouter>
       </TooltipProvider>
+      </SecurityWrapper>
     </AuthProvider>
   </QueryClientProvider>
 );
