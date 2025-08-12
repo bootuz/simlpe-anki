@@ -2,7 +2,7 @@ import { date_diff, formatDate, State, Rating } from "ts-fsrs";
 import { fsrsService, type FSRSCard } from "@/services/fsrsService";
 
 export interface DueDateInfo {
-  status: 'overdue' | 'due-now' | 'due-soon' | 'future';
+  status: 'new' | 'ready' | 'future';
   label: string;
   timeValue: number;
   timeUnit: 'minutes' | 'hours' | 'days';
@@ -19,40 +19,50 @@ export interface CardStats {
 }
 
 /**
- * Calculate due date status using FSRS date utilities
+ * Calculate due date status using simplified "New vs Ready" approach
  */
-export function getDueDateInfo(dueDate: string | Date): DueDateInfo {
+export function getDueDateInfo(dueDate: string | Date | null): DueDateInfo {
+  // Handle new cards (no due date)
+  if (!dueDate) {
+    return {
+      status: 'new',
+      label: 'New card',
+      timeValue: 0,
+      timeUnit: 'minutes'
+    };
+  }
+
   const due = new Date(dueDate);
   const now = new Date();
   
   // Use FSRS date_diff for accurate calculation
   const diffMs = due.getTime() - now.getTime();
   
-  if (diffMs < 0) {
-    // Overdue
+  if (diffMs <= 0) {
+    // Ready for review (was previously "overdue" or "due now")
     const absDiffMs = Math.abs(diffMs);
     const minutes = Math.ceil(absDiffMs / (1000 * 60));
     
     if (minutes < 60) {
       return {
-        status: 'overdue',
-        label: `${minutes}m overdue`,
+        status: 'ready',
+        label: minutes === 0 ? 'Ready now' : 'Ready to review',
         timeValue: minutes,
         timeUnit: 'minutes'
       };
     } else if (minutes < 24 * 60) {
       const hours = Math.ceil(minutes / 60);
       return {
-        status: 'overdue',
-        label: `${hours}h overdue`,
+        status: 'ready',
+        label: 'Ready to review',
         timeValue: hours,
         timeUnit: 'hours'
       };
     } else {
       const days = Math.ceil(minutes / (60 * 24));
       return {
-        status: 'overdue',
-        label: `${days}d overdue`,
+        status: 'ready',
+        label: 'Ready to review',
         timeValue: days,
         timeUnit: 'days'
       };
@@ -62,25 +72,26 @@ export function getDueDateInfo(dueDate: string | Date): DueDateInfo {
   // Due in the future
   const minutes = Math.ceil(diffMs / (1000 * 60));
   
-  if (minutes <= 1) {
+  if (minutes <= 30) {
+    // Very soon - treat as ready for learning cards
     return {
-      status: 'due-now',
-      label: 'Due now',
-      timeValue: 0,
+      status: 'ready',
+      label: `Ready in ${minutes}m`,
+      timeValue: minutes,
       timeUnit: 'minutes'
     };
   } else if (minutes <= 60) {
     return {
-      status: 'due-soon',
-      label: `Due in ${minutes}m`,
+      status: 'future',
+      label: `Ready in ${minutes}m`,
       timeValue: minutes,
       timeUnit: 'minutes'
     };
   } else if (minutes < 24 * 60) {
     const hours = Math.ceil(minutes / 60);
     return {
-      status: 'due-soon',
-      label: `Due in ${hours}h`,
+      status: 'future',
+      label: `Ready in ${hours}h`,
       timeValue: hours,
       timeUnit: 'hours'
     };
@@ -89,15 +100,15 @@ export function getDueDateInfo(dueDate: string | Date): DueDateInfo {
     
     if (days === 1) {
       return {
-        status: 'due-soon',
-        label: 'Due tomorrow',
+        status: 'future',
+        label: 'Ready tomorrow',
         timeValue: 1,
         timeUnit: 'days'
       };
     } else if (days < 7) {
       return {
         status: 'future',
-        label: `Due in ${days}d`,
+        label: `Ready in ${days}d`,
         timeValue: days,
         timeUnit: 'days'
       };
@@ -113,26 +124,35 @@ export function getDueDateInfo(dueDate: string | Date): DueDateInfo {
 }
 
 /**
- * Get CSS class for due date status
+ * Get CSS class for due date status using positive, learning-focused colors
  */
 export function getDueDateStatusClass(info: DueDateInfo): string {
   switch (info.status) {
-    case 'overdue':
-      return 'text-destructive';
-    case 'due-now':
-    case 'due-soon':
-      return 'text-orange-600 dark:text-orange-400';
+    case 'new':
+      return 'text-blue-600 dark:text-blue-400';
+    case 'ready':
+      return 'text-green-600 dark:text-green-400';
+    case 'future':
+      return 'text-muted-foreground';
     default:
       return 'text-muted-foreground';
   }
 }
 
 /**
- * Check if a card is due for study (overdue, due now, or due soon)
+ * Check if a card is ready for study (new or ready for review)
  */
-export function isCardDueForStudy(dueDate: string | Date): boolean {
+export function isCardReadyForStudy(dueDate: string | Date | null): boolean {
   const info = getDueDateInfo(dueDate);
-  return info.status === 'overdue' || info.status === 'due-now' || info.status === 'due-soon';
+  return info.status === 'new' || info.status === 'ready';
+}
+
+/**
+ * @deprecated Use isCardReadyForStudy instead
+ * Legacy function for backward compatibility
+ */
+export function isCardDueForStudy(dueDate: string | Date | null): boolean {
+  return isCardReadyForStudy(dueDate);
 }
 
 /**
@@ -221,7 +241,7 @@ export function calculateRetention(stability: number, elapsedDays: number): numb
 }
 
 /**
- * Get recommended action based on card state and due date
+ * Get recommended action based on card state and due date with positive messaging
  */
 export function getRecommendedAction(fsrsData: {
   due_date: string | null;
@@ -237,34 +257,34 @@ export function getRecommendedAction(fsrsData: {
   if (!dueDate) {
     return {
       action: 'study',
-      reason: 'New card ready to study',
+      reason: 'New card ready to learn',
       priority: 'high'
     };
   }
   
-  const isOverdue = dueDate.getTime() < now.getTime();
-  const hoursUntilDue = (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const isReady = dueDate.getTime() <= now.getTime();
+  const hoursUntilReady = (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60);
   
-  if (isOverdue) {
-    const hoursOverdue = Math.abs(hoursUntilDue);
+  if (isReady) {
+    const hoursReady = Math.abs(hoursUntilReady);
     return {
       action: 'study',
-      reason: `Overdue by ${hoursOverdue < 24 ? Math.round(hoursOverdue) + 'h' : Math.round(hoursOverdue / 24) + 'd'}`,
-      priority: hoursOverdue > 24 ? 'high' : 'medium'
+      reason: hoursReady < 1 ? 'Ready to review' : 'Ready for review',
+      priority: 'high'
     };
   }
   
-  if (hoursUntilDue <= 1) {
+  if (hoursUntilReady <= 1) {
     return {
       action: 'review',
-      reason: 'Due soon',
+      reason: 'Ready soon',
       priority: 'medium'
     };
   }
   
   return {
     action: 'wait',
-    reason: `Due in ${hoursUntilDue < 24 ? Math.round(hoursUntilDue) + 'h' : Math.round(hoursUntilDue / 24) + 'd'}`,
+    reason: `Ready in ${hoursUntilReady < 24 ? Math.round(hoursUntilReady) + 'h' : Math.round(hoursUntilReady / 24) + 'd'}`,
     priority: 'low'
   };
 }

@@ -82,7 +82,7 @@ export default function CaughtUp({ onManageDecks }: CaughtUpProps) {
             </Button>
             
             <p className="text-sm text-muted-foreground">
-              Or come back later when more cards are due for review
+              Or come back later when more cards are ready for review
             </p>
           </div>
         </div>

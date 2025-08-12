@@ -105,9 +105,9 @@ export class FSRSService {
         dueDate = now;
       }
     } else {
-      // For new cards with no due_date, use the created_at time
-      // This ensures the card is treated as a true new card by FSRS
-      dueDate = new Date(record.created_at);
+      // For new cards with no due_date, they should be due immediately
+      // This ensures they appear in study queue but with correct status
+      dueDate = now;
     }
 
     let state: State;

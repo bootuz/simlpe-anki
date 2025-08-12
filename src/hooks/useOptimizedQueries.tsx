@@ -20,9 +20,7 @@ export function useCardsWithDetails() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .from('cards_with_details')
-        .select('*')
-        .eq('user_id', user.id)
+        .rpc('get_cards_with_details')
         .order('created_at');
       
       if (error) throw error;
@@ -44,9 +42,7 @@ export function useStudyCards() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .from('study_cards')
-        .select('*')
-        .eq('user_id', user.id);
+        .rpc('get_study_cards');
       
       if (error) throw error;
       return data || [];
@@ -64,7 +60,7 @@ export function useCardMutations() {
   const queryClient = useQueryClient();
 
   const addCard = useMutation({
-    mutationFn: async ({ front, back, deckId }: { front: string; back: string; deckId: string }) => {
+    mutationFn: async ({ front, back, deckId, tags }: { front: string; back: string; deckId: string; tags?: string[] }) => {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
@@ -73,7 +69,8 @@ export function useCardMutations() {
           front: front.trim(),
           back: back.trim(),
           deck_id: deckId,
-          user_id: user.id
+          user_id: user.id,
+          tags: tags || []
         })
         .select()
         .single();

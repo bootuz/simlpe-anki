@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCardMutations } from "@/hooks/useOptimizedQueries";
 import CardItem from "@/components/CardItem";
 import SearchAndFilters from "@/components/SearchAndFilters";
-import AddCardModal from "@/components/AddCardModal";
+import { EnhancedAddCardModal } from "@/components/EnhancedAddCardModal";
 import { useCardManagement } from "@/hooks/useCardManagement";
 import { useCardFiltering } from "@/hooks/useCardFiltering";
 
@@ -34,6 +34,7 @@ interface Card {
   updated_at: string;
   state?: string; // FSRS state
   due_date?: string; // FSRS due date
+  tags?: string[]; // Card tags
 }
 
 const Index = () => {
@@ -54,8 +55,6 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterState, setFilterState] = useState<string>("all");
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
-  const [newCardFront, setNewCardFront] = useState("");
-  const [newCardBack, setNewCardBack] = useState("");
   
   // Sidebar trigger state
   const [triggerNewFolder, setTriggerNewFolder] = useState(false);
@@ -75,7 +74,9 @@ const Index = () => {
 
   // Use custom hooks
   const cardManagement = useCardManagement(cards, setCards, updateDeckCardCount);
-  const { filteredCards } = useCardFiltering(cards, searchQuery, filterState);
+  // Get current deck cards first
+  const currentDeckCards = cards.filter(card => card.deck_id === currentDeckId);
+  const { filteredCards } = useCardFiltering(currentDeckCards, searchQuery, filterState);
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -90,6 +91,41 @@ const Index = () => {
       loadUserData();
     }
   }, [user]);
+
+  // Reload all cards when deck changes to ensure fresh data
+  useEffect(() => {
+    if (user && currentDeckId) {
+      loadAllCards();
+    }
+  }, [user, currentDeckId]);
+
+  const loadAllCards = async () => {
+    try {
+      const { data: cardsData, error } = await supabase
+        .rpc("get_cards_with_details")
+        .order("created_at");
+
+      if (error) throw error;
+
+      // Transform cards data to include FSRS state
+      const transformedCards: Card[] = (cardsData || []).map(card => ({
+        id: card.id,
+        front: card.front,
+        back: card.back,
+        deck_id: card.deck_id,
+        created_at: card.created_at,
+        updated_at: card.updated_at,
+        state: card.state,
+        due_date: card.due_date,
+        tags: card.tags || []
+      }));
+
+      // Update cards state with all user's cards
+      setCards(transformedCards);
+    } catch (error) {
+      console.error("Error loading cards:", error);
+    }
+  };
 
   const loadUserData = async () => {
     try {
@@ -108,9 +144,7 @@ const Index = () => {
           .eq("user_id", user.id)
           .order("created_at"),
         supabase
-          .from("cards_with_details")
-          .select("*")
-          .eq("user_id", user.id)
+          .rpc("get_cards_with_details")
           .order("created_at")
       ]);
 
@@ -145,7 +179,8 @@ const Index = () => {
         created_at: card.created_at,
         updated_at: card.updated_at,
         state: card.state,
-        due_date: card.due_date
+        due_date: card.due_date,
+        tags: card.tags || []
       }));
 
       setFolders(transformedFolders);
@@ -170,34 +205,37 @@ const Index = () => {
     }
   };
 
-  // Get current deck cards and info
-  const currentDeckCards = cards.filter(card => card.deck_id === currentDeckId);
+  // Get current deck cards and info (already defined above)
   const currentFolder = folders.find(f => f.id === currentFolderId);
   const currentDeck = currentFolder?.decks.find(d => d.id === currentDeckId);
 
-  const handleAddCard = async () => {
-    if (!user || !newCardFront.trim() || !newCardBack.trim()) return;
+  const handleAddCard = async (front: string, back: string, tags: string[] = [], closeModal: boolean = true) => {
+    if (!user || !front.trim() || !back.trim()) return;
     
     try {
       const result = await addCardMutation.mutateAsync({
-        front: newCardFront.trim(),
-        back: newCardBack.trim(),
-        deckId: currentDeckId
+        front: front.trim(),
+        back: back.trim(),
+        deckId: currentDeckId,
+        tags
       });
 
       // Update local state with the new card
       const newCard: Card = {
         ...result,
         state: 'New',
-        due_date: null
+        due_date: null,
+        tags
       };
       setCards([...cards, newCard]);
       
       // Update local UI state
       updateDeckCardCount(currentDeckId, 1);
-      setNewCardFront("");
-      setNewCardBack("");
-      setIsAddCardModalOpen(false);
+      
+      // Only close modal if requested
+      if (closeModal) {
+        setIsAddCardModalOpen(false);
+      }
       
       // Note: addCardMutation already shows success toast and updates Home page cache
     } catch (error) {
@@ -851,14 +889,10 @@ const Index = () => {
                   </div>
                 )}
 
-                <AddCardModal
+                <EnhancedAddCardModal
                   isOpen={isAddCardModalOpen}
                   onClose={() => setIsAddCardModalOpen(false)}
                   onSubmit={handleAddCard}
-                  frontText={newCardFront}
-                  backText={newCardBack}
-                  onFrontChange={setNewCardFront}
-                  onBackChange={setNewCardBack}
                   deckName={currentDeck?.name}
                 />
 

@@ -11,9 +11,9 @@ type Card = {
 };
 
 type DueInfo = {
-  status: "new" | "overdue" | "due-today" | "future";
+  status: "new" | "ready" | "future";
   label: string;
-  daysUntilDue?: number;
+  timeUntil?: number;
 };
 
 interface StudyReadyProps {
@@ -24,8 +24,7 @@ interface StudyReadyProps {
 
 export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: StudyReadyProps) {
   const newCount = cards.filter((c) => getDueDateStatus(c.due_date).status === "new").length;
-  const dueToday = cards.filter((c) => getDueDateStatus(c.due_date).status === "due-today").length;
-  const overdue = cards.filter((c) => getDueDateStatus(c.due_date).status === "overdue").length;
+  const readyCount = cards.filter((c) => getDueDateStatus(c.due_date).status === "ready").length;
 
   return (
     <div className="relative">
@@ -54,12 +53,19 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
           <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-bold">
               <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                Time to Study!
+                Ready to Learn!
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              You have <span className="font-bold text-primary text-2xl">{cards.length}</span> cards ready for review.
-              <span className="block mt-2 text-base">Let's boost your knowledge! 🚀</span>
+              You have <span className="font-bold text-primary text-2xl">{cards.length}</span> cards ready to study.
+              <span className="block mt-2 text-base">
+                {newCount > 0 && readyCount > 0 ? 
+                  `${newCount} new cards to discover and ${readyCount} ready for review! 🌟` :
+                  newCount > 0 ? 
+                    "New knowledge awaits! 🎯" : 
+                    "Perfect time for a review session! 💪"
+                }
+              </span>
             </p>
           </div>
 
@@ -72,7 +78,9 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
             >
               <span className="relative z-10 flex items-center gap-3">
                 <Zap className="h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
-                Start Learning
+                {newCount > 0 && readyCount > 0 ? "Start Study Session" : 
+                 newCount > 0 ? "Learn New Cards" : 
+                 "Review Cards"}
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
               </span>
               <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/30 to-accent/30 blur-xl group-hover:blur-2xl transition-all duration-300" />
@@ -81,31 +89,25 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {[
             { 
               count: newCount, 
               label: "New Cards", 
+              description: "Ready to learn",
               icon: Sparkles, 
-              gradient: "from-blue-500/20 to-purple-500/20",
+              gradient: "from-blue-500/20 to-indigo-500/20",
               textColor: "text-blue-600",
               bgColor: "bg-blue-500/10"
             },
             { 
-              count: dueToday, 
-              label: "Due Today", 
+              count: readyCount, 
+              label: "Ready Cards", 
+              description: "Time to review",
               icon: Target, 
               gradient: "from-green-500/20 to-emerald-500/20",
               textColor: "text-green-600",
               bgColor: "bg-green-500/10"
-            },
-            { 
-              count: overdue, 
-              label: "Overdue", 
-              icon: Clock, 
-              gradient: "from-red-500/20 to-orange-500/20",
-              textColor: "text-red-600",
-              bgColor: "bg-red-500/10"
             }
           ].map((stat, index) => (
             <div 
@@ -120,7 +122,8 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
                 </div>
                 <div>
                   <div className={`text-3xl font-bold ${stat.textColor}`}>{stat.count}</div>
-                  <div className="text-sm font-medium text-muted-foreground">{stat.label}</div>
+                  <div className="text-sm font-medium text-foreground">{stat.label}</div>
+                  <div className="text-xs text-muted-foreground">{stat.description}</div>
                 </div>
               </div>
             </div>
@@ -158,10 +161,10 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
                     <div className="flex-1 min-w-0 space-y-3">
                       <div className="flex items-center gap-3">
                         <Badge
-                          variant={status === "overdue" ? "destructive" : status === "new" ? "default" : "secondary"}
+                          variant={status === "new" ? "default" : status === "ready" ? "secondary" : "outline"}
                           className="text-xs font-semibold"
                         >
-                          {status === "new" ? "✨ New" : status === "overdue" ? "⏰ Overdue" : "📅 Due"}
+                          {status === "new" ? "✨ New" : status === "ready" ? "🎯 Ready" : "⏳ Future"}
                         </Badge>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Folder className="h-3 w-3" />

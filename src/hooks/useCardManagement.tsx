@@ -12,6 +12,7 @@ interface CardData {
   updated_at: string;
   state?: string;
   due_date?: string;
+  tags?: string[];
 }
 
 export const useCardManagement = (
@@ -38,19 +39,22 @@ export const useCardManagement = (
   const addCard = useCallback(async (
     front: string,
     back: string,
-    deckId: string
+    deckId: string,
+    tags: string[] = []
   ): Promise<boolean> => {
     try {
       const result = await addCardMutation.mutateAsync({
         front: front.trim(),
         back: back.trim(),
-        deckId
+        deckId,
+        tags
       });
 
       const newCard: CardData = {
         ...result,
         state: 'New',
-        due_date: null
+        due_date: null,
+        tags: tags
       };
       
       setCards(prev => [...prev, newCard]);

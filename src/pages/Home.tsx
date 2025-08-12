@@ -66,8 +66,14 @@ const Home = () => {
   const totalCards = cards.length;
 
   const formatExactDueTime = (dueDate: string) => {
+    if (!dueDate) return null;
+    
     const due = new Date(dueDate);
     const now = new Date();
+    
+    // Check for invalid dates
+    if (isNaN(due.getTime())) return null;
+    
     const diffMs = due.getTime() - now.getTime();
 
     if (diffMs < 0) {
@@ -114,56 +120,22 @@ const Home = () => {
 
   const getDueDateStatus = (
     dueDate: string | null
-  ): { status: 'new' | 'overdue' | 'due-today' | 'future'; label: string; daysUntilDue?: number } => {
-    // Handle null due_date for new cards
-    if (!dueDate) {
-      return { status: 'new', daysUntilDue: 0, label: 'New' };
-    }
-
+  ): { status: 'new' | 'ready' | 'future'; label: string; timeUntil?: number } => {
     const info = getDueDateInfo(dueDate);
-    const exactLabel = formatExactDueTime(dueDate);
     
-    // Map FSRS status to Home page status for compatibility
-    switch (info.status) {
-      case 'overdue':
-        return { 
-          status: 'overdue', 
-          daysUntilDue: info.timeValue, 
-          label: exactLabel 
-        } as const;
-      case 'due-now':
-        return { 
-          status: 'due-today', 
-          daysUntilDue: 0, 
-          label: exactLabel 
-        } as const;
-      case 'due-soon': {
-        // Check if card is due today (same calendar day)
-        const due = new Date(dueDate);
-        const now = new Date();
-        const isToday = due.toDateString() === now.toDateString();
-        
-        if (isToday) {
-          return { 
-            status: 'due-today', 
-            daysUntilDue: 0, 
-            label: exactLabel 
-          } as const;
-        }
-        // Cards due tomorrow or later are future
-        return { 
-          status: 'future', 
-          daysUntilDue: info.timeValue, 
-          label: exactLabel 
-        } as const;
-      }
-      default:
-        return { 
-          status: 'future', 
-          daysUntilDue: info.timeValue, 
-          label: exactLabel 
-        } as const;
+    // For new cards, don't format exact time - just use the info label
+    let label = info.label;
+    if (dueDate && info.status !== 'new') {
+      const exactLabel = formatExactDueTime(dueDate);
+      label = exactLabel || info.label;
     }
+    
+    // Use the new simplified status directly from FSRS utils
+    return { 
+      status: info.status, 
+      timeUntil: info.timeValue, 
+      label: label
+    } as const;
   };
 
   const handleSignOut = async () => {
@@ -198,10 +170,21 @@ const Home = () => {
     );
   }
 
-  // Cards that are due for study (overdue, due today, or new)
+  // Cards that are ready for study (new or ready)
   const cardsToStudy = cards.filter(card => {
     const { status } = getDueDateStatus(card.due_date);
-    return status === 'overdue' || status === 'due-today' || status === 'new';
+    return status === 'new' || status === 'ready';
+  });
+
+  // Separate new and ready cards for the two-category layout
+  const newCards = cardsToStudy.filter(card => {
+    const { status } = getDueDateStatus(card.due_date);
+    return status === 'new';
+  });
+
+  const readyCards = cardsToStudy.filter(card => {
+    const { status } = getDueDateStatus(card.due_date);
+    return status === 'ready';
   });
 
   return (
