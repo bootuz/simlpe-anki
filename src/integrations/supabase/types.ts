@@ -481,6 +481,7 @@ export type Database = {
           id: string | null
           lapses: number | null
           last_review: string | null
+          ready_status: string | null
           reps: number | null
           stability: number | null
           state: string | null
