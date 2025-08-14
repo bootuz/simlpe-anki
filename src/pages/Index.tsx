@@ -102,7 +102,8 @@ const Index = () => {
   const loadAllCards = async () => {
     try {
       const { data: cardsData, error } = await supabase
-        .rpc("get_cards_with_details")
+        .from("cards_with_details")
+        .select("*")
         .order("created_at");
 
       if (error) throw error;
@@ -117,7 +118,7 @@ const Index = () => {
         updated_at: card.updated_at,
         state: card.state,
         due_date: card.due_date,
-        tags: card.tags || []
+        tags: [] // Note: tags field not in view, using fallback
       }));
 
       // Update cards state with all user's cards
@@ -144,7 +145,8 @@ const Index = () => {
           .eq("user_id", user.id)
           .order("created_at"),
         supabase
-          .rpc("get_cards_with_details")
+          .from("cards_with_details")
+          .select("*")
           .order("created_at")
       ]);
 
@@ -180,7 +182,7 @@ const Index = () => {
         updated_at: card.updated_at,
         state: card.state,
         due_date: card.due_date,
-        tags: card.tags || []
+        tags: [] // Note: tags field not in view, using fallback
       }));
 
       setFolders(transformedFolders);

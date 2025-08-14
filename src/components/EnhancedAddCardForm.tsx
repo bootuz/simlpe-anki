@@ -10,7 +10,8 @@ import {
   Save, 
   X, 
   Tags,
-  Sparkles 
+  Sparkles,
+  Edit
 } from "lucide-react";
 import { validateCardContent, sanitizeCardContent } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -189,7 +190,7 @@ export const EnhancedAddCardForm = ({ onAdd, isSubmitting = false }: EnhancedAdd
       <Card className="border-border/50 bg-card/95 backdrop-blur-sm">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            <Edit3 className="h-5 w-5 text-purple-600" />
+            <Edit className="h-5 w-5 text-purple-600" />
             Enhanced Card Creator
           </CardTitle>
         </CardHeader>

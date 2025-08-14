@@ -63,8 +63,8 @@ function renderDueDateBadge(dueDate: string | Date) {
   return {
     text: dueDateInfo.label,
     className: `badge ${getDueDateStatusClass(dueDateInfo)}`,
-    priority: dueDateInfo.status === 'overdue' ? 'high' : 
-               dueDateInfo.status === 'due-now' ? 'medium' : 'low'
+    priority: dueDateInfo.status === 'ready' ? 'high' : 
+               dueDateInfo.status === 'new' ? 'medium' : 'low'
   };
 }
 

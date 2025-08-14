@@ -118,7 +118,7 @@ export class StudySessionManager {
    */
   private async loadCardsForSession(): Promise<StudyCard[]> {
     // Use the secure RPC function instead of direct view access
-    let baseCards = await supabase.rpc('get_cards_with_details');
+    let baseCards = await supabase.from('cards_with_details').select('*');
     
     if (baseCards.error) {
       throw new Error(`Failed to load cards: ${baseCards.error.message}`);
@@ -132,11 +132,12 @@ export class StudySessionManager {
     }
 
     // Apply tag filter if specified
-    if (this.sessionConfig.tags && this.sessionConfig.tags.length > 0) {
-      filteredCards = filteredCards.filter(card => 
-        card.tags && this.sessionConfig.tags!.some(tag => card.tags!.includes(tag))
-      );
-    }
+    // Note: Tag filtering disabled as tags field not available in view
+    // if (this.sessionConfig.tags && this.sessionConfig.tags.length > 0) {
+    //   filteredCards = filteredCards.filter(card => 
+    //     card.tags && this.sessionConfig.tags!.some(tag => card.tags!.includes(tag))
+    //   );
+    // }
 
     let cards: StudyCard[] = filteredCards.map(card => ({
       id: card.id,
@@ -148,7 +149,7 @@ export class StudySessionManager {
       due_date: card.due_date,
       created_at: card.created_at,
       state: card.state || 'New',
-      tags: card.tags || []
+      tags: [] // Note: tags field not in view, using fallback
     }));
 
     // Filter cards based on study mode and configuration

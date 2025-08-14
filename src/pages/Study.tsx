@@ -252,7 +252,8 @@ const Study = () => {
       if (specificCardId) {
         // Load only the specific card
         const { data, error } = await supabase
-          .rpc("get_cards_with_details")
+          .from('cards_with_details')
+          .select('*')
           .eq('id', specificCardId)
           .maybeSingle();
 
@@ -282,7 +283,9 @@ const Study = () => {
       } else {
         // Load all cards ready for study (new or ready for review)
         const { data, error } = await supabase
-          .rpc("get_study_cards");
+          .from('cards_with_details')
+          .select('*')
+          .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
 
         if (error) throw error;
 
@@ -330,6 +333,16 @@ const Study = () => {
   };
 
   const handleAnswer = async (rating: Rating) => {
+    if (!user?.id) {
+      toast({
+        title: "Session expired",
+        description: "Please log in again to continue studying.",
+        variant: "destructive"
+      });
+      navigate("/auth");
+      return;
+    }
+
     try {
       const cardId = currentCard.id;
       
@@ -401,6 +414,16 @@ const Study = () => {
   };
 
   const handleUndoLastReview = async () => {
+    if (!user?.id) {
+      toast({
+        title: "Session expired",
+        description: "Please log in again to continue studying.",
+        variant: "destructive"
+      });
+      navigate("/auth");
+      return;
+    }
+
     if (!lastReviewedCardId) {
       toast({
         title: "No review to undo",

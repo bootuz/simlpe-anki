@@ -167,7 +167,8 @@ const Study = () => {
       if (specificCardId) {
         // Load only the specific card
         const { data, error } = await supabase
-          .rpc("get_cards_with_details")
+          .from("cards_with_details")
+          .select("*")
           .eq('id', specificCardId)
           .maybeSingle();
 
@@ -200,7 +201,9 @@ const Study = () => {
         today.setHours(23, 59, 59, 999); // End of today
         
         const { data, error } = await supabase
-          .rpc("get_study_cards");
+          .from("cards_with_details")
+          .select("*")
+          .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
 
         if (error) throw error;
 

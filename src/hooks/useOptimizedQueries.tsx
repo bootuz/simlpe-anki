@@ -20,7 +20,8 @@ export function useCardsWithDetails() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .rpc('get_cards_with_details')
+        .from('cards_with_details')
+        .select('*')
         .order('created_at');
       
       if (error) throw error;
@@ -42,7 +43,9 @@ export function useStudyCards() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .rpc('get_study_cards');
+        .from('cards_with_details')
+        .select('*')
+        .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
       
       if (error) throw error;
       return data || [];
