@@ -10,7 +10,7 @@ export const QUERY_KEYS = {
   deckCardCounts: (userId: string) => ['deck-card-counts', userId],
 } as const;
 
-// Hook for fetching cards with all details using the database function
+// Hook for fetching cards with all details using the view
 export function useCardsWithDetails() {
   const { user } = useAuth();
   
@@ -20,7 +20,9 @@ export function useCardsWithDetails() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .rpc('get_cards_with_details', { p_user_id: user.id });
+        .from('cards_with_details')
+        .select('*')
+        .order('created_at');
       
       if (error) throw error;
       return data || [];
@@ -41,7 +43,9 @@ export function useStudyCards() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .rpc('get_study_cards', { p_user_id: user.id });
+        .from('cards_with_details')
+        .select('*')
+        .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
       
       if (error) throw error;
       return data || [];

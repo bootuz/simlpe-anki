@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -85,13 +85,6 @@ export type Database = {
             foreignKeyName: "card_fsrs_card_id_fkey"
             columns: ["card_id"]
             isOneToOne: true
-            referencedRelation: "cards_with_tag_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "card_fsrs_card_id_fkey"
-            columns: ["card_id"]
-            isOneToOne: true
             referencedRelation: "study_cards"
             referencedColumns: ["id"]
           },
@@ -107,13 +100,6 @@ export type Database = {
             columns: ["card_id"]
             isOneToOne: true
             referencedRelation: "cards_with_details"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_card_fsrs_card_id"
-            columns: ["card_id"]
-            isOneToOne: true
-            referencedRelation: "cards_with_tag_stats"
             referencedColumns: ["id"]
           },
           {
@@ -365,13 +351,6 @@ export type Database = {
             foreignKeyName: "fk_review_logs_card_id"
             columns: ["card_id"]
             isOneToOne: false
-            referencedRelation: "cards_with_tag_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_review_logs_card_id"
-            columns: ["card_id"]
-            isOneToOne: false
             referencedRelation: "study_cards"
             referencedColumns: ["id"]
           },
@@ -398,57 +377,6 @@ export type Database = {
           state: string | null
           updated_at: string | null
           user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cards_deck_id_fkey"
-            columns: ["deck_id"]
-            isOneToOne: false
-            referencedRelation: "decks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_cards_deck_id"
-            columns: ["deck_id"]
-            isOneToOne: false
-            referencedRelation: "decks"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cards_with_tag_stats: {
-        Row: {
-          back: string | null
-          created_at: string | null
-          deck_id: string | null
-          front: string | null
-          id: string | null
-          tag_count: number | null
-          tags: string[] | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          back?: string | null
-          created_at?: string | null
-          deck_id?: string | null
-          front?: string | null
-          id?: string | null
-          tag_count?: never
-          tags?: string[] | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          back?: string | null
-          created_at?: string | null
-          deck_id?: string | null
-          front?: string | null
-          id?: string | null
-          tag_count?: never
-          tags?: string[] | null
-          updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -511,31 +439,90 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      get_cards_with_details: {
+        Args: { p_user_id?: string }
+        Returns: {
+          back: string
+          created_at: string
+          deck_id: string
+          deck_name: string
+          difficulty: number
+          due_date: string
+          folder_id: string
+          folder_name: string
+          front: string
+          id: string
+          lapses: number
+          last_review: string
+          reps: number
+          stability: number
+          state: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      get_cards_with_tag_stats: {
+        Args: { p_user_id?: string }
+        Returns: {
+          back: string
+          created_at: string
+          deck_id: string
+          front: string
+          id: string
+          tag_count: number
+          tags: string[]
+          updated_at: string
+          user_id: string
+        }[]
+      }
       get_deck_card_counts: {
         Args: { p_user_id: string }
         Returns: {
-          deck_id: string
           card_count: number
+          deck_id: string
+        }[]
+      }
+      get_study_cards: {
+        Args: { p_user_id?: string }
+        Returns: {
+          back: string
+          created_at: string
+          deck_id: string
+          deck_name: string
+          difficulty: number
+          due_date: string
+          folder_id: string
+          folder_name: string
+          front: string
+          id: string
+          lapses: number
+          last_review: string
+          ready_status: string
+          reps: number
+          stability: number
+          state: string
+          updated_at: string
+          user_id: string
         }[]
       }
       get_user_tags: {
         Args: { user_uuid: string }
         Returns: {
-          tag: string
           count: number
+          tag: string
         }[]
       }
       search_cards_by_tags: {
-        Args: { tag_query: string[] }
+        Args: { p_user_id?: string; tag_query: string[] }
         Returns: {
-          id: string
-          front: string
           back: string
-          deck_id: string
-          user_id: string
-          tags: string[]
           created_at: string
+          deck_id: string
+          front: string
+          id: string
+          tags: string[]
           updated_at: string
+          user_id: string
         }[]
       }
     }
