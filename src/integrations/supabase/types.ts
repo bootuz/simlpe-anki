@@ -375,6 +375,7 @@ export type Database = {
           reps: number | null
           stability: number | null
           state: string | null
+          tags: string[] | null
           updated_at: string | null
           user_id: string | null
         }
