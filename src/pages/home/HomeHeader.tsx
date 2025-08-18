@@ -21,9 +21,13 @@ export default function HomeHeader({ onManageDecks, onSignOut }: HomeHeaderProps
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent">
+            <div 
+              className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent"
+              role="banner"
+              aria-label="Simple Anki brand"
+            >
               Simple Anki
-            </h1>
+            </div>
             <Sparkles className="h-4 w-4 text-primary/60 animate-pulse" />
           </div>
         </div>
@@ -32,18 +36,17 @@ export default function HomeHeader({ onManageDecks, onSignOut }: HomeHeaderProps
           <Button 
             variant="outline" 
             onClick={onManageDecks} 
-            className="relative group overflow-hidden border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover:text-foreground transition-all duration-300"
+            className="border-border hover:bg-muted transition-colors duration-200"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <Plus className="h-4 w-4 mr-2 relative z-10 group-hover:scale-110 transition-transform duration-200" />
-            <span className="relative z-10 hidden sm:inline font-medium text-current">Manage Cards</span>
-            <span className="relative z-10 sm:hidden font-medium text-current">Manage</span>
+            <Plus className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
+            <span className="hidden sm:inline font-medium">Manage Cards</span>
+            <span className="sm:hidden font-medium">Manage</span>
           </Button>
           
           <Button 
             variant="ghost" 
             onClick={onSignOut} 
-            className="hover:bg-destructive/5 hover:text-destructive transition-all duration-300"
+            className="hover:bg-destructive/10 hover:text-destructive transition-colors duration-200"
           >
             <LogOut className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Sign Out</span>

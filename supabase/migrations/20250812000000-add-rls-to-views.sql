@@ -129,10 +129,90 @@ AS $$
     cf.due_date ASC NULLS FIRST;
 $$;
 
+-- Create a secure cards_with_tag_stats function that respects user boundaries
+CREATE OR REPLACE FUNCTION public.get_cards_with_tag_stats(p_user_id UUID DEFAULT NULL)
+RETURNS TABLE (
+  id UUID,
+  front TEXT,
+  back TEXT,
+  user_id UUID,
+  deck_id UUID,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  tags TEXT[],
+  tag_count INTEGER
+)
+LANGUAGE SQL
+SECURITY DEFINER
+STABLE
+SET search_path = ''
+AS $$
+  SELECT 
+    c.id,
+    c.front,
+    c.back,
+    c.user_id,
+    c.deck_id,
+    c.created_at,
+    c.updated_at,
+    c.tags,
+    array_length(c.tags, 1) as tag_count
+  FROM public.cards c
+  WHERE 
+    -- Only return data for the authenticated user
+    c.user_id = COALESCE(p_user_id, auth.uid())
+    -- Additional security check
+    AND c.user_id = auth.uid();
+$$;
+
+-- Update the existing search_cards_by_tags function to be secure
+DROP FUNCTION IF EXISTS public.search_cards_by_tags(TEXT[]);
+
+CREATE OR REPLACE FUNCTION public.search_cards_by_tags(
+  tag_query TEXT[], 
+  p_user_id UUID DEFAULT NULL
+)
+RETURNS TABLE (
+  id UUID,
+  front TEXT,
+  back TEXT,
+  deck_id UUID,
+  user_id UUID,
+  tags TEXT[],
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+)
+LANGUAGE SQL
+SECURITY DEFINER
+STABLE
+SET search_path = ''
+AS $$
+  SELECT 
+    c.id,
+    c.front,
+    c.back,
+    c.deck_id,
+    c.user_id,
+    c.tags,
+    c.created_at,
+    c.updated_at
+  FROM public.cards c
+  WHERE 
+    c.tags && tag_query
+    -- Only return data for the authenticated user
+    AND c.user_id = COALESCE(p_user_id, auth.uid())
+    -- Additional security check
+    AND c.user_id = auth.uid();
+$$;
+
 -- Grant execute permissions to authenticated users only
 GRANT EXECUTE ON FUNCTION public.get_cards_with_details(UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_study_cards(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_cards_with_tag_stats(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.search_cards_by_tags(TEXT[], UUID) TO authenticated;
 
 -- Revoke from public and anonymous
 REVOKE EXECUTE ON FUNCTION public.get_cards_with_details(UUID) FROM public, anon;
 REVOKE EXECUTE ON FUNCTION public.get_study_cards(UUID) FROM public, anon;
+REVOKE EXECUTE ON FUNCTION public.get_cards_with_tag_stats(UUID) FROM public, anon;
+REVOKE EXECUTE ON FUNCTION public.search_cards_by_tags(TEXT[], UUID) FROM public, anon;

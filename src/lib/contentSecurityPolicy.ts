@@ -1,5 +1,7 @@
 // Content Security Policy utilities for enhanced security
-export const CSP_DIRECTIVES = {
+
+// Client-side CSP directives (can be set via meta tags)
+export const CSP_CLIENT_DIRECTIVES = {
   'default-src': "'self'",
   'script-src': "'self'", // Removed unsafe-inline for better security
   'style-src': "'self' 'unsafe-inline'",
@@ -10,11 +12,24 @@ export const CSP_DIRECTIVES = {
   'object-src': "'none'",
   'base-uri': "'self'",
   'form-action': "'self'",
+} as const;
+
+// Server-only CSP directives (must be set via HTTP headers)
+export const CSP_SERVER_ONLY_DIRECTIVES = {
   'frame-ancestors': "'none'",
 } as const;
 
-export function generateCSPHeader(nonce?: string): string {
-  return Object.entries(CSP_DIRECTIVES)
+// Combined CSP directives for server-side configuration
+export const CSP_DIRECTIVES = {
+  ...CSP_CLIENT_DIRECTIVES,
+  ...CSP_SERVER_ONLY_DIRECTIVES,
+} as const;
+
+export function generateCSPHeader(nonce?: string, clientOnly = false): string {
+  // Use client-only directives when setting via meta tags
+  const directives = clientOnly ? CSP_CLIENT_DIRECTIVES : CSP_DIRECTIVES;
+  
+  return Object.entries(directives)
     .map(([directive, value]) => {
       // Add nonce to script-src if provided
       if (directive === 'script-src' && nonce) {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppSidebar, StudyFolder, Deck } from "@/components/AppSidebar";
+import { AppSidebar, StudyFolder, Deck } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,9 +19,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCardMutations } from "@/hooks/useOptimizedQueries";
-import CardItem from "@/components/CardItem";
-import SearchAndFilters from "@/components/SearchAndFilters";
-import { EnhancedAddCardModal } from "@/components/EnhancedAddCardModal";
+import { CardItem } from "@/components/cards";
+import { SearchAndFilters, EnhancedAddCardModal } from "@/components/forms";
 import { useCardManagement } from "@/hooks/useCardManagement";
 import { useCardFiltering } from "@/hooks/useCardFiltering";
 
@@ -696,9 +695,13 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent">
+                  <div 
+                    className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent"
+                    role="banner"
+                    aria-label="Simple Anki brand"
+                  >
                     Simple Anki
-                  </h1>
+                  </div>
                   <Sparkles className="h-4 w-4 text-primary/60 animate-pulse" />
                 </div>
               </div>
@@ -828,13 +831,11 @@ const Index = () => {
                       <Button 
                         onClick={handleGenerateSampleData}
                         disabled={isGeneratingSampleData}
-                        variant="outline"
                         size="lg"
-                        className="group border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 px-6 py-4"
+                        className="group px-6 py-4 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md" />
-                        <Layers3 className="h-5 w-5 mr-2 relative z-10 group-hover:scale-110 transition-transform duration-200" />
-                        <span className="relative z-10">
+                        <Layers3 className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-200 text-white" />
+                        <span>
                           {isGeneratingSampleData ? "Generating..." : "Try Sample Content"}
                         </span>
                       </Button>

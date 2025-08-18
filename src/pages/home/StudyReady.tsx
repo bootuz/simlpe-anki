@@ -73,17 +73,14 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
           <div className="pt-4">
             <Button 
               onClick={onStartStudy} 
-              size="lg" 
-              className="group relative px-12 py-6 text-xl font-bold bg-gradient-to-r from-primary via-primary to-accent hover:from-accent hover:via-primary hover:to-primary transition-all duration-500 shadow-2xl hover:shadow-primary/40 transform hover:scale-105"
+              size="xl" 
+              className="group px-12 py-6 text-xl font-bold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
             >
-              <span className="relative z-10 flex items-center gap-3">
-                <Zap className="h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
-                {newCount > 0 && readyCount > 0 ? "Start Study Session" : 
-                 newCount > 0 ? "Learn New Cards" : 
-                 "Review Cards"}
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </span>
-              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/30 to-accent/30 blur-xl group-hover:blur-2xl transition-all duration-300" />
+              <Zap className="h-6 w-6 mr-3 group-hover:rotate-12 transition-transform duration-300 text-white" />
+              {newCount > 0 && readyCount > 0 ? "Start Study Session" : 
+               newCount > 0 ? "Learn New Cards" : 
+               "Review Cards"}
+              <ArrowRight className="h-5 w-5 ml-3 group-hover:translate-x-1 transition-transform duration-300 text-white" />
             </Button>
           </div>
         </div>

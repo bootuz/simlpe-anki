@@ -30,10 +30,10 @@ const NotFound = () => {
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm" 
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 hover:bg-primary/10 transition-all duration-150"
+                className="border-border hover:bg-muted transition-colors duration-200"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Go Back
@@ -111,20 +111,20 @@ const NotFound = () => {
                 <div className="flex flex-col sm:flex-row justify-center gap-4 pt-8">
                   <Button 
                     onClick={() => navigate("/")} 
-                    size="lg"
-                    className="group px-8 py-4 text-lg font-semibold transition-all duration-200 hover:scale-105"
+                    size="xl"
+                    className="group px-8 py-4 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
                   >
-                    <Home className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-150" />
+                    <Home className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300 text-white" />
                     Back to Home
                   </Button>
                   
                   <Button 
                     variant="outline" 
                     onClick={() => navigate("/manage")} 
-                    size="lg"
-                    className="group border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover:text-foreground transition-all duration-200 px-8 py-4 text-lg"
+                    size="xl"
+                    className="px-8 py-4 text-lg border-border hover:bg-muted transition-colors duration-200"
                   >
-                    <BookOpen className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-150" />
+                    <BookOpen className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
                     <span className="font-medium">Manage Cards</span>
                   </Button>
                 </div>

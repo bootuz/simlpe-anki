@@ -19,8 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getFSRSServiceForUser, Rating, type FSRSCard } from "@/services/fsrsService";
-import { SchedulingPreview } from "@/components/SchedulingPreview";
-import { ReviewHistory } from "@/components/ReviewHistory";
+import { SchedulingPreview, ReviewHistory } from "@/components/study";
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from "@/hooks/useOptimizedQueries";
 
@@ -442,11 +441,20 @@ const Study = () => {
                   Great job! You've reviewed all your due cards.
                 </p>
                 <div className="flex justify-center gap-4">
-                  <Button onClick={() => navigate("/")} size="lg">
-                    <Home className="h-5 w-5 mr-2" />
+                  <Button 
+                    onClick={() => navigate("/")} 
+                    size="lg"
+                    className="group bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Home className="h-5 w-5 mr-2 text-white" />
                     Back to Home
                   </Button>
-                  <Button variant="outline" onClick={() => navigate("/manage")} size="lg">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate("/manage")} 
+                    size="lg"
+                    className="border-border hover:bg-muted transition-colors duration-200"
+                  >
                     <BookOpen className="h-5 w-5 mr-2" />
                     Manage Decks
                   </Button>
@@ -600,11 +608,20 @@ const Study = () => {
                   You're all caught up! Check back later or create some new cards.
                 </p>
                 <div className="flex justify-center gap-4">
-                  <Button onClick={() => navigate("/")} size="lg">
-                    <Home className="h-5 w-5 mr-2" />
+                  <Button 
+                    onClick={() => navigate("/")} 
+                    size="lg"
+                    className="group bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Home className="h-5 w-5 mr-2 text-white" />
                     Back to Home
                   </Button>
-                  <Button variant="outline" onClick={() => navigate("/manage")} size="lg">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate("/manage")} 
+                    size="lg"
+                    className="border-border hover:bg-muted transition-colors duration-200"
+                  >
                     <BookOpen className="h-5 w-5 mr-2" />
                     Manage Decks
                   </Button>

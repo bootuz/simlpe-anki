@@ -249,6 +249,7 @@ export default function Settings() {
             variant="outline" 
             onClick={() => setShowResetDialog(true)}
             disabled={!hasChanges}
+            className="border-destructive/50 text-destructive hover:bg-destructive/10 transition-colors duration-200"
           >
             <RotateCcw className="h-4 w-4 mr-2" />
             Reset
@@ -256,6 +257,7 @@ export default function Settings() {
           <Button 
             onClick={handleSave}
             disabled={!hasChanges || isSaving}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200"
           >
             <Save className="h-4 w-4 mr-2" />
             {isSaving ? 'Saving...' : 'Save Changes'}
@@ -284,7 +286,7 @@ export default function Settings() {
                         variant="outline" 
                         size="sm"
                         onClick={() => applyPreset(preset)}
-                        className="w-full"
+                        className="w-full border-border hover:bg-muted transition-colors duration-200"
                       >
                         Apply Preset
                       </Button>

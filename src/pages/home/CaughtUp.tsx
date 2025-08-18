@@ -71,14 +71,12 @@ export default function CaughtUp({ onManageDecks }: CaughtUpProps) {
           <div className="space-y-4">
             <Button 
               onClick={onManageDecks} 
-              size="lg" 
-              className="group relative w-full px-8 py-6 text-lg font-semibold bg-gradient-to-r from-primary via-primary to-accent hover:from-accent hover:via-primary hover:to-primary transition-all duration-500 shadow-xl hover:shadow-primary/30"
+              size="xl"
+              fullWidth={true}
+              className="group px-8 py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
             >
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
-                Add More Cards
-              </span>
-              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/20 to-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
+              <Plus className="h-5 w-5 mr-3 group-hover:rotate-90 transition-transform duration-300 text-white" />
+              Add More Cards
             </Button>
             
             <p className="text-sm text-muted-foreground">

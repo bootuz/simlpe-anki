@@ -19,10 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getFSRSServiceForUser, Rating, type FSRSCard } from "@/services/fsrsService";
-import { SchedulingPreview } from "@/components/SchedulingPreview";
-import { ReviewHistory } from "@/components/ReviewHistory";
-import SessionStats from "@/components/SessionStats";
-import { SessionRecoveryDialog } from "@/components/SessionRecoveryDialog";
+import { SchedulingPreview, ReviewHistory, SessionStatsDefault as SessionStats, SessionRecoveryDialog } from "@/components/study";
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from "@/hooks/useOptimizedQueries";
 import { 
@@ -818,40 +815,40 @@ const Study = () => {
                               <div className="grid grid-cols-4 gap-2">
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Again)}
-                                  variant="outline"
+                                  variant="soft-destructive"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 hover:border-red-400 py-3"
+                                  className="py-3 hover:scale-105 transition-all duration-200"
                                 >
                                   <XCircle className="h-4 w-4 mr-1" />
                                   Again
                                 </Button>
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Hard)}
-                                  variant="outline"
+                                  variant="warning"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="border-orange-300 text-orange-700 hover:bg-orange-100 hover:text-orange-800 hover:border-orange-400 py-3"
+                                  className="py-3 hover:scale-105 transition-all duration-200"
                                 >
                                   <AlertTriangle className="h-4 w-4 mr-1" />
                                   Hard
                                 </Button>
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Good)}
-                                  variant="outline"
+                                  variant="soft-success"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="border-blue-300 text-blue-700 hover:bg-blue-100 hover:text-blue-800 hover:border-blue-400 py-3"
+                                  className="py-3 hover:scale-105 transition-all duration-200"
                                 >
                                   <Check className="h-4 w-4 mr-1" />
                                   Good
                                 </Button>
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Easy)}
-                                  variant="outline"
+                                  variant="success"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="border-green-300 text-green-700 hover:bg-green-100 hover:text-green-800 hover:border-green-400 py-3"
+                                  className="py-3 hover:scale-105 transition-all duration-200"
                                 >
                                   <CheckCircle className="h-4 w-4 mr-1" />
                                    Easy
@@ -917,11 +914,20 @@ const Study = () => {
                   No cards are ready to study right now. Check back later or create some new cards!
                 </p>
                 <div className="flex justify-center gap-4">
-                  <Button onClick={() => navigate("/")} size="lg">
-                    <Home className="h-5 w-5 mr-2" />
+                  <Button 
+                    onClick={() => navigate("/")} 
+                    size="lg"
+                    className="group bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Home className="h-5 w-5 mr-2 text-white" />
                     Back to Home
                   </Button>
-                  <Button variant="outline" onClick={() => navigate("/manage")} size="lg">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate("/manage")} 
+                    size="lg"
+                    className="border-border hover:bg-muted transition-colors duration-200"
+                  >
                     <BookOpen className="h-5 w-5 mr-2" />
                     Manage Decks
                   </Button>

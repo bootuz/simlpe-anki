@@ -56,14 +56,11 @@ export default function EmptyState({ onManageDecks }: EmptyStateProps) {
           <div className="mb-20">
             <Button 
               onClick={onManageDecks} 
-              size="lg" 
-              className="group relative px-12 py-6 text-lg font-semibold bg-gradient-to-r from-primary via-primary to-accent hover:from-accent hover:via-primary hover:to-primary transition-all duration-500 shadow-2xl hover:shadow-primary/30 transform hover:scale-105"
+              size="xl" 
+              className="group px-12 py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
             >
-              <span className="relative z-10 flex items-center gap-3">
-                Start Your Journey
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </span>
-              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/20 to-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
+              Start Your Journey
+              <ArrowRight className="h-5 w-5 ml-3 group-hover:translate-x-1 transition-transform duration-300 text-white" />
             </Button>
           </div>
         </div>

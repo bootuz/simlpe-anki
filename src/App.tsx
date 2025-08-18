@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useSecurityMonitor } from "@/hooks/useSecurityMonitor";
-import { SecurityMeta } from "@/components/SecurityMeta";
+import { SecurityMeta } from "@/components/layout";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";

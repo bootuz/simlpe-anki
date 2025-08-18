@@ -353,11 +353,11 @@ const Auth = () => {
                   {/* Sign Up Button */}
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-white" 
+                    className="group w-full h-12 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300 font-medium" 
                     disabled={loading}
                   >
                     {loading ? "Creating account..." : "Sign Up"}
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 ml-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </Button>
@@ -377,7 +377,7 @@ const Auth = () => {
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full h-12 border-gray-200"
+                      className="w-full h-12 border-border hover:bg-muted transition-colors duration-200"
                       onClick={handleGoogleSignIn}
                       disabled={loading}
                     >
@@ -483,7 +483,7 @@ const Auth = () => {
                   {/* Sign In Button */}
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-white" 
+                    className="group w-full h-12 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300 font-medium" 
                     disabled={loading}
                   >
                     {loading ? "Signing in..." : "Sign In"}
@@ -502,8 +502,8 @@ const Auth = () => {
                   {/* Google Sign In Button */}
                   <Button
                     type="button"
-                    variant="outline"
-                    className="w-full h-12 border-gray-200"
+                    variant="soft-primary"
+                    className="w-full h-12 transition-all duration-300 hover:scale-105"
                     onClick={handleGoogleSignIn}
                     disabled={loading}
                   >

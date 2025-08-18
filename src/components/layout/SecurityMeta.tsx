@@ -17,13 +17,14 @@ export function SecurityMeta() {
       document.head.appendChild(metaTag);
     }
 
-    const cspHeader = generateCSPHeader(nonce);
+    // Use client-only CSP directives for meta tag (frame-ancestors requires HTTP header)
+    const cspHeader = generateCSPHeader(nonce, true);
     metaTag.setAttribute('content', cspHeader);
 
-    // Add security headers via meta tags
+    // Add security headers via meta tags (only those that can be set via meta tags)
     const securityHeaders = [
       { name: 'X-Content-Type-Options', content: 'nosniff' },
-      { name: 'X-Frame-Options', content: 'DENY' },
+      // Note: X-Frame-Options must be set via HTTP headers (now configured in vite.config.ts)
       { name: 'X-XSS-Protection', content: '1; mode=block' },
       { name: 'Referrer-Policy', content: 'strict-origin-when-cross-origin' }
     ];
