@@ -353,7 +353,7 @@ const Auth = () => {
                   {/* Sign Up Button */}
                   <Button 
                     type="submit" 
-                    className="group w-full h-12 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300 font-medium" 
+                    className="w-full h-12 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 font-medium" 
                     disabled={loading}
                   >
                     {loading ? "Creating account..." : "Sign Up"}
@@ -483,7 +483,7 @@ const Auth = () => {
                   {/* Sign In Button */}
                   <Button 
                     type="submit" 
-                    className="group w-full h-12 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300 font-medium" 
+                    className="w-full h-12 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 font-medium" 
                     disabled={loading}
                   >
                     {loading ? "Signing in..." : "Sign In"}
@@ -502,8 +502,8 @@ const Auth = () => {
                   {/* Google Sign In Button */}
                   <Button
                     type="button"
-                    variant="soft-primary"
-                    className="w-full h-12 transition-all duration-300 hover:scale-105"
+                    variant="outline"
+                    className="w-full h-12"
                     onClick={handleGoogleSignIn}
                     disabled={loading}
                   >

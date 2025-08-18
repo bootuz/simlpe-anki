@@ -73,8 +73,8 @@ export default function StudyReady({ cards, getDueDateStatus, onStartStudy }: St
           <div className="pt-4">
             <Button 
               onClick={onStartStudy} 
-              size="xl" 
-              className="group px-12 py-6 text-xl font-bold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
+              size="lg" 
+              className="px-12 py-6 text-xl font-bold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90"
             >
               <Zap className="h-6 w-6 mr-3 group-hover:rotate-12 transition-transform duration-300 text-white" />
               {newCount > 0 && readyCount > 0 ? "Start Study Session" : 

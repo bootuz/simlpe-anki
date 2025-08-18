@@ -111,8 +111,8 @@ const NotFound = () => {
                 <div className="flex flex-col sm:flex-row justify-center gap-4 pt-8">
                   <Button 
                     onClick={() => navigate("/")} 
-                    size="xl"
-                    className="group px-8 py-4 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
+                    size="lg"
+                    className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90"
                   >
                     <Home className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300 text-white" />
                     Back to Home
@@ -121,8 +121,8 @@ const NotFound = () => {
                   <Button 
                     variant="outline" 
                     onClick={() => navigate("/manage")} 
-                    size="xl"
-                    className="px-8 py-4 text-lg border-border hover:bg-muted transition-colors duration-200"
+                    size="lg"
+                    className="px-8 py-4 text-lg border-border hover:bg-muted"
                   >
                     <BookOpen className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
                     <span className="font-medium">Manage Cards</span>

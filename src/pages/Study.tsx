@@ -815,40 +815,40 @@ const Study = () => {
                               <div className="grid grid-cols-4 gap-2">
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Again)}
-                                  variant="soft-destructive"
+                                  variant="destructive"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="py-3 hover:scale-105 transition-all duration-200"
+                                  className="py-3"
                                 >
                                   <XCircle className="h-4 w-4 mr-1" />
                                   Again
                                 </Button>
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Hard)}
-                                  variant="warning"
+                                  variant="secondary"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="py-3 hover:scale-105 transition-all duration-200"
+                                  className="py-3 bg-yellow-600 hover:bg-yellow-700 text-white"
                                 >
                                   <AlertTriangle className="h-4 w-4 mr-1" />
                                   Hard
                                 </Button>
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Good)}
-                                  variant="soft-success"
+                                  variant="default"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="py-3 hover:scale-105 transition-all duration-200"
+                                  className="py-3 bg-green-100 hover:bg-green-200 text-green-700 border-green-300"
                                 >
                                   <Check className="h-4 w-4 mr-1" />
                                   Good
                                 </Button>
                                 <Button 
                                   onClick={() => handleAnswer(Rating.Easy)}
-                                  variant="success"
+                                  variant="default"
                                   size="lg"
                                   disabled={fsrsCardLoading}
-                                  className="py-3 hover:scale-105 transition-all duration-200"
+                                  className="py-3 bg-green-600 hover:bg-green-700 text-white"
                                 >
                                   <CheckCircle className="h-4 w-4 mr-1" />
                                    Easy

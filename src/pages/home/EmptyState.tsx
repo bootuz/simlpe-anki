@@ -56,8 +56,8 @@ export default function EmptyState({ onManageDecks }: EmptyStateProps) {
           <div className="mb-20">
             <Button 
               onClick={onManageDecks} 
-              size="xl" 
-              className="group px-12 py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
+              size="lg" 
+              className="px-12 py-6 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90"
             >
               Start Your Journey
               <ArrowRight className="h-5 w-5 ml-3 group-hover:translate-x-1 transition-transform duration-300 text-white" />

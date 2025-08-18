@@ -203,6 +203,6 @@ export const getCSSVariable = (token: string): string => {
   return `hsl(var(--${token}))`;
 };
 
-export const setCSSVariable = (token: string, value: string): string => {
+export const setColorCSSVariable = (token: string, value: string): string => {
   return `--${token}: ${value};`;
 };

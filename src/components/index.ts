@@ -11,6 +11,3 @@ export * from './study';
 
 // Card management components
 export * from './cards';
-
-// UI components (shadcn/ui)
-export * from './ui';
