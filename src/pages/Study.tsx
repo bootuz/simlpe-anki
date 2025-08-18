@@ -489,25 +489,39 @@ const Study = () => {
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
       <div className="relative z-10">
         {/* Header */}
-        <header className="h-16 border-b bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/60 shadow-sm w-full">
-          <div className="flex items-center justify-between h-full px-6 w-full">
+        <header className="relative bg-card/60 supports-[backdrop-filter]:backdrop-blur-xl border-b border-border/40 sticky top-0 z-30">
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+          
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate("/")}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 hover:bg-muted transition-colors duration-200"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Home
+                <span className="hidden sm:inline">Back to Home</span>
+                <span className="sm:hidden">Back</span>
               </Button>
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-6 w-6 text-primary" />
-                <h1 className="text-xl font-semibold">Simple Anki - Study</h1>
+              <div className="flex items-center gap-3">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center shadow-sm border border-primary/20">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent">
+                    Simple Anki
+                  </h1>
+                  <span className="text-sm text-muted-foreground font-medium hidden sm:inline">/ Study</span>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               {lastReviewedCardId && currentCardIndex > 0 && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -515,10 +529,11 @@ const Study = () => {
                       variant="outline"
                       size="sm"
                       disabled={undoLoading}
-                      className="flex items-center gap-2"
+                      className="border-border hover:bg-muted transition-colors duration-200"
                     >
-                      <Undo2 className="h-4 w-4" />
-                      {undoLoading ? 'Undoing...' : 'Undo Last Review'}
+                      <Undo2 className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">{undoLoading ? 'Undoing...' : 'Undo Last Review'}</span>
+                      <span className="sm:hidden">Undo</span>
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -543,13 +558,14 @@ const Study = () => {
               )}
               {user && (
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={signOut}
-                  className="flex items-center gap-2"
+                  className="hover:bg-destructive/10 hover:text-destructive transition-colors duration-200"
                 >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
+                  <LogOut className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                  <span className="sm:hidden">Logout</span>
                 </Button>
               )}
             </div>
