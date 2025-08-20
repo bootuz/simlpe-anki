@@ -711,12 +711,12 @@ const Index = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate("/")}
-                className="relative group overflow-hidden border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover:text-foreground transition-all duration-300"
+                className="relative group overflow-hidden border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
                 <BookOpen className="h-4 w-4 mr-2 relative z-10 group-hover:scale-105 transition-transform duration-150" />
-                <span className="relative z-10 hidden sm:inline font-medium text-current">Study Session</span>
-                <span className="relative z-10 sm:hidden font-medium text-current">Study</span>
+                <span className="relative z-10 hidden sm:inline font-medium">Study Session</span>
+                <span className="relative z-10 sm:hidden font-medium">Study</span>
               </Button>
               
               {user && (

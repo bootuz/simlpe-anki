@@ -278,11 +278,11 @@ const Study = () => {
 
         transformedCards = [transformedCard];
       } else {
-        // Load all cards ready for study (new or ready for review)
+        // Load all cards ready for study (non-Review always available, Review only when due)
         const { data, error } = await supabase
           .from('cards_with_details')
           .select('*')
-          .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
+          .or('state.neq.Review,and(state.eq.Review,due_date.lte.' + new Date().toISOString() + ')');
 
         if (error) throw error;
 
@@ -499,7 +499,7 @@ const Study = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate("/")}
-                className="flex items-center gap-2 hover:bg-muted transition-colors duration-200"
+                className="flex items-center gap-2 hover:bg-muted hover:text-foreground transition-colors duration-200"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Back to Home</span>
@@ -529,7 +529,7 @@ const Study = () => {
                       variant="outline"
                       size="sm"
                       disabled={undoLoading}
-                      className="border-border hover:bg-muted transition-colors duration-200"
+                      className="border-border hover:bg-muted hover:text-foreground transition-colors duration-200"
                     >
                       <Undo2 className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">{undoLoading ? 'Undoing...' : 'Undo Last Review'}</span>

@@ -201,21 +201,15 @@ export class StudySessionManager {
    * Check if card is available for daily review
    */
   private isCardAvailableForDailyReview(card: StudyCard, now: Date): boolean {
-    // New cards (no due date)
-    if (!card.due_date) return true;
-
-    const dueDate = new Date(card.due_date);
-    
-    // Cards due today or overdue
-    if (dueDate.toDateString() <= now.toDateString()) return true;
-
-    // Learning/Relearning cards due within next 30 minutes
-    if ((card.state === 'Learning' || card.state === 'Relearning')) {
-      const thirtyMinutesFromNow = new Date(now.getTime() + 30 * 60 * 1000);
-      return dueDate <= thirtyMinutesFromNow;
+    // Non-graduated cards (New, Learning, Relearning) are always available
+    if (card.state !== 'Review') {
+      return true;
     }
-
-    return false;
+    
+    // Review cards follow normal schedule - only available when due
+    if (!card.due_date) return false;
+    const dueDate = new Date(card.due_date);
+    return dueDate <= now;
   }
 
   /**
