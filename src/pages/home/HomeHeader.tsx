@@ -36,7 +36,7 @@ export default function HomeHeader({ onManageDecks, onSignOut }: HomeHeaderProps
           <Button 
             variant="outline" 
             onClick={onManageDecks} 
-            className="border-border hover:bg-muted transition-colors duration-200"
+            className="border-border hover:bg-muted hover:text-muted-foreground"
           >
             <Plus className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
             <span className="hidden sm:inline font-medium">Manage Cards</span>
@@ -46,7 +46,7 @@ export default function HomeHeader({ onManageDecks, onSignOut }: HomeHeaderProps
           <Button 
             variant="ghost" 
             onClick={onSignOut} 
-            className="hover:bg-destructive/10 hover:text-destructive transition-colors duration-200"
+            className="hover:bg-destructive/10 hover:text-destructive"
           >
             <LogOut className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Sign Out</span>
