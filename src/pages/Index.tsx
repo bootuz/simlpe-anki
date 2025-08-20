@@ -711,7 +711,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate("/")}
-                className="border-border hover:bg-muted hover:text-muted-foreground"
+                className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline font-medium">Study Session</span>
@@ -722,7 +722,7 @@ const Index = () => {
                 <Button
                   variant="ghost"
                   onClick={signOut}
-                  className="hover:bg-destructive/10 hover:text-destructive"
+                  className="hover:bg-destructive/20 hover:text-destructive"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   <span className="hidden sm:inline">Sign Out</span>
