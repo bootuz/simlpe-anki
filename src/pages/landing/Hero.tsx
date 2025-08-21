@@ -8,10 +8,38 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Elements */}
+      {/* Background with Falling Flashcards */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.1),transparent_70%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.08),transparent_70%)]" />
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Falling Flashcards */}
+        {[
+          { text: "Hola", subject: "Spanish", delay: "0s", color: "bg-red-500/20 border-red-300" },
+          { text: "Python", subject: "Programming", delay: "2s", color: "bg-blue-500/20 border-blue-300" },
+          { text: "こんにちは", subject: "Japanese", delay: "4s", color: "bg-pink-500/20 border-pink-300" },
+          { text: "History", subject: "Studies", delay: "1s", color: "bg-yellow-500/20 border-yellow-300" },
+          { text: "Bonjour", subject: "French", delay: "3s", color: "bg-purple-500/20 border-purple-300" },
+          { text: "Math", subject: "Calculus", delay: "5s", color: "bg-green-500/20 border-green-300" },
+          { text: "Guten Tag", subject: "German", delay: "6s", color: "bg-orange-500/20 border-orange-300" },
+          { text: "Chemistry", subject: "Science", delay: "7s", color: "bg-cyan-500/20 border-cyan-300" },
+          { text: "Привет", subject: "Russian", delay: "8s", color: "bg-indigo-500/20 border-indigo-300" },
+          { text: "Biology", subject: "Life Science", delay: "9s", color: "bg-emerald-500/20 border-emerald-300" },
+        ].map((card, index) => (
+          <div
+            key={index}
+            className={`absolute w-32 h-20 ${card.color} backdrop-blur-sm rounded-lg border-2 shadow-lg opacity-70 animate-fall`}
+            style={{
+              left: `${10 + (index % 5) * 20}%`,
+              animationDelay: card.delay,
+            }}
+          >
+            <div className="p-3 h-full flex flex-col justify-between text-center">
+              <div className="text-sm font-bold text-foreground">{card.text}</div>
+              <div className="text-xs text-muted-foreground">{card.subject}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
       
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-50 p-6">
