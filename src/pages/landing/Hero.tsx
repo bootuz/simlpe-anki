@@ -11,25 +11,26 @@ const Hero = () => {
       {/* Background with Falling Flashcards */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
       <div className="absolute inset-0 overflow-hidden">
-        {/* Falling Flashcards */}
+        {/* Static Flashcards */}
         {[
-          { text: "Hola", subject: "Spanish", delay: "0s", color: "bg-red-500/20 border-red-300" },
-          { text: "Python", subject: "Programming", delay: "2s", color: "bg-blue-500/20 border-blue-300" },
-          { text: "こんにちは", subject: "Japanese", delay: "4s", color: "bg-pink-500/20 border-pink-300" },
-          { text: "History", subject: "Studies", delay: "1s", color: "bg-yellow-500/20 border-yellow-300" },
-          { text: "Bonjour", subject: "French", delay: "3s", color: "bg-purple-500/20 border-purple-300" },
-          { text: "Math", subject: "Calculus", delay: "5s", color: "bg-green-500/20 border-green-300" },
-          { text: "Guten Tag", subject: "German", delay: "6s", color: "bg-orange-500/20 border-orange-300" },
-          { text: "Chemistry", subject: "Science", delay: "7s", color: "bg-cyan-500/20 border-cyan-300" },
-          { text: "Привет", subject: "Russian", delay: "8s", color: "bg-indigo-500/20 border-indigo-300" },
-          { text: "Biology", subject: "Life Science", delay: "9s", color: "bg-emerald-500/20 border-emerald-300" },
+          { text: "Hola", subject: "Spanish", x: "10%", y: "15%", rotate: "-12deg", color: "bg-red-500/20 border-red-300" },
+          { text: "Python", subject: "Programming", x: "75%", y: "25%", rotate: "15deg", color: "bg-blue-500/20 border-blue-300" },
+          { text: "こんにちは", subject: "Japanese", x: "5%", y: "60%", rotate: "8deg", color: "bg-pink-500/20 border-pink-300" },
+          { text: "History", subject: "Studies", x: "85%", y: "70%", rotate: "-18deg", color: "bg-yellow-500/20 border-yellow-300" },
+          { text: "Bonjour", subject: "French", x: "30%", y: "80%", rotate: "22deg", color: "bg-purple-500/20 border-purple-300" },
+          { text: "Math", subject: "Calculus", x: "65%", y: "10%", rotate: "-8deg", color: "bg-green-500/20 border-green-300" },
+          { text: "Guten Tag", subject: "German", x: "20%", y: "35%", rotate: "12deg", color: "bg-orange-500/20 border-orange-300" },
+          { text: "Chemistry", subject: "Science", x: "90%", y: "45%", rotate: "-25deg", color: "bg-cyan-500/20 border-cyan-300" },
+          { text: "Привет", subject: "Russian", x: "45%", y: "20%", rotate: "18deg", color: "bg-indigo-500/20 border-indigo-300" },
+          { text: "Biology", subject: "Life Science", x: "55%", y: "65%", rotate: "-6deg", color: "bg-emerald-500/20 border-emerald-300" },
         ].map((card, index) => (
           <div
             key={index}
-            className={`absolute w-32 h-20 ${card.color} backdrop-blur-sm rounded-lg border-2 shadow-lg opacity-70 animate-fall`}
+            className={`absolute w-32 h-20 ${card.color} backdrop-blur-sm rounded-lg border-2 shadow-lg opacity-60`}
             style={{
-              left: `${10 + (index % 5) * 20}%`,
-              animationDelay: card.delay,
+              left: card.x,
+              top: card.y,
+              transform: `rotate(${card.rotate})`,
             }}
           >
             <div className="p-3 h-full flex flex-col justify-between text-center">
