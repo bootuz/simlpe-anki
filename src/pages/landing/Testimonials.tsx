@@ -6,7 +6,7 @@ const testimonials = [
   {
     name: "Sarah Chen",
     role: "Medical Student",
-    content: "FlashMaster completely transformed how I study anatomy. The spaced repetition helped me retain complex information effortlessly. I went from struggling with memorization to acing my exams.",
+    content: "Simple Anki completely transformed how I study anatomy. The spaced repetition helped me retain complex information effortlessly. I went from struggling with memorization to acing my exams.",
     rating: 5,
     avatar: "SC",
     color: "from-pink-400 to-rose-500"
@@ -22,7 +22,7 @@ const testimonials = [
   {
     name: "Emma Rodriguez",
     role: "High School Student",
-    content: "I was spending hours reviewing notes with little progress. FlashMaster's algorithm showed me exactly what to study and when. Now I spend less time studying but remember more.",
+    content: "I was spending hours reviewing notes with little progress. Simple Anki's algorithm showed me exactly what to study and when. Now I spend less time studying but remember more.",
     rating: 5,
     avatar: "ER",
     color: "from-green-400 to-emerald-500"
@@ -30,7 +30,7 @@ const testimonials = [
   {
     name: "Dr. David Park",
     role: "Professor",
-    content: "I recommend FlashMaster to all my students. The scientific approach to spaced repetition is exactly what modern education needs. The results speak for themselves.",
+    content: "I recommend Simple Anki to all my students. The scientific approach to spaced repetition is exactly what modern education needs. The results speak for themselves.",
     rating: 5,
     avatar: "DP",
     color: "from-purple-400 to-violet-500"
@@ -38,7 +38,7 @@ const testimonials = [
   {
     name: "Lisa Thompson",
     role: "Professional Exam Prep",
-    content: "Preparing for the CPA exam was overwhelming until I found FlashMaster. The intelligent scheduling kept me focused on what mattered most. I passed on my first try!",
+    content: "Preparing for the CPA exam was overwhelming until I found Simple Anki. The intelligent scheduling kept me focused on what mattered most. I passed on my first try!",
     rating: 5,
     avatar: "LT",
     color: "from-orange-400 to-red-500"
@@ -46,7 +46,7 @@ const testimonials = [
   {
     name: "Alex Kim",
     role: "Graduate Student",
-    content: "Research papers, complex theories, technical terms - FlashMaster helps me organize and retain everything. It's like having a personal study coach that never sleeps.",
+    content: "Research papers, complex theories, technical terms - Simple Anki helps me organize and retain everything. It's like having a personal study coach that never sleeps.",
     rating: 5,
     avatar: "AK",
     color: "from-teal-400 to-blue-500"

@@ -62,7 +62,7 @@ const Hero = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Brain className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">FlashMaster</span>
+            <span className="text-xl font-bold text-foreground">Simple Anki</span>
           </div>
           <div className="flex items-center space-x-4">
             <Button

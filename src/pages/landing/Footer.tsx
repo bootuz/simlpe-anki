@@ -15,7 +15,7 @@ const Footer = () => {
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <Brain className="h-8 w-8 text-primary" />
-                <span className="text-xl font-bold text-foreground">FlashMaster</span>
+                <span className="text-xl font-bold text-foreground">Simple Anki</span>
               </div>
               <p className="text-muted-foreground leading-relaxed mb-6 max-w-md">
                 Transform your learning with scientifically-proven spaced repetition. 
@@ -101,7 +101,7 @@ const Footer = () => {
         <div className="py-8 border-t border-border/50">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <div className="text-sm text-muted-foreground">
-              © 2024 FlashMaster. All rights reserved.
+              © 2024 Simple Anki. All rights reserved.
             </div>
             
             {/* Social Links */}

@@ -42,7 +42,7 @@ const Benefits = () => {
         <div className="text-center p-6 space-y-4 mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
             Why Choose
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> FlashMaster?</span>
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Simple Anki?</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Join thousands of students who have transformed their learning experience
