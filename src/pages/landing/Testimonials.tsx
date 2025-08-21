@@ -51,7 +51,7 @@ const Testimonials = () => {
   return (
     <section className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 mb-16">
+        <div className="text-center p-6 space-y-4 mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
             Loved by Students
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Worldwide</span>
@@ -64,21 +64,21 @@ const Testimonials = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <Card key={index} className="border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group">
-              <CardContent className="p-8 relative">
+              <CardContent className="p-6 space-y-4 relative">
                 {/* Quote Icon */}
                 <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
                   <Quote className="h-8 w-8 text-primary" />
                 </div>
 
                 {/* Stars */}
-                <div className="flex items-center space-x-1 mb-4">
+                <div className="flex items-center space-x-1">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                   ))}
                 </div>
 
                 {/* Content */}
-                <p className="text-muted-foreground leading-relaxed mb-6 italic">
+                <p className="text-muted-foreground leading-relaxed italic">
                   "{testimonial.content}"
                 </p>
 

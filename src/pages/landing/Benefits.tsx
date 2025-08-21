@@ -36,7 +36,7 @@ const Benefits = () => {
   return (
     <section className="py-24 bg-gradient-to-br from-muted/20 via-background to-primary/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 mb-16">
+        <div className="text-center p-6 space-y-4 mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
             Why Choose
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> FlashMaster?</span>
@@ -49,12 +49,12 @@ const Benefits = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {benefits.map((benefit, index) => (
             <Card key={index} className="border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group overflow-hidden">
-              <CardContent className="p-8 relative">
+              <CardContent className="p-6 space-y-4 relative">
                 {/* Background Decoration */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full transform translate-x-16 -translate-y-16 group-hover:scale-110 transition-transform duration-500" />
                 
                 <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-start justify-between">
                     <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors duration-300">
                       <benefit.icon className="h-6 w-6 text-primary" />
                     </div>
@@ -64,7 +64,7 @@ const Benefits = () => {
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-semibold text-foreground mb-4">{benefit.title}</h3>
+                  <h3 className="text-2xl font-semibold text-foreground">{benefit.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{benefit.description}</p>
                 </div>
               </CardContent>

@@ -29,7 +29,7 @@ const HowItWorks = () => {
   return (
     <section className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 mb-16">
+        <div className="text-center p-6 space-y-4 mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
             How It Works
           </h2>
@@ -47,9 +47,9 @@ const HowItWorks = () => {
               )}
               
               <Card className="relative z-10 border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group">
-                <CardContent className="p-8 text-center">
+                <CardContent className="p-6 space-y-4 text-center">
                   {/* Step Number */}
-                  <div className="flex items-center justify-center mb-6">
+                  <div className="flex items-center justify-center">
                     <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                       <step.icon className="h-8 w-8 text-primary" />
                     </div>
@@ -58,7 +58,7 @@ const HowItWorks = () => {
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-semibold text-foreground mb-4">{step.title}</h3>
+                  <h3 className="text-2xl font-semibold text-foreground">{step.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{step.description}</p>
                 </CardContent>
               </Card>

@@ -40,7 +40,7 @@ const Hero = () => {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="space-y-8">
+        <div className="p-6 space-y-4">
           {/* Badge */}
           <Badge variant="secondary" className="mx-auto px-4 py-2 text-sm font-medium">
             <Sparkles className="h-4 w-4 mr-2" />
