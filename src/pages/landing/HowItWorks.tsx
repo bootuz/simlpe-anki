@@ -39,15 +39,15 @@ const HowItWorks = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {steps.map((step, index) => (
-            <div key={index} className="relative">
+            <div key={index} className="relative flex">
               {/* Connection Line */}
               {index < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-border to-transparent transform translate-x-6 z-0" />
               )}
               
-              <Card className="relative z-10 group cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden">
+              <Card className="relative z-10 group cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden w-full h-full">
                 <div className={`h-2 bg-gradient-to-r ${step.color}`} />
-                <CardContent className="p-6 space-y-4 text-center">
+                <CardContent className="p-6 space-y-4 text-center h-full flex flex-col justify-between">
                   <div className="flex items-center justify-center relative">
                     <div className="text-5xl">{step.emoji}</div>
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
@@ -55,8 +55,10 @@ const HowItWorks = () => {
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-semibold text-foreground">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                  <div className="flex-1 flex flex-col justify-center space-y-4">
+                    <h3 className="text-2xl font-semibold text-foreground">{step.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
