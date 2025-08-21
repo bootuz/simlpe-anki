@@ -13,22 +13,34 @@ const Hero = () => {
       <div className="absolute inset-0 overflow-hidden">
         {/* Static Flashcards */}
         {[
-          { text: "Hola", subject: "Spanish", x: "5%", y: "20%", rotate: "-12deg", color: "bg-red-500/20 border-red-300" },
-          { text: "Python", subject: "Programming", x: "88%", y: "15%", rotate: "15deg", color: "bg-blue-500/20 border-blue-300" },
-          { text: "こんにちは", subject: "Japanese", x: "2%", y: "75%", rotate: "8deg", color: "bg-pink-500/20 border-pink-300" },
-          { text: "History", subject: "Studies", x: "92%", y: "80%", rotate: "-18deg", color: "bg-yellow-500/20 border-yellow-300" },
-          { text: "Bonjour", subject: "French", x: "8%", y: "45%", rotate: "22deg", color: "bg-purple-500/20 border-purple-300" },
-          { text: "Math", subject: "Calculus", x: "85%", y: "35%", rotate: "-8deg", color: "bg-green-500/20 border-green-300" },
-          { text: "Guten Tag", subject: "German", x: "15%", y: "85%", rotate: "12deg", color: "bg-orange-500/20 border-orange-300" },
-          { text: "Chemistry", subject: "Science", x: "90%", y: "55%", rotate: "-25deg", color: "bg-cyan-500/20 border-cyan-300" },
-          { text: "Привет", subject: "Russian", x: "3%", y: "30%", rotate: "18deg", color: "bg-indigo-500/20 border-indigo-300" },
-          { text: "Biology", subject: "Life Science", x: "87%", y: "65%", rotate: "-6deg", color: "bg-emerald-500/20 border-emerald-300" },
-          { text: "Mandarin", subject: "中文", x: "12%", y: "10%", rotate: "25deg", color: "bg-rose-500/20 border-rose-300" },
-          { text: "Physics", subject: "Science", x: "93%", y: "25%", rotate: "-15deg", color: "bg-violet-500/20 border-violet-300" },
+          { text: "Hola", subject: "Spanish", x: "5%", y: "20%", rotate: "-12deg", color: "bg-red-500/30 border-red-400" },
+          { text: "Python", subject: "Programming", x: "88%", y: "15%", rotate: "15deg", color: "bg-blue-500/30 border-blue-400" },
+          { text: "こんにちは", subject: "Japanese", x: "2%", y: "75%", rotate: "8deg", color: "bg-pink-500/30 border-pink-400" },
+          { text: "History", subject: "Studies", x: "92%", y: "80%", rotate: "-18deg", color: "bg-yellow-500/30 border-yellow-400" },
+          { text: "Bonjour", subject: "French", x: "8%", y: "45%", rotate: "22deg", color: "bg-purple-500/30 border-purple-400" },
+          { text: "Math", subject: "Calculus", x: "85%", y: "35%", rotate: "-8deg", color: "bg-green-500/30 border-green-400" },
+          { text: "Guten Tag", subject: "German", x: "15%", y: "85%", rotate: "12deg", color: "bg-orange-500/30 border-orange-400" },
+          { text: "Chemistry", subject: "Science", x: "90%", y: "55%", rotate: "-25deg", color: "bg-cyan-500/30 border-cyan-400" },
+          { text: "Привет", subject: "Russian", x: "3%", y: "30%", rotate: "18deg", color: "bg-indigo-500/30 border-indigo-400" },
+          { text: "Biology", subject: "Life Science", x: "87%", y: "65%", rotate: "-6deg", color: "bg-emerald-500/30 border-emerald-400" },
+          { text: "Mandarin", subject: "中文", x: "12%", y: "10%", rotate: "25deg", color: "bg-rose-500/30 border-rose-400" },
+          { text: "Physics", subject: "Science", x: "93%", y: "25%", rotate: "-15deg", color: "bg-violet-500/30 border-violet-400" },
+          { text: "Ciao", subject: "Italian", x: "6%", y: "55%", rotate: "-20deg", color: "bg-teal-500/30 border-teal-400" },
+          { text: "Geografia", subject: "Geography", x: "89%", y: "10%", rotate: "28deg", color: "bg-amber-500/30 border-amber-400" },
+          { text: "안녕하세요", subject: "Korean", x: "4%", y: "65%", rotate: "14deg", color: "bg-fuchsia-500/30 border-fuchsia-400" },
+          { text: "Literature", subject: "English", x: "91%", y: "45%", rotate: "-22deg", color: "bg-lime-500/30 border-lime-400" },
+          { text: "Olá", subject: "Portuguese", x: "10%", y: "25%", rotate: "16deg", color: "bg-sky-500/30 border-sky-400" },
+          { text: "Economics", subject: "Business", x: "86%", y: "75%", rotate: "-10deg", color: "bg-red-600/30 border-red-500" },
+          { text: "Salaam", subject: "Arabic", x: "7%", y: "40%", rotate: "20deg", color: "bg-purple-600/30 border-purple-500" },
+          { text: "Art History", subject: "Arts", x: "88%", y: "30%", rotate: "-16deg", color: "bg-pink-600/30 border-pink-500" },
+          { text: "Namaste", subject: "Hindi", x: "5%", y: "80%", rotate: "24deg", color: "bg-orange-600/30 border-orange-500" },
+          { text: "Philosophy", subject: "Wisdom", x: "90%", y: "60%", rotate: "-14deg", color: "bg-indigo-600/30 border-indigo-500" },
+          { text: "JavaScript", subject: "Web Dev", x: "13%", y: "15%", rotate: "19deg", color: "bg-yellow-600/30 border-yellow-500" },
+          { text: "Psychology", subject: "Mind", x: "85%", y: "20%", rotate: "-26deg", color: "bg-green-600/30 border-green-500" },
         ].map((card, index) => (
           <div
             key={index}
-            className={`absolute w-32 h-20 ${card.color} backdrop-blur-sm rounded-lg border-2 shadow-lg opacity-50 pointer-events-none`}
+            className={`absolute w-32 h-20 ${card.color} backdrop-blur-sm rounded-lg border-2 shadow-lg opacity-70 pointer-events-none`}
             style={{
               left: card.x,
               top: card.y,
