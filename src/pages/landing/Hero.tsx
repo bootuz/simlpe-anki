@@ -19,28 +19,19 @@ const Hero = () => {
           { text: "History", subject: "Studies", x: "92%", y: "88%", rotate: "-18deg", color: "bg-yellow-500/30 border-yellow-400" },
           { text: "Bonjour", subject: "French", x: "8%", y: "35%", rotate: "22deg", color: "bg-purple-500/30 border-purple-400" },
           { text: "Math", subject: "Calculus", x: "85%", y: "25%", rotate: "-8deg", color: "bg-green-500/30 border-green-400" },
-          { text: "Guten Tag", subject: "German", x: "15%", y: "92%", rotate: "12deg", color: "bg-orange-500/30 border-orange-400" },
           { text: "Chemistry", subject: "Science", x: "90%", y: "65%", rotate: "-25deg", color: "bg-cyan-500/30 border-cyan-400" },
           { text: "Привет", subject: "Russian", x: "3%", y: "25%", rotate: "18deg", color: "bg-indigo-500/30 border-indigo-400" },
           { text: "Biology", subject: "Life Science", x: "87%", y: "78%", rotate: "-6deg", color: "bg-emerald-500/30 border-emerald-400" },
           { text: "Mandarin", subject: "中文", x: "25%", y: "8%", rotate: "25deg", color: "bg-rose-500/30 border-rose-400" },
           { text: "Physics", subject: "Science", x: "78%", y: "15%", rotate: "-15deg", color: "bg-violet-500/30 border-violet-400" },
           { text: "Ciao", subject: "Italian", x: "12%", y: "65%", rotate: "-20deg", color: "bg-teal-500/30 border-teal-400" },
-          { text: "Geografia", subject: "Geography", x: "72%", y: "8%", rotate: "28deg", color: "bg-amber-500/30 border-amber-400" },
           { text: "안녕하세요", subject: "Korean", x: "6%", y: "75%", rotate: "14deg", color: "bg-fuchsia-500/30 border-fuchsia-400" },
-          { text: "Literature", subject: "English", x: "82%", y: "35%", rotate: "-22deg", color: "bg-lime-500/30 border-lime-400" },
-          { text: "Olá", subject: "Portuguese", x: "18%", y: "18%", rotate: "16deg", color: "bg-sky-500/30 border-sky-400" },
-          { text: "Economics", subject: "Business", x: "85%", y: "85%", rotate: "-10deg", color: "bg-red-600/30 border-red-500" },
-          { text: "Salaam", subject: "Arabic", x: "5%", y: "45%", rotate: "20deg", color: "bg-purple-600/30 border-purple-500" },
-          { text: "Art History", subject: "Arts", x: "88%", y: "45%", rotate: "-16deg", color: "bg-pink-600/30 border-pink-500" },
-          { text: "Namaste", subject: "Hindi", x: "25%", y: "88%", rotate: "24deg", color: "bg-orange-600/30 border-orange-500" },
-          { text: "Philosophy", subject: "Wisdom", x: "92%", y: "55%", rotate: "-14deg", color: "bg-indigo-600/30 border-indigo-500" },
           { text: "JavaScript", subject: "Web Dev", x: "35%", y: "12%", rotate: "19deg", color: "bg-yellow-600/30 border-yellow-500" },
           { text: "Psychology", subject: "Mind", x: "75%", y: "92%", rotate: "-26deg", color: "bg-green-600/30 border-green-500" },
         ].map((card, index) => (
           <div
             key={index}
-            className={`absolute w-32 h-20 ${card.color} backdrop-blur-sm rounded-lg border-2 shadow-lg opacity-70 pointer-events-none`}
+            className={`absolute w-40 h-28 ${card.color} backdrop-blur-sm rounded-lg border-2 shadow-lg opacity-70 pointer-events-none`}
             style={{
               left: card.x,
               top: card.y,
@@ -48,9 +39,9 @@ const Hero = () => {
               zIndex: 1,
             }}
           >
-            <div className="p-3 h-full flex flex-col justify-between text-center">
-              <div className="text-sm font-bold text-foreground">{card.text}</div>
-              <div className="text-xs text-muted-foreground">{card.subject}</div>
+            <div className="p-4 h-full flex flex-col justify-between text-center">
+              <div className="text-base font-bold text-foreground">{card.text}</div>
+              <div className="text-sm text-muted-foreground">{card.subject}</div>
             </div>
           </div>
         ))}
