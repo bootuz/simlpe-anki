@@ -117,9 +117,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ 
-          onboarding_completed: true,
           learning_goal: learningGoal 
-        })
+        } as any)
         .eq('user_id', user.id);
 
       if (profileError) {

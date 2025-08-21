@@ -68,8 +68,10 @@ export function useOnboarding() {
           existingProfile = newProfile;
         }
 
-        setProfile(existingProfile);
-        setNeedsOnboarding(!existingProfile.onboarding_completed);
+        // Handle case where profile doesn't exist in Supabase types
+        const profileData = existingProfile as any;
+        setProfile(profileData);
+        setNeedsOnboarding(!profileData?.onboarding_completed);
       } catch (error) {
         console.error('Error in fetchProfile:', error);
       } finally {

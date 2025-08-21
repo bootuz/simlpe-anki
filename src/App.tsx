@@ -44,35 +44,6 @@ function SecurityWrapper({ children }: { children: React.ReactNode }) {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <SecurityWrapper>
-        <SecurityMeta />
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-          <div className="min-h-screen w-full">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/landing" element={<Landing />} />
-              <Route path="/manage" element={
-                <SidebarProvider>
-                  <Index />
-                </SidebarProvider>
-              } />
-              <Route path="/study" element={<Study />} />
-              <Route path="/settings" element={
-                <SidebarProvider>
-                  <Settings />
-                </SidebarProvider>
-              } />
-              <Route path="/auth" element={<Auth />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-        </BrowserRouter>
-      </TooltipProvider>
-      </SecurityWrapper>
       <UserLevelProvider>
         <SecurityWrapper>
           <SecurityMeta />
@@ -80,27 +51,28 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-            <div className="min-h-screen w-full">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/manage" element={
-                  <SidebarProvider>
-                    <Index />
-                  </SidebarProvider>
-                } />
-                <Route path="/study" element={<Study />} />
-                <Route path="/settings" element={
-                  <SidebarProvider>
-                    <Settings />
-                  </SidebarProvider>
-                } />
-                <Route path="/auth" element={<Auth />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </BrowserRouter>
-        </TooltipProvider>
+              <div className="min-h-screen w-full">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/landing" element={<Landing />} />
+                  <Route path="/manage" element={
+                    <SidebarProvider>
+                      <Index />
+                    </SidebarProvider>
+                  } />
+                  <Route path="/study" element={<Study />} />
+                  <Route path="/settings" element={
+                    <SidebarProvider>
+                      <Settings />
+                    </SidebarProvider>
+                  } />
+                  <Route path="/auth" element={<Auth />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          </TooltipProvider>
         </SecurityWrapper>
       </UserLevelProvider>
     </AuthProvider>
