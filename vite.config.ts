@@ -10,15 +10,17 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     // Configure security headers for development server
     headers: {
-      // Content Security Policy with frame-ancestors (server-only directive)
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://ibukptkjdbsbsnizyoyr.supabase.co wss://ibukptkjdbsbsnizyoyr.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';",
+      // More permissive CSP for development
+      'Content-Security-Policy': mode === 'development' 
+        ? "default-src 'self' *.lovable.app *.lovable.dev; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.lovable.app *.lovable.dev; style-src 'self' 'unsafe-inline' *.lovable.app *.lovable.dev; img-src 'self' data: https: *.lovable.app *.lovable.dev; font-src 'self' data: *.lovable.app *.lovable.dev; connect-src 'self' https://ibukptkjdbsbsnizyoyr.supabase.co wss://ibukptkjdbsbsnizyoyr.supabase.co *.lovable.app *.lovable.dev ws: wss:; frame-src 'self' *.lovable.app *.lovable.dev; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' *.lovable.app *.lovable.dev;"
+        : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://ibukptkjdbsbsnizyoyr.supabase.co wss://ibukptkjdbsbsnizyoyr.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';",
       // Security headers that must be set via HTTP headers
-      'X-Frame-Options': 'DENY',
+      'X-Frame-Options': mode === 'development' ? 'ALLOWALL' : 'DENY',
       'X-Content-Type-Options': 'nosniff',
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       // Additional security headers
-      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      'Strict-Transport-Security': mode === 'production' ? 'max-age=31536000; includeSubDomains' : undefined,
       'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
     }
   },

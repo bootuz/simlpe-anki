@@ -2,13 +2,13 @@
 
 // Client-side CSP directives (can be set via meta tags)
 export const CSP_CLIENT_DIRECTIVES = {
-  'default-src': "'self'",
-  'script-src': "'self'", // Removed unsafe-inline for better security
-  'style-src': "'self' 'unsafe-inline'",
-  'img-src': "'self' data: https:",
-  'font-src': "'self' data:",
-  'connect-src': "'self' https://ibukptkjdbsbsnizyoyr.supabase.co wss://ibukptkjdbsbsnizyoyr.supabase.co",
-  'frame-src': "'none'",
+  'default-src': "'self' *.lovable.app *.lovable.dev",
+  'script-src': "'self' 'unsafe-inline' 'unsafe-eval' *.lovable.app *.lovable.dev", // Allow inline for dev
+  'style-src': "'self' 'unsafe-inline' *.lovable.app *.lovable.dev",
+  'img-src': "'self' data: https: *.lovable.app *.lovable.dev",
+  'font-src': "'self' data: *.lovable.app *.lovable.dev",
+  'connect-src': "'self' https://ibukptkjdbsbsnizyoyr.supabase.co wss://ibukptkjdbsbsnizyoyr.supabase.co *.lovable.app *.lovable.dev ws: wss:",
+  'frame-src': "'self' *.lovable.app *.lovable.dev",
   'object-src': "'none'",
   'base-uri': "'self'",
   'form-action': "'self'",
@@ -16,7 +16,7 @@ export const CSP_CLIENT_DIRECTIVES = {
 
 // Server-only CSP directives (must be set via HTTP headers)
 export const CSP_SERVER_ONLY_DIRECTIVES = {
-  'frame-ancestors': "'none'",
+  'frame-ancestors': "'self' *.lovable.app *.lovable.dev",
 } as const;
 
 // Combined CSP directives for server-side configuration

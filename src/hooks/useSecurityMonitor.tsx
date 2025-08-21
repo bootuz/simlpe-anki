@@ -15,8 +15,13 @@ export function useSecurityMonitor() {
   const userActionsRef = useRef<UserAction[]>([]);
   const lastSecurityCheckRef = useRef<number>(Date.now());
 
-  // Track user actions
+  // Disable aggressive monitoring in development
+  const isDevelopment = import.meta.env.DEV;
+
+  // Track user actions (less aggressive in dev)
   const trackAction = useCallback((action: string) => {
+    if (isDevelopment) return; // Skip tracking in development
+    
     const timestamp = Date.now();
     userActionsRef.current.push({ action, timestamp });
     
@@ -37,7 +42,7 @@ export function useSecurityMonitor() {
         variant: 'destructive'
       });
     }
-  }, [user?.id, toast]);
+  }, [user?.id, toast, isDevelopment]);
 
   // Periodic security checks
   useEffect(() => {
@@ -73,8 +78,10 @@ export function useSecurityMonitor() {
     return () => clearInterval(interval);
   }, [user?.id, signOut, toast]);
 
-  // Monitor for XSS attempts in DOM
+  // Monitor for XSS attempts in DOM (disabled in development)
   useEffect(() => {
+    if (isDevelopment) return;
+    
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
@@ -109,7 +116,7 @@ export function useSecurityMonitor() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [isDevelopment]);
 
   // Monitor network requests for suspicious activity
   useEffect(() => {
