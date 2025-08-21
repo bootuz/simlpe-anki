@@ -12,13 +12,6 @@ const Landing = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect authenticated users to home
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/");
-    }
-  }, [user, loading, navigate]);
-
   // Show loading while checking auth
   if (loading) {
     return (
@@ -26,11 +19,6 @@ const Landing = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
-  }
-
-  // Don't render landing page for authenticated users
-  if (user) {
-    return null;
   }
 
   return (
