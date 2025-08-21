@@ -25,7 +25,7 @@ const Hero = () => {
             <Button
               variant="ghost"
               onClick={() => navigate("/auth")}
-              className="text-muted-foreground hover:text-foreground shadow-sm"
+              className="text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/50 shadow-sm hover:shadow-lg transition-shadow"
             >
               Sign In
             </Button>
