@@ -15,9 +15,9 @@ const Hero = () => {
       
       
       {/* Navigation */}
-      <nav className="absolute top-0 left-0 right-0 z-50 p-6 backdrop-blur-sm bg-background/80 shadow-sm">
+      <nav className="absolute top-0 left-0 right-0 z-50 p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2 drop-shadow-sm">
+          <div className="flex items-center space-x-2">
             <Brain className="h-8 w-8 text-primary" />
             <span className="text-xl font-bold text-foreground">Simple Anki</span>
           </div>
@@ -25,13 +25,13 @@ const Hero = () => {
             <Button
               variant="ghost"
               onClick={() => navigate("/auth")}
-              className="text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/50 shadow-sm hover:shadow-lg transition-shadow"
+              className="text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/50"
             >
               Sign In
             </Button>
             <Button
               onClick={() => navigate("/auth")}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-shadow"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Get Started
             </Button>
@@ -43,7 +43,7 @@ const Hero = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="p-6 space-y-4">
           {/* Badge */}
-          <Badge variant="secondary" className="mx-auto px-4 py-2 text-sm font-medium shadow-md backdrop-blur-sm">
+          <Badge variant="secondary" className="mx-auto px-4 py-2 text-sm font-medium">
             <Sparkles className="h-4 w-4 mr-2" />
             Powered by Advanced FSRS Algorithm
           </Badge>
@@ -68,7 +68,7 @@ const Hero = () => {
             <Button
               size="lg"
               onClick={() => navigate("/auth")}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 h-auto shadow-lg hover:shadow-xl transition-shadow"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 h-auto"
             >
               Start Learning for Free
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -77,7 +77,7 @@ const Hero = () => {
               variant="outline"
               size="lg"
               onClick={() => navigate("/auth")}
-              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 text-lg px-8 py-6 h-auto shadow-md hover:shadow-lg transition-shadow"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 text-lg px-8 py-6 h-auto"
             >
               <BookOpen className="mr-2 h-5 w-5" />
               See How It Works
@@ -86,15 +86,15 @@ const Hero = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-16 max-w-3xl mx-auto">
-            <div className="text-center p-4 rounded-lg bg-card/50 backdrop-blur-sm shadow-md">
+            <div className="text-center">
               <div className="text-3xl font-bold text-primary">10x</div>
               <div className="text-sm text-muted-foreground">Faster Learning</div>
             </div>
-            <div className="text-center p-4 rounded-lg bg-card/50 backdrop-blur-sm shadow-md">
+            <div className="text-center">
               <div className="text-3xl font-bold text-primary">95%</div>
               <div className="text-sm text-muted-foreground">Retention Rate</div>
             </div>
-            <div className="text-center p-4 rounded-lg bg-card/50 backdrop-blur-sm shadow-md">
+            <div className="text-center">
               <div className="text-3xl font-bold text-primary">50K+</div>
               <div className="text-sm text-muted-foreground">Happy Students</div>
             </div>
@@ -104,10 +104,10 @@ const Hero = () => {
 
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 opacity-20">
-        <div className="w-20 h-20 bg-primary/30 rounded-full blur-xl animate-pulse shadow-2xl" />
+        <div className="w-20 h-20 bg-primary/30 rounded-full blur-xl animate-pulse" />
       </div>
       <div className="absolute bottom-20 right-10 opacity-20">
-        <div className="w-32 h-32 bg-accent/30 rounded-full blur-xl animate-pulse delay-1000 shadow-2xl" />
+        <div className="w-32 h-32 bg-accent/30 rounded-full blur-xl animate-pulse delay-1000" />
       </div>
     </section>
   );
