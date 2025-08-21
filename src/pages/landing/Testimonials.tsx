@@ -63,7 +63,8 @@ const Testimonials = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group">
+            <Card key={index} className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-primary to-accent" />
               <CardContent className="p-6 space-y-4 relative">
                 {/* Quote Icon */}
                 <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
@@ -71,27 +72,29 @@ const Testimonials = () => {
                 </div>
 
                 {/* Stars */}
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center justify-center space-x-1">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                   ))}
                 </div>
 
                 {/* Content */}
-                <p className="text-muted-foreground leading-relaxed italic">
+                <p className="text-muted-foreground leading-relaxed italic text-center">
                   "{testimonial.content}"
                 </p>
 
-                {/* Author */}
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                      {testimonial.avatar}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-semibold text-foreground">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                <div className="pt-4 border-t space-y-2">
+                  {/* Author */}
+                  <div className="flex items-center justify-center space-x-4">
+                    <Avatar className="h-12 w-12">
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {testimonial.avatar}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-center">
+                      <div className="font-semibold text-foreground">{testimonial.name}</div>
+                      <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
