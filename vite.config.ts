@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       // Additional security headers
-      'Strict-Transport-Security': mode === 'production' ? 'max-age=31536000; includeSubDomains' : undefined,
+      ...(mode === 'production' && { 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains' }),
       'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
     }
   },
