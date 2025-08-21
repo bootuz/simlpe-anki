@@ -1,27 +1,26 @@
-import { Plus, Brain, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const steps = [
   {
     step: 1,
-    icon: Plus,
+    emoji: "➕",
     title: "Create Your Flashcards",
     description: "Add your study material by creating flashcards with questions and answers. Organize them into decks and folders for easy management.",
-    color: "from-primary/20 to-primary/10"
+    color: "from-blue-400 to-blue-600"
   },
   {
     step: 2,
-    icon: Brain,
+    emoji: "🧠",
     title: "Study with Smart Algorithm",
     description: "Our FSRS algorithm analyzes your performance and schedules each card at the perfect moment for optimal memory retention.",
-    color: "from-accent/20 to-accent/10"
+    color: "from-purple-400 to-pink-500"
   },
   {
     step: 3,
-    icon: TrendingUp,
+    emoji: "📈",
     title: "Track Your Progress",
     description: "Watch your knowledge grow with detailed analytics. See your retention rates improve and identify areas for focused study.",
-    color: "from-primary/30 to-accent/20"
+    color: "from-green-400 to-green-600"
   }
 ];
 
@@ -50,9 +49,7 @@ const HowItWorks = () => {
                 <div className={`h-2 bg-gradient-to-r ${step.color}`} />
                 <CardContent className="p-6 space-y-4 text-center">
                   <div className="flex items-center justify-center relative">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <step.icon className="h-8 w-8 text-primary" />
-                    </div>
+                    <div className="text-5xl">{step.emoji}</div>
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
                       {step.step}
                     </div>

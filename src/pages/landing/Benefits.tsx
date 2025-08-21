@@ -1,34 +1,37 @@
-import { Clock, Target, Zap, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const benefits = [
   {
-    icon: Zap,
+    emoji: "⚡",
     title: "Learn 10x Faster",
     description: "Scientific spaced repetition helps you absorb information more efficiently than traditional study methods.",
     stat: "10x",
-    statLabel: "Faster Learning"
+    statLabel: "Faster Learning",
+    color: "from-yellow-400 to-orange-500"
   },
   {
-    icon: Target,
+    emoji: "🎯",
     title: "95% Retention Rate",
     description: "Our algorithm ensures you remember what you learn for the long term, not just until the next test.",
     stat: "95%",
-    statLabel: "Long-term Retention"
+    statLabel: "Long-term Retention",
+    color: "from-red-400 to-red-600"
   },
   {
-    icon: Clock,
+    emoji: "⏰",
     title: "Save Hours Daily",
     description: "Spend less time reviewing what you already know and more time learning new material.",
     stat: "3-5h",
-    statLabel: "Time Saved Daily"
+    statLabel: "Time Saved Daily",
+    color: "from-blue-400 to-blue-600"
   },
   {
-    icon: Shield,
+    emoji: "🛡️",
     title: "Proven by Science",
     description: "Based on decades of cognitive research and the latest FSRS algorithm for optimal memory consolidation.",
     stat: "20+",
-    statLabel: "Years of Research"
+    statLabel: "Years of Research",
+    color: "from-green-400 to-green-600"
   }
 ];
 
@@ -49,16 +52,14 @@ const Benefits = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {benefits.map((benefit, index) => (
             <Card key={index} className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden">
-              <div className="h-2 bg-gradient-to-r from-primary to-accent" />
+              <div className={`h-2 bg-gradient-to-r ${benefit.color}`} />
               <CardContent className="p-6 space-y-4 relative">
                 {/* Background Decoration */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full transform translate-x-16 -translate-y-16 group-hover:scale-110 transition-transform duration-500" />
                 
                 <div className="relative z-10">
                   <div className="flex items-start justify-between">
-                    <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors duration-300">
-                      <benefit.icon className="h-6 w-6 text-primary" />
-                    </div>
+                    <div className="text-4xl">{benefit.emoji}</div>
                     <div className="text-right">
                       <div className="text-3xl font-bold text-primary">{benefit.stat}</div>
                       <div className="text-sm text-muted-foreground">{benefit.statLabel}</div>

@@ -1,36 +1,41 @@
-import { Brain, Calendar, BarChart3, Zap, FolderOpen, Smartphone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
   {
-    icon: Brain,
+    emoji: "🧠",
     title: "FSRS Smart Scheduling",
-    description: "Advanced algorithm that learns how your brain works and schedules reviews at the optimal time for maximum retention."
+    description: "Advanced algorithm that learns how your brain works and schedules reviews at the optimal time for maximum retention.",
+    color: "from-blue-400 to-blue-600"
   },
   {
-    icon: FolderOpen,
+    emoji: "📁",
     title: "Organized Learning",
-    description: "Create folders and decks to organize your study material. Keep everything structured and easy to find."
+    description: "Create folders and decks to organize your study material. Keep everything structured and easy to find.",
+    color: "from-green-400 to-green-600"
   },
   {
-    icon: BarChart3,
+    emoji: "📊",
     title: "Progress Tracking",
-    description: "Detailed analytics show your learning progress, retention rates, and areas that need more attention."
+    description: "Detailed analytics show your learning progress, retention rates, and areas that need more attention.",
+    color: "from-purple-400 to-purple-600"
   },
   {
-    icon: Calendar,
+    emoji: "📅",
     title: "Adaptive Reviews",
-    description: "Cards are automatically scheduled based on your performance. Difficult cards appear more often."
+    description: "Cards are automatically scheduled based on your performance. Difficult cards appear more often.",
+    color: "from-orange-400 to-orange-600"
   },
   {
-    icon: Zap,
+    emoji: "⚡",
     title: "Instant Feedback",
-    description: "Get immediate feedback on your answers with detailed explanations and progress updates."
+    description: "Get immediate feedback on your answers with detailed explanations and progress updates.",
+    color: "from-yellow-400 to-yellow-600"
   },
   {
-    icon: Smartphone,
+    emoji: "📱",
     title: "Cross-Device Sync",
-    description: "Study anywhere, anytime. Your progress syncs seamlessly across all your devices."
+    description: "Study anywhere, anytime. Your progress syncs seamlessly across all your devices.",
+    color: "from-pink-400 to-pink-600"
   }
 ];
 
@@ -51,11 +56,9 @@ const Features = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <Card key={index} className="group cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden">
-              <div className="h-2 bg-gradient-to-r from-primary to-accent" />
+              <div className={`h-2 bg-gradient-to-r ${feature.color}`} />
               <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors duration-300">
-                  <feature.icon className="h-8 w-8 text-primary" />
-                </div>
+                <div className="text-4xl text-center">{feature.emoji}</div>
                 <h3 className="text-xl font-semibold text-foreground text-center">{feature.title}</h3>
                 <p className="text-muted-foreground leading-relaxed text-center">{feature.description}</p>
               </CardContent>
