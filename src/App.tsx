@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import Study from "./pages/Study";
 import Settings from "./pages/Settings";
+import Landing from "./pages/Landing";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,7 @@ const App = () => (
           <div className="min-h-screen w-full">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/landing" element={<Landing />} />
               <Route path="/manage" element={
                 <SidebarProvider>
                   <Index />
