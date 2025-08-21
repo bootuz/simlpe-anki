@@ -118,7 +118,7 @@ export class StudySessionManager {
    */
   private async loadCardsForSession(): Promise<StudyCard[]> {
     // Use the secure RPC function instead of direct view access
-    let baseCards = await supabase.from('cards_with_details').select('*');
+    const baseCards = await supabase.from('cards_with_details').select('*');
     
     if (baseCards.error) {
       throw new Error(`Failed to load cards: ${baseCards.error.message}`);

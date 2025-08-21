@@ -8,7 +8,6 @@ import {
   AlertTriangle, 
   Repeat, 
   Target,
-  CheckCircle,
   XCircle
 } from 'lucide-react';
 import type { SessionCard, SessionStats } from '@/services/studySessionManager';
@@ -273,5 +272,3 @@ export const StudyQueue: React.FC<StudyQueueProps> = ({
     </div>
   );
 };
-
-export default StudyQueue;

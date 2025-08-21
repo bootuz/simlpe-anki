@@ -2,14 +2,17 @@ import { useState, useEffect } from "react";
 import { getDueDateInfo } from "@/utils/fsrsUtils";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserLevel } from "@/hooks/useUserLevel";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { useCardsWithDetails, useRealtimeSubscription } from "@/hooks/useOptimizedQueries";
 import HomeHeader from "./home/HomeHeader";
 import EmptyState from "./home/EmptyState";
 import CaughtUp from "./home/CaughtUp";
 import StudyReady from "./home/StudyReady";
+import { Onboarding } from "@/components/Onboarding";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, GraduationCap, Brain, TrendingUp, Target, Sparkles, Plus, Zap, Clock, Folder } from "lucide-react";
+import { BookOpen, GraduationCap, Brain, TrendingUp, Target, Sparkles, Plus, Zap, Clock, Folder, Trophy, Star } from "lucide-react";
 interface CardWithDue {
   id: string;
   front: string;
@@ -23,6 +26,8 @@ interface CardWithDue {
 
 const Home = () => {
   const { user, loading, signOut } = useAuth();
+  const { level, progress, features } = useUserLevel();
+  const { needsOnboarding, loading: onboardingLoading, completeOnboarding } = useOnboarding();
   const navigate = useNavigate();
   
   // Use optimized query hook with caching
@@ -159,7 +164,7 @@ const Home = () => {
   };
 
   // Show loading while checking auth or loading data
-  if (loading || cardsLoading) {
+  if (loading || cardsLoading || onboardingLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -167,6 +172,13 @@ const Home = () => {
           <p className="text-muted-foreground">Loading your flashcards...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show onboarding if user needs it
+  if (needsOnboarding) {
+    return (
+      <Onboarding onComplete={completeOnboarding} />
     );
   }
 
@@ -198,6 +210,55 @@ const Home = () => {
         <HomeHeader onManageDecks={handleManageDecks} onSignOut={handleSignOut} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Beginner Progress Section */}
+          {level === 'beginner' && totalCards > 0 && (
+            <div className="mb-8 bg-card/60 backdrop-blur-sm rounded-xl border border-border/50 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-yellow-500" />
+                  Your Learning Journey
+                </h2>
+                {progress.totalCards >= 20 && (
+                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
+                    <Star className="h-3 w-3 mr-1" />
+                    Making Progress!
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">{progress.totalCards}</div>
+                  <div className="text-sm text-muted-foreground">Total Cards</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{progress.studySessions}</div>
+                  <div className="text-sm text-muted-foreground">Study Sessions</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{progress.daysActive}</div>
+                  <div className="text-sm text-muted-foreground">Days Active</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {progress.averageAccuracy ? `${Math.round(progress.averageAccuracy)}%` : 'N/A'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Accuracy</div>
+                </div>
+              </div>
+              
+              {/* Encouragement Message */}
+              {progress.totalCards < 50 && (
+                <div className="mt-4 p-3 bg-primary/5 rounded-lg">
+                  <p className="text-sm text-primary">
+                    💡 <span className="font-semibold">Tip:</span> Create at least 50 cards to unlock more features!
+                    You're {Math.round((progress.totalCards / 50) * 100)}% there.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+          
           {/* Main Content */}
           {totalCards === 0 ? (
             <EmptyState onManageDecks={handleManageDecks} />

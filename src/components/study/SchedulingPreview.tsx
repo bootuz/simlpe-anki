@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, CheckCircle, XCircle, AlertTriangle, Check } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Check } from 'lucide-react';
 import { getFSRSServiceForUser, Rating, type FSRSCard, type RecordLog } from '@/services/fsrsService';
 
 interface SchedulingPreviewProps {
@@ -106,15 +105,6 @@ export function SchedulingPreview({ card, userId, onRatingSelect, disabled = fal
     } else {
       const years = Math.floor(days / 365);
       return `${years}y`;
-    }
-  };
-
-  const getMemoryStrength = async (): Promise<number> => {
-    try {
-      const fsrsService = await getFSRSServiceForUser(userId);
-      return fsrsService.getRetrievability(card);
-    } catch {
-      return 0;
     }
   };
 
