@@ -68,7 +68,7 @@ const Hero = () => {
             <Button
               size="lg"
               onClick={() => navigate("/auth")}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 h-auto"
+              className="bg-gradient-to-r from-primary to-accent text-primary-foreground hover:from-primary/90 hover:to-accent/90 text-lg px-8 py-6 h-auto"
             >
               Start Learning for Free
               <ArrowRight className="ml-2 h-5 w-5" />
