@@ -232,7 +232,7 @@ export const EnhancedAddCardModal = ({
                 value={back}
                 onChange={(e) => setBack(e.target.value)}
                 placeholder="What's the answer or explanation?"
-                className="h-32 resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
+                className="h-32 resize-none border-input bg-background/50 focus:bg-background focus:border-primary/50 transition-colors duration-200 focus-visible:ring-0 focus-visible:ring-offset-0"
                 required
               />
             </div>
