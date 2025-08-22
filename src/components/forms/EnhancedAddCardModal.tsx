@@ -222,7 +222,7 @@ export const EnhancedAddCardModal = ({
                 value={front}
                 onChange={(e) => setFront(e.target.value)}
                 placeholder="What's the question or prompt?"
-                className="h-32 resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200"
+                className="h-32 resize-none border-input bg-background/50 focus:bg-background transition-colors duration-200 focus-visible:ring-0 focus-visible:ring-offset-0"
                 required
               />
             </div>
