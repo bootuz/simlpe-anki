@@ -282,22 +282,37 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          learning_goal: string | null
+          onboarding_completed: boolean | null
+          preferred_view: string | null
+          show_advanced_features: boolean | null
           updated_at: string
           user_id: string
+          user_level: string | null
         }
         Insert: {
           created_at?: string
           display_name?: string | null
           id?: string
+          learning_goal?: string | null
+          onboarding_completed?: boolean | null
+          preferred_view?: string | null
+          show_advanced_features?: boolean | null
           updated_at?: string
           user_id: string
+          user_level?: string | null
         }
         Update: {
           created_at?: string
           display_name?: string | null
           id?: string
+          learning_goal?: string | null
+          onboarding_completed?: boolean | null
+          preferred_view?: string | null
+          show_advanced_features?: boolean | null
           updated_at?: string
           user_id?: string
+          user_level?: string | null
         }
         Relationships: []
       }
@@ -355,6 +370,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_feature_usage: {
+        Row: {
+          created_at: string | null
+          feature_name: string
+          first_used_at: string | null
+          id: string
+          last_used_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feature_name: string
+          first_used_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feature_name?: string
+          first_used_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -436,6 +481,10 @@ export type Database = {
       }
     }
     Functions: {
+      check_user_level_upgrade: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       generate_english_sample_data: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -525,6 +574,10 @@ export type Database = {
           updated_at: string
           user_id: string
         }[]
+      }
+      track_feature_usage: {
+        Args: { p_feature_name: string; p_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
