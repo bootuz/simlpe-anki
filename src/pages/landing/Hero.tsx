@@ -10,8 +10,18 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.1),transparent_70%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.08),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,hsl(var(--primary)/0.05),hsl(var(--accent)/0.08),hsl(var(--primary)/0.03),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_800px_600px_at_50%_0%,hsl(var(--primary)/0.06),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,hsl(var(--accent)/0.02)_25%,hsl(var(--accent)/0.02)_50%,transparent_50%,transparent_75%,hsl(var(--primary)/0.02)_75%)] bg-[length:60px_60px]" />
+      <div className="absolute inset-0 opacity-40" style={{
+        backgroundImage: `
+          radial-gradient(circle at 25% 25%, hsl(var(--primary)/0.1) 0%, transparent 50%),
+          radial-gradient(circle at 75% 75%, hsl(var(--accent)/0.08) 0%, transparent 50%),
+          radial-gradient(circle at 75% 25%, hsl(var(--primary)/0.06) 0%, transparent 50%),
+          radial-gradient(circle at 25% 75%, hsl(var(--accent)/0.04) 0%, transparent 50%)
+        `,
+        filter: 'blur(1px) contrast(1.2)'
+      }} />
       
       
       {/* Navigation */}
