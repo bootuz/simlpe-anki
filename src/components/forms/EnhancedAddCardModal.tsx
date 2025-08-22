@@ -278,7 +278,7 @@ export const EnhancedAddCardModal = ({
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleTagInputKeyDown}
                   onBlur={handleTagInputBlur}
-                  placeholder="tag1, tag2, tag3..."
+                  placeholder="Enter tag"
                   className="h-7 text-xs min-w-32 max-w-48 border-muted-foreground/60"
                   autoFocus
                 />
