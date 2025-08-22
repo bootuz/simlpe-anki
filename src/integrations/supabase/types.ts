@@ -78,6 +78,13 @@ export type Database = {
             foreignKeyName: "card_fsrs_card_id_fkey"
             columns: ["card_id"]
             isOneToOne: true
+            referencedRelation: "cards_with_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_fsrs_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: true
             referencedRelation: "study_cards"
             referencedColumns: ["id"]
           },
@@ -86,6 +93,13 @@ export type Database = {
             columns: ["card_id"]
             isOneToOne: true
             referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_card_fsrs_card_id"
+            columns: ["card_id"]
+            isOneToOne: true
+            referencedRelation: "cards_with_details"
             referencedColumns: ["id"]
           },
           {
@@ -175,6 +189,13 @@ export type Database = {
             foreignKeyName: "decks_folder_id_fkey"
             columns: ["folder_id"]
             isOneToOne: false
+            referencedRelation: "cards_with_details"
+            referencedColumns: ["folder_id"]
+          },
+          {
+            foreignKeyName: "decks_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
             referencedRelation: "folders"
             referencedColumns: ["id"]
           },
@@ -183,6 +204,13 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "study_cards"
+            referencedColumns: ["folder_id"]
+          },
+          {
+            foreignKeyName: "fk_decks_folder_id"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "cards_with_details"
             referencedColumns: ["folder_id"]
           },
           {
@@ -331,6 +359,13 @@ export type Database = {
             foreignKeyName: "fk_review_logs_card_id"
             columns: ["card_id"]
             isOneToOne: false
+            referencedRelation: "cards_with_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_review_logs_card_id"
+            columns: ["card_id"]
+            isOneToOne: false
             referencedRelation: "study_cards"
             referencedColumns: ["id"]
           },
@@ -389,7 +424,22 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_cards_deck_id"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       study_cards: {
         Row: {
@@ -438,29 +488,6 @@ export type Database = {
       generate_english_sample_data: {
         Args: { target_user_id: string }
         Returns: undefined
-      }
-      get_cards_with_details: {
-        Args: { p_user_id?: string }
-        Returns: {
-          back: string
-          created_at: string
-          deck_id: string
-          deck_name: string
-          difficulty: number
-          due_date: string
-          folder_id: string
-          folder_name: string
-          front: string
-          id: string
-          lapses: number
-          last_review: string
-          reps: number
-          stability: number
-          state: string
-          tags: string[]
-          updated_at: string
-          user_id: string
-        }[]
       }
       get_cards_with_tag_stats: {
         Args: { p_user_id?: string }
