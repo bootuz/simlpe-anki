@@ -117,6 +117,7 @@ export const EnhancedAddCardModal = ({
         addTags(tagInput);
       }
     } else if (e.key === 'Escape') {
+      e.stopPropagation(); // Prevent modal from closing
       setTagInput("");
       setIsAddingTags(false);
     }
