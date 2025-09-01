@@ -289,7 +289,6 @@ const Index = () => {
       const cardToDelete = cards.find(card => card.id === id);
       if (!cardToDelete) return;
 
-      // With the new database structure, card_fsrs will be deleted automatically via CASCADE
       const { error } = await supabase
         .from("cards")
         .delete()
@@ -611,7 +610,6 @@ const Index = () => {
       const cardIds = Array.from(selectedCards);
       const cardsToDelete = cards.filter(card => selectedCards.has(card.id));
       
-      // With the new database structure, card_fsrs will be deleted automatically via CASCADE
       const { error } = await supabase
         .from("cards")
         .delete()
