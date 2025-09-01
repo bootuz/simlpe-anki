@@ -72,9 +72,7 @@ export const useCardManagement = (
       const cardToDelete = cards.find(card => card.id === cardId);
       if (!cardToDelete) return false;
 
-      // Delete FSRS data first
-      await supabase.from("card_fsrs").delete().eq("card_id", cardId);
-      
+      // With the new database structure, card_fsrs will be deleted automatically via CASCADE
       const { error } = await supabase
         .from("cards")
         .delete()
@@ -143,9 +141,7 @@ export const useCardManagement = (
       const cardIds = Array.from(selectedCards);
       const cardsToDelete = cards.filter(card => selectedCards.has(card.id));
       
-      // Delete FSRS data first
-      await supabase.from("card_fsrs").delete().in("card_id", cardIds);
-      
+      // With the new database structure, card_fsrs will be deleted automatically via CASCADE
       const { error } = await supabase
         .from("cards")
         .delete()
