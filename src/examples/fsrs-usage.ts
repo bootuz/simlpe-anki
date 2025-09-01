@@ -106,11 +106,11 @@ async function createNewCardWithFSRS(cardId: string, userId: string) {
   const initialData = fsrsService.createInitialFSRSData(cardId, userId);
   
   console.log('Initial FSRS data for new card:', {
-    state: initialData.state,
-    difficulty: initialData.difficulty,
-    stability: initialData.stability,
-    reps: initialData.reps,
-    lapses: initialData.lapses
+    state: (initialData as any).fsrs_state,
+    difficulty: (initialData as any).difficulty,
+    stability: (initialData as any).stability,
+    reps: (initialData as any).reps,
+    lapses: (initialData as any).lapses
   });
   
   return initialData;

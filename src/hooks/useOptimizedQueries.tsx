@@ -20,12 +20,26 @@ export function useCardsWithDetails() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .from('cards_with_details')
-        .select('*')
+        .from('cards')
+        .select(`
+          *,
+          decks!deck_id(name, folder_id, folders!folder_id(name))
+        `)
         .order('created_at');
       
       if (error) throw error;
-      return data || [];
+      
+      // Transform to match expected format
+      return (data || []).map(card => ({
+        ...card,
+        deck_name: card.decks?.name || 'Unknown Deck',
+        folder_name: card.decks?.folders?.name || 'Personal',
+        folder_id: card.decks?.folder_id,
+        state: (card as any).fsrs_state === 0 ? 'New' : 
+               (card as any).fsrs_state === 1 ? 'Learning' : 
+               (card as any).fsrs_state === 2 ? 'Review' : 
+               (card as any).fsrs_state === 3 ? 'Relearning' : 'New'
+      }));
     },
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -43,12 +57,26 @@ export function useStudyCards() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .from('cards_with_details')
-        .select('*')
+        .from('cards')
+        .select(`
+          *,
+          decks!deck_id(name, folder_id, folders!folder_id(name))
+        `)
         .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
       
       if (error) throw error;
-      return data || [];
+      
+      // Transform to match expected format
+      return (data || []).map(card => ({
+        ...card,
+        deck_name: card.decks?.name || 'Unknown Deck',
+        folder_name: card.decks?.folders?.name || 'Personal',
+        folder_id: card.decks?.folder_id,
+        state: (card as any).fsrs_state === 0 ? 'New' : 
+               (card as any).fsrs_state === 1 ? 'Learning' : 
+               (card as any).fsrs_state === 2 ? 'Review' : 
+               (card as any).fsrs_state === 3 ? 'Relearning' : 'New'
+      }));
     },
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 2, // 2 minutes (study data changes more frequently)
@@ -253,24 +281,6 @@ export function useRealtimeSubscription() {
           },
           () => {
             // Invalidate queries to refetch fresh data
-            queryClient.invalidateQueries({ 
-              queryKey: QUERY_KEYS.cardsWithDetails(user.id) 
-            });
-            queryClient.invalidateQueries({ 
-              queryKey: QUERY_KEYS.studyCards(user.id) 
-            });
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'card_fsrs',
-            filter: `user_id=eq.${user.id}`
-          },
-          () => {
-            // Invalidate queries when FSRS data changes
             queryClient.invalidateQueries({ 
               queryKey: QUERY_KEYS.cardsWithDetails(user.id) 
             });

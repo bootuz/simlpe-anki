@@ -64,7 +64,7 @@ const Home = () => {
     deck_id: card.deck_id,
     deck_name: card.deck_name || 'Uncategorized Deck',
     folder_name: card.folder_name || 'Personal',
-    due_date: card.due_date,
+    due_date: (card as any).due_date,
     created_at: card.created_at
   }));
 

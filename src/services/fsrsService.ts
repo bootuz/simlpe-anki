@@ -13,9 +13,9 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
-type CardFSRSRow = Database['public']['Tables']['card_fsrs']['Row'];
-type CardFSRSInsert = Database['public']['Tables']['card_fsrs']['Insert'];
-type CardFSRSUpdate = Database['public']['Tables']['card_fsrs']['Update'];
+type CardRow = Database['public']['Tables']['cards']['Row'];
+type CardInsert = Database['public']['Tables']['cards']['Insert'];
+type CardUpdate = Database['public']['Tables']['cards']['Update'];
 // Temporary interface until database types are regenerated
 interface ReviewLogInsert {
   card_id: string;
@@ -82,9 +82,9 @@ export class FSRSService {
   }
 
   /**
-   * Convert database card_fsrs record to FSRSCard object
+   * Convert database cards record to FSRSCard object
    */
-  dbRecordToFSRSCard(record: CardFSRSRow): FSRSCard {
+  dbRecordToFSRSCard(record: any): FSRSCard {
     // Convert database record to FSRS Card object
 
     // Fallback to manual conversion for legacy data
@@ -111,11 +111,11 @@ export class FSRSService {
     }
 
     let state: State;
-    switch (record.state) {
-      case 'New': state = State.New; break;
-      case 'Learning': state = State.Learning; break;
-      case 'Review': state = State.Review; break;
-      case 'Relearning': state = State.Relearning; break;
+    switch (record.fsrs_state) {
+      case 0: state = State.New; break;
+      case 1: state = State.Learning; break;
+      case 2: state = State.Review; break;
+      case 3: state = State.Relearning; break;
       default: state = State.New;
     }
 
@@ -144,18 +144,18 @@ export class FSRSService {
    * Convert FSRSCard to database update record
    * Now includes FSRS card data caching for better performance
    */
-  fsrsCardToDbUpdate(card: FSRSCard): CardFSRSUpdate {
-    let stateString: string;
+  fsrsCardToDbUpdate(card: FSRSCard): any {
+    let stateNumber: number;
     switch (card.state) {
-      case State.New: stateString = 'New'; break;
-      case State.Learning: stateString = 'Learning'; break;
-      case State.Review: stateString = 'Review'; break;
-      case State.Relearning: stateString = 'Relearning'; break;
-      default: stateString = 'New';
+      case State.New: stateNumber = 0; break;
+      case State.Learning: stateNumber = 1; break;
+      case State.Review: stateNumber = 2; break;
+      case State.Relearning: stateNumber = 3; break;
+      default: stateNumber = 0;
     }
 
     return {
-      state: stateString,
+      fsrs_state: stateNumber,
       reps: card.reps,
       lapses: card.lapses,
       difficulty: card.difficulty,
@@ -224,7 +224,7 @@ export class FSRSService {
   /**
    * Create initial FSRS data for a new card
    */
-  createInitialFSRSData(cardId: string, userId: string, createdAt?: Date): CardFSRSInsert {
+  createInitialFSRSData(cardId: string, userId: string, createdAt?: Date): any {
     const newCard = this.createNewCard(createdAt);
     
     // Ensure new cards always have learning_steps = 0 (step index 0)
@@ -233,9 +233,7 @@ export class FSRSService {
     }
     
     return {
-      card_id: cardId,
-      user_id: userId,
-      state: 'New',
+      fsrs_state: 0, // New
       reps: newCard.reps,
       lapses: newCard.lapses,
       difficulty: newCard.difficulty,
@@ -263,11 +261,11 @@ export class FSRSService {
     error?: string;
   }> {
     try {
-      // Get current FSRS data
-      const { data: fsrsData, error: fetchError } = await supabase
-        .from('card_fsrs')
+      // Get current card data
+      const { data: cardData, error: fetchError } = await supabase
+        .from('cards')
         .select('*')
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId)
         .single();
 
@@ -276,7 +274,7 @@ export class FSRSService {
       }
 
       // Convert to FSRSCard
-      const currentCard = this.dbRecordToFSRSCard(fsrsData);
+      const currentCard = this.dbRecordToFSRSCard(cardData);
 
       // Schedule next review using ts-fsrs API
       const { updatedCard, recordLog } = this.scheduleReview(currentCard, rating, reviewDate);
@@ -286,9 +284,9 @@ export class FSRSService {
 
       // Update card state
       const { error: cardUpdateError } = await supabase
-        .from('card_fsrs')
+        .from('cards')
         .update(dbUpdate)
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId);
 
       if (cardUpdateError) {
@@ -455,10 +453,10 @@ export class FSRSService {
       }
 
       // Get current card state first  
-      const { data: currentFsrsData, error: fetchError } = await supabase
-        .from('card_fsrs')
+      const { data: currentCardData, error: fetchError } = await supabase
+        .from('cards')
         .select('*')
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId)
         .single();
 
@@ -470,7 +468,7 @@ export class FSRSService {
       }
 
       // Convert current database record to FSRSCard
-      const currentCard = this.dbRecordToFSRSCard(currentFsrsData);
+      const currentCard = this.dbRecordToFSRSCard(currentCardData);
 
       // Extract ReviewLog from stored JSONB (single ReviewLog from chosen outcome)
       const reviewLog = lastLog.review_log as any;
@@ -483,9 +481,9 @@ export class FSRSService {
 
       // Update card state in database
       const { error: updateError } = await supabase
-        .from('card_fsrs')
+        .from('cards')
         .update(dbUpdate)
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId);
 
       if (updateError) {
