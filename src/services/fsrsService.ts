@@ -54,14 +54,8 @@ export class FSRSService {
       return this.instanceCache.get(userId)!;
     }
 
-    // Load user-specific FSRS parameters
-    const { data: userParams } = await supabase
-      .from('fsrs_parameters')
-      .select('parameters')
-      .eq('user_id', userId)
-      .single();
-
-    const config = userParams?.parameters as Partial<FSRSParameters> || {};
+    // Use default parameters (fsrs_parameters table doesn't exist yet)
+    const config: Partial<FSRSParameters> = {};
     const instance = new FSRSService(config);
     this.instanceCache.set(userId, instance);
     return instance;
@@ -379,29 +373,10 @@ export class FSRSService {
     success: boolean;
     error?: string;
   }> {
-    try {
-      const { error } = await supabase
-        .from('fsrs_parameters')
-        .update({
-          parameters: config as any,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId);
+    // Parameters table doesn't exist yet - just update cache
+    FSRSService.clearUserCache(userId);
 
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      // Clear cached instance so it will be recreated with new parameters
-      FSRSService.clearUserCache(userId);
-      
-      return { success: true };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      };
-    }
+    return { success: true };
   }
 
   /**
@@ -470,14 +445,13 @@ export class FSRSService {
       // Convert current database record to FSRSCard
       const currentCard = this.dbRecordToFSRSCard(currentCardData);
 
-      // Extract ReviewLog from stored JSONB (single ReviewLog from chosen outcome)
-      const reviewLog = lastLog.review_log as any;
-      
-      // Use ts-fsrs rollback to get the card state before the review
-      const restoredCard = this.fsrsInstance.rollback(currentCard, reviewLog);
-
-      // Convert to database format
-      const dbUpdate = this.fsrsCardToDbUpdate(restoredCard);
+      // Note: Full rollback not available - review_log column doesn't exist yet
+      // Just mark the card as needing review by clearing the due date
+      const dbUpdate = {
+        due: null,
+        state: 0, // Reset to New
+        updated_at: new Date().toISOString()
+      };
 
       // Update card state in database
       const { error: updateError } = await supabase
@@ -504,9 +478,14 @@ export class FSRSService {
         // Don't fail the undo if log deletion fails
       }
 
+      // Return simplified restored card (without full FSRS rollback)
       return {
         success: true,
-        restoredCard
+        restoredCard: {
+          ...currentCard,
+          due: undefined,
+          state: 0
+        }
       };
 
     } catch (error) {

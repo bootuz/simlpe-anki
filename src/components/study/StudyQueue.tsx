@@ -32,14 +32,15 @@ export const StudyQueue: React.FC<StudyQueueProps> = ({
       return <XCircle className="h-3 w-3 text-red-500" />;
     }
 
+    // State: 0=New, 1=Learning, 2=Review, 3=Relearning
     switch (card.state) {
-      case 'New':
+      case 0: // New
         return <BookOpen className="h-3 w-3 text-blue-500" />;
-      case 'Learning':
+      case 1: // Learning
         return <Repeat className="h-3 w-3 text-orange-500" />;
-      case 'Relearning':
+      case 3: // Relearning
         return <AlertTriangle className="h-3 w-3 text-red-500" />;
-      case 'Review':
+      case 2: // Review
         return <Target className="h-3 w-3 text-green-500" />;
       default:
         return <BookOpen className="h-3 w-3 text-gray-500" />;
@@ -55,14 +56,15 @@ export const StudyQueue: React.FC<StudyQueueProps> = ({
       );
     }
 
+    // State: 0=New, 1=Learning, 2=Review, 3=Relearning
     switch (card.state) {
-      case 'New':
+      case 0:
         return <Badge variant="default" className="text-xs">New</Badge>;
-      case 'Learning':
+      case 1:
         return <Badge variant="secondary" className="text-xs">Learning</Badge>;
-      case 'Relearning':
+      case 3:
         return <Badge variant="destructive" className="text-xs">Relearning</Badge>;
-      case 'Review':
+      case 2:
         return <Badge variant="outline" className="text-xs">Review</Badge>;
       default:
         return <Badge variant="outline" className="text-xs">Unknown</Badge>;
@@ -233,7 +235,7 @@ export const StudyQueue: React.FC<StudyQueueProps> = ({
                   New
                 </span>
                 <span className="font-medium">
-                  {sessionCards.filter(c => c.state === 'New').length}
+                  {sessionCards.filter(c => c.state === 0).length}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -242,7 +244,7 @@ export const StudyQueue: React.FC<StudyQueueProps> = ({
                   Learning
                 </span>
                 <span className="font-medium">
-                  {sessionCards.filter(c => c.state === 'Learning').length}
+                  {sessionCards.filter(c => c.state === 1).length}
                 </span>
               </div>
             </div>
@@ -253,7 +255,7 @@ export const StudyQueue: React.FC<StudyQueueProps> = ({
                   Review
                 </span>
                 <span className="font-medium">
-                  {sessionCards.filter(c => c.state === 'Review').length}
+                  {sessionCards.filter(c => c.state === 2).length}
                 </span>
               </div>
               <div className="flex justify-between">
