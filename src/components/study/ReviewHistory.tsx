@@ -13,7 +13,7 @@ interface ReviewHistoryProps {
 interface ReviewLogEntry {
   id: string;
   rating: number;
-  review_time: string;
+  review: string;
   created_at: string;
 }
 
@@ -28,12 +28,12 @@ export function ReviewHistory({ cardId, userId }: ReviewHistoryProps) {
   const loadReviewHistory = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error} = await supabase
         .from('review_logs')
-        .select('id, rating, review_time, created_at')
+        .select('id, rating, review, created_at')
         .eq('card_id', cardId)
         .eq('user_id', userId)
-        .order('review_time', { ascending: false })
+        .order('review', { ascending: false })
         .limit(10); // Show last 10 reviews
 
       if (error) {
@@ -174,7 +174,7 @@ export function ReviewHistory({ cardId, userId }: ReviewHistoryProps) {
                   </Badge>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {formatDate(review.review_time)}
+                  {formatDate(review.review)}
                 </span>
               </div>
             );

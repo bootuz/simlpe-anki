@@ -14,10 +14,270 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cards: {
+        Row: {
+          back: string
+          created_at: string
+          deck_id: string
+          difficulty: number | null
+          due: string | null
+          elapsed_days: number | null
+          front: string
+          id: string
+          lapses: number | null
+          last_review: string | null
+          reps: number | null
+          scheduled_days: number | null
+          stability: number | null
+          state: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          back: string
+          created_at?: string
+          deck_id: string
+          difficulty?: number | null
+          due?: string | null
+          elapsed_days?: number | null
+          front: string
+          id?: string
+          lapses?: number | null
+          last_review?: string | null
+          reps?: number | null
+          scheduled_days?: number | null
+          stability?: number | null
+          state?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          back?: string
+          created_at?: string
+          deck_id?: string
+          difficulty?: number | null
+          due?: string | null
+          elapsed_days?: number | null
+          front?: string
+          id?: string
+          lapses?: number | null
+          last_review?: string | null
+          reps?: number | null
+          scheduled_days?: number | null
+          stability?: number | null
+          state?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decks: {
+        Row: {
+          created_at: string
+          folder_id: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          folder_id?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          folder_id?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decks_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          learning_goal: string | null
+          onboarding_completed: boolean
+          preferred_view: string | null
+          updated_at: string
+          user_id: string
+          user_level: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          learning_goal?: string | null
+          onboarding_completed?: boolean
+          preferred_view?: string | null
+          updated_at?: string
+          user_id: string
+          user_level?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          learning_goal?: string | null
+          onboarding_completed?: boolean
+          preferred_view?: string | null
+          updated_at?: string
+          user_id?: string
+          user_level?: string | null
+        }
+        Relationships: []
+      }
+      review_logs: {
+        Row: {
+          card_id: string
+          created_at: string
+          difficulty: number | null
+          due: string
+          elapsed_days: number
+          id: string
+          last_elapsed_days: number | null
+          rating: number
+          review: string
+          scheduled_days: number
+          stability: number | null
+          state: number
+          user_id: string
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          difficulty?: number | null
+          due: string
+          elapsed_days: number
+          id?: string
+          last_elapsed_days?: number | null
+          rating: number
+          review: string
+          scheduled_days: number
+          stability?: number | null
+          state: number
+          user_id: string
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          difficulty?: number | null
+          due?: string
+          elapsed_days?: number
+          id?: string
+          last_elapsed_days?: number | null
+          rating?: number
+          review?: string
+          scheduled_days?: number
+          stability?: number | null
+          state?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_logs_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_logs_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards_with_details"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      cards_with_details: {
+        Row: {
+          back: string | null
+          created_at: string | null
+          deck_id: string | null
+          deck_name: string | null
+          difficulty: number | null
+          due: string | null
+          elapsed_days: number | null
+          folder_id: string | null
+          folder_name: string | null
+          front: string | null
+          id: string | null
+          lapses: number | null
+          last_review: string | null
+          reps: number | null
+          scheduled_days: number | null
+          stability: number | null
+          state: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decks_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
