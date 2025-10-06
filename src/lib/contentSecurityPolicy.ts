@@ -7,8 +7,14 @@ export const CSP_CLIENT_DIRECTIVES = {
   'style-src': "'self' 'unsafe-inline' *.lovable.app *.lovable.dev *.sandbox.lovable.dev",
   'img-src': "'self' data: https: *.lovable.app *.lovable.dev *.sandbox.lovable.dev",
   'font-src': "'self' data: *.lovable.app *.lovable.dev *.sandbox.lovable.dev",
-  'connect-src': "'self' https://ibukptkjdbsbsnizyoyr.supabase.co wss://ibukptkjdbsbsnizyoyr.supabase.co *.lovable.app *.lovable.dev *.sandbox.lovable.dev ws: wss:",
-  'frame-src': "'self' *.lovable.app *.lovable.dev *.sandbox.lovable.dev",
+  'connect-src': (() => {
+    const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
+    let supabaseHost = '';
+    try { supabaseHost = SUPABASE_URL ? new URL(SUPABASE_URL).host : ''; } catch {}
+    const supabaseHttp = SUPABASE_URL ?? '';
+    const supabaseWss = supabaseHost ? `wss://${supabaseHost}` : '';
+    return `'self' ${supabaseHttp} ${supabaseWss} *.lovable.app *.lovable.dev *.sandbox.lovable.dev ws: wss:`;
+  })(),
   'object-src': "'none'",
   'base-uri': "'self'",
   'form-action': "'self'",
