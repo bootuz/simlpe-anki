@@ -36,8 +36,9 @@ interface Card {
   deck_id: string;
   created_at: string;
   updated_at: string;
-  state?: number; // FSRS state (integer)
-  due?: string; // FSRS due date
+  state?: string; // FSRS state
+  due_date?: string; // FSRS due date
+  tags?: string[]; // Card tags
 }
 
 const Index = () => {
@@ -121,7 +122,8 @@ const Index = () => {
         created_at: card.created_at,
         updated_at: card.updated_at,
         state: card.state,
-        due: card.due
+        due_date: card.due_date,
+        tags: card.tags || []
       }));
 
       // Update cards state with all user's cards
@@ -184,7 +186,8 @@ const Index = () => {
         created_at: card.created_at,
         updated_at: card.updated_at,
         state: card.state,
-        due: card.due
+        due_date: card.due_date,
+        tags: card.tags || []
       }));
 
       setFolders(transformedFolders);
@@ -227,8 +230,9 @@ const Index = () => {
       // Update local state with the new card
       const newCard: Card = {
         ...result,
-        state: 0, // 0 = New
-        due: null
+        state: 'New',
+        due_date: null,
+        tags
       };
       setCards([...cards, newCard]);
       
@@ -254,8 +258,9 @@ const Index = () => {
     try {
       setIsGeneratingSampleData(true);
       
-      // Sample data generation not yet implemented
-      const error = new Error('Sample data generation function not available yet');
+      const { error } = await supabase.rpc('generate_english_sample_data', {
+        target_user_id: user.id
+      });
 
       if (error) throw error;
 
@@ -1167,15 +1172,15 @@ const Index = () => {
                           {/* Existing Cards */}
                           {filteredCards
                             .sort((a, b) => {
-                              if (a.due && b.due) {
-                                return new Date(a.due).getTime() - new Date(b.due).getTime();
+                              if (a.due_date && b.due_date) {
+                                return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
                               }
                               return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
                             })
                             .map((card) => (
                               <CardItem
                                 key={card.id}
-                                card={card as any}
+                                card={card}
                                 isSelected={selectedCards.has(card.id)}
                                 onSelect={handleCardSelection}
                                 onEdit={editCard}

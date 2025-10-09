@@ -10,8 +10,9 @@ interface CardData {
   deck_id: string;
   created_at: string;
   updated_at: string;
-  state?: number;
-  due?: string;
+  state?: string;
+  due_date?: string;
+  tags?: string[];
 }
 
 export const useCardManagement = (
@@ -51,8 +52,9 @@ export const useCardManagement = (
 
       const newCard: CardData = {
         ...result,
-        state: 0, // 0 = New
-        due: null
+        state: 'New',
+        due_date: null,
+        tags: tags
       };
       
       setCards(prev => [...prev, newCard]);

@@ -8,9 +8,10 @@ export interface StudyCard {
   deck_id: string;
   deck_name: string;
   folder_name: string;
-  due: string | null;
+  due_date: string | null;
   created_at: string;
-  state?: number;
+  state?: string;
+  tags?: string[];
 }
 
 export interface SessionCard extends StudyCard {
@@ -130,6 +131,13 @@ export class StudySessionManager {
       filteredCards = filteredCards.filter(card => card.deck_id === this.sessionConfig.deckId);
     }
 
+    // Apply tag filter if specified
+    if (this.sessionConfig.tags && this.sessionConfig.tags.length > 0) {
+      filteredCards = filteredCards.filter(card => 
+        card.tags && this.sessionConfig.tags!.some(tag => card.tags!.includes(tag))
+      );
+    }
+
     let cards: StudyCard[] = filteredCards.map(card => ({
       id: card.id,
       front: card.front,
@@ -137,9 +145,10 @@ export class StudySessionManager {
       deck_id: card.deck_id,
       deck_name: card.deck_name || 'Uncategorized Deck',
       folder_name: card.folder_name || 'Personal',
-      due: card.due,
+      due_date: card.due_date,
       created_at: card.created_at,
-      state: card.state ?? 0
+      state: card.state || 'New',
+      tags: card.tags || []
     }));
 
     // Filter cards based on study mode and configuration
@@ -171,11 +180,11 @@ export class StudySessionManager {
           
         case 'catch_up':
           // Include only overdue cards
-          return card.due && new Date(card.due) < now;
+          return card.due_date && new Date(card.due_date) < now;
           
         case 'new_cards':
           // Include only new cards
-          return !card.due;
+          return !card.due_date;
           
         case 'custom':
           // Apply custom filters based on configuration
@@ -191,14 +200,14 @@ export class StudySessionManager {
    * Check if card is available for daily review
    */
   private isCardAvailableForDailyReview(card: StudyCard, now: Date): boolean {
-    // Non-graduated cards (New=0, Learning=1, Relearning=3) are always available
-    if (card.state !== 2) { // 2 = Review
+    // Non-graduated cards (New, Learning, Relearning) are always available
+    if (card.state !== 'Review') {
       return true;
     }
     
     // Review cards follow normal schedule - only available when due
-    if (!card.due) return false;
-    const dueDate = new Date(card.due);
+    if (!card.due_date) return false;
+    const dueDate = new Date(card.due_date);
     return dueDate <= now;
   }
 
@@ -207,10 +216,10 @@ export class StudySessionManager {
    */
   private isCardAvailableForCustomStudy(card: StudyCard, now: Date): boolean {
     // Apply individual filters based on configuration
-    if (this.sessionConfig.includeNew && !card.due) return true;
-    if (this.sessionConfig.includeReview && card.state === 2) return true; // 2 = Review
+    if (this.sessionConfig.includeNew && !card.due_date) return true;
+    if (this.sessionConfig.includeReview && card.state === 'Review') return true;
     if (this.sessionConfig.includeLearning && 
-        (card.state === 1 || card.state === 3)) return true; // 1=Learning, 3=Relearning
+        (card.state === 'Learning' || card.state === 'Relearning')) return true;
 
     return false;
   }
@@ -220,10 +229,9 @@ export class StudySessionManager {
    */
   private calculateInitialPriority(card: StudyCard, index: number): number {
     // Priority order: Learning/Relearning → New → Review
-    // State: 0=New, 1=Learning, 2=Review, 3=Relearning
-    if (card.state === 1 || card.state === 3) {
+    if (card.state === 'Learning' || card.state === 'Relearning') {
       return index; // Highest priority
-    } else if (!card.due) {
+    } else if (!card.due_date) {
       return 1000 + index; // Medium priority
     } else {
       return 2000 + index; // Lowest priority
