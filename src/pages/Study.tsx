@@ -165,22 +165,22 @@ const Study = () => {
     try {
       setFsrsCardLoading(true);
       
-      // Get card data with FSRS fields
-      const { data: cardData, error } = await supabase
-        .from('cards')
+      // Get FSRS data for current card
+      const { data: fsrsData, error } = await supabase
+        .from('card_fsrs')
         .select('*')
-        .eq('id', currentCard.id)
+        .eq('card_id', currentCard.id)
         .eq('user_id', user.id)
         .single();
       
-      if (error || !cardData) {
+      if (error || !fsrsData) {
         setCurrentFSRSCard(null);
         return;
       }
       
       // Convert to FSRS Card using the service
       const fsrsService = await getFSRSServiceForUser(user.id);
-      const fsrsCard = fsrsService.dbRecordToFSRSCard(cardData);
+      const fsrsCard = fsrsService.dbRecordToFSRSCard(fsrsData);
       setCurrentFSRSCard(fsrsCard);
       
     } catch (error) {
@@ -249,11 +249,8 @@ const Study = () => {
       if (specificCardId) {
         // Load only the specific card
         const { data, error } = await supabase
-          .from('cards')
-          .select(`
-            *,
-            decks!deck_id(name, folder_id, folders!folder_id(name))
-          `)
+          .from('cards_with_details')
+          .select('*')
           .eq('id', specificCardId)
           .maybeSingle();
 
@@ -272,26 +269,20 @@ const Study = () => {
           front: data.front,
           back: data.back,
           deck_id: data.deck_id,
-          deck_name: data.decks?.name || 'Uncategorized Deck',
-          folder_name: data.decks?.folders?.name || 'Personal',
-          due_date: (data as any).due_date,
+          deck_name: data.deck_name || 'Uncategorized Deck',
+          folder_name: data.folder_name || 'Personal',
+          due_date: data.due_date,
           created_at: data.created_at,
-          state: (data as any).fsrs_state === 0 ? 'New' : 
-                 (data as any).fsrs_state === 1 ? 'Learning' : 
-                 (data as any).fsrs_state === 2 ? 'Review' : 
-                 (data as any).fsrs_state === 3 ? 'Relearning' : 'New'
+          state: data.state || 'New'
         };
 
         transformedCards = [transformedCard];
       } else {
         // Load all cards ready for study (non-Review always available, Review only when due)
         const { data, error } = await supabase
-          .from('cards')
-          .select(`
-            *,
-            decks!deck_id(name, folder_id, folders!folder_id(name))
-          `)
-          .or('fsrs_state.neq.2,and(fsrs_state.eq.2,due_date.lte.' + new Date().toISOString() + ')');
+          .from('cards_with_details')
+          .select('*')
+          .or('state.neq.Review,and(state.eq.Review,due_date.lte.' + new Date().toISOString() + ')');
 
         if (error) throw error;
 
@@ -301,14 +292,11 @@ const Study = () => {
           front: card.front,
           back: card.back,
           deck_id: card.deck_id,
-          deck_name: card.decks?.name || 'Uncategorized Deck',
-          folder_name: card.decks?.folders?.name || 'Personal',
-          due_date: (card as any).due_date,
+          deck_name: card.deck_name || 'Uncategorized Deck',
+          folder_name: card.folder_name || 'Personal',
+          due_date: card.due_date,
           created_at: card.created_at,
-          state: (card as any).fsrs_state === 0 ? 'New' : 
-                 (card as any).fsrs_state === 1 ? 'Learning' : 
-                 (card as any).fsrs_state === 2 ? 'Review' : 
-                 (card as any).fsrs_state === 3 ? 'Relearning' : 'New'
+          state: card.state || 'New'
         }));
       }
       

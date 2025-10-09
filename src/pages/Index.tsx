@@ -123,7 +123,7 @@ const Index = () => {
         updated_at: card.updated_at,
         state: card.state,
         due_date: card.due_date,
-        tags: card.tags || []
+        tags: [] // Note: tags field not in view, using fallback
       }));
 
       // Update cards state with all user's cards
@@ -187,7 +187,7 @@ const Index = () => {
         updated_at: card.updated_at,
         state: card.state,
         due_date: card.due_date,
-        tags: card.tags || []
+        tags: [] // Note: tags field not in view, using fallback
       }));
 
       setFolders(transformedFolders);
@@ -289,6 +289,9 @@ const Index = () => {
       const cardToDelete = cards.find(card => card.id === id);
       if (!cardToDelete) return;
 
+      // Delete FSRS data first
+      await supabase.from("card_fsrs").delete().eq("card_id", id);
+      
       const { error } = await supabase
         .from("cards")
         .delete()
@@ -609,6 +612,9 @@ const Index = () => {
     try {
       const cardIds = Array.from(selectedCards);
       const cardsToDelete = cards.filter(card => selectedCards.has(card.id));
+      
+      // Delete FSRS data first
+      await supabase.from("card_fsrs").delete().in("card_id", cardIds);
       
       const { error } = await supabase
         .from("cards")
