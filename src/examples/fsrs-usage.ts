@@ -101,9 +101,9 @@ function getStudyRecommendations(cards: Array<{
 }
 
 // Example 5: Creating a new card with FSRS data
-async function createNewCardWithFSRS(cardId: string, userId: string) {
+async function createNewCardWithFSRS() {
   // The FSRS service provides initial data for new cards
-  const initialData = fsrsService.createInitialFSRSData(cardId, userId);
+  const initialData = fsrsService.createInitialFSRSData();
   
   console.log('Initial FSRS data for new card:', {
     state: initialData.state,

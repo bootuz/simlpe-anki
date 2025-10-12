@@ -266,13 +266,13 @@ export function useRealtimeSubscription() {
           {
             event: '*',
             schema: 'public',
-            table: 'card_fsrs',
+            table: 'cards',
             filter: `user_id=eq.${user.id}`
           },
           () => {
-            // Invalidate queries when FSRS data changes
+            // Invalidate queries when cards change
             queryClient.invalidateQueries({ 
-              queryKey: QUERY_KEYS.cardsWithDetails(user.id) 
+              queryKey: QUERY_KEYS.cardsWithDetails(user.id)
             });
             queryClient.invalidateQueries({ 
               queryKey: QUERY_KEYS.studyCards(user.id) 

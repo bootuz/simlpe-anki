@@ -13,9 +13,45 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
-type CardFSRSRow = Database['public']['Tables']['card_fsrs']['Row'];
-type CardFSRSInsert = Database['public']['Tables']['card_fsrs']['Insert'];
-type CardFSRSUpdate = Database['public']['Tables']['card_fsrs']['Update'];
+type CardFSRSRow = {
+  id: string;
+  user_id: string;
+  deck_id: string;
+  front: string;
+  back: string;
+  tags: string[] | null;
+  state: number;
+  due: string | null;
+  stability: number | null;
+  difficulty: number | null;
+  elapsed_days: number;
+  scheduled_days: number;
+  reps: number;
+  lapses: number;
+  last_review: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type CardFSRSUpdate = {
+  state?: number;
+  reps?: number;
+  lapses?: number;
+  difficulty?: number | null;
+  stability?: number | null;
+  scheduled_days?: number;
+  elapsed_days?: number;
+  due?: string | null;
+  last_review?: string | null;
+  updated_at?: string;
+};
+
+type CardFSRSInsert = Partial<CardFSRSUpdate> & {
+  front: string;
+  back: string;
+  deck_id: string;
+  user_id: string;
+};
 // Temporary interface until database types are regenerated
 interface ReviewLogInsert {
   card_id: string;
@@ -82,7 +118,7 @@ export class FSRSService {
   }
 
   /**
-   * Convert database card_fsrs record to FSRSCard object
+   * Convert database cards record to FSRSCard object
    */
   dbRecordToFSRSCard(record: CardFSRSRow): FSRSCard {
     // Convert database record to FSRS Card object
@@ -99,32 +135,28 @@ export class FSRSService {
     }
 
     let dueDate: Date;
-    if (record.due_date) {
-      dueDate = new Date(record.due_date);
+    if (record.due) {
+      dueDate = new Date(record.due);
       if (isNaN(dueDate.getTime())) {
         dueDate = now;
       }
     } else {
-      // For new cards with no due_date, they should be due immediately
+      // For new cards with no due date, they should be due immediately
       // This ensures they appear in study queue but with correct status
       dueDate = now;
     }
 
     let state: State;
     switch (record.state) {
-      case 'New': state = State.New; break;
-      case 'Learning': state = State.Learning; break;
-      case 'Review': state = State.Review; break;
-      case 'Relearning': state = State.Relearning; break;
+      case 0: state = State.New; break;
+      case 1: state = State.Learning; break;
+      case 2: state = State.Review; break;
+      case 3: state = State.Relearning; break;
       default: state = State.New;
     }
 
-    // Validate learning_steps for New cards
-    let learningSteps = record.learning_steps;
-    if (state === State.New && learningSteps !== 0) {
-      console.warn(`New card has learning_steps=${learningSteps}, should be 0. Correcting.`);
-      learningSteps = 0;
-    }
+    // Cards table doesn't have learning_steps, default to 0
+    const learningSteps = 0;
 
     return {
       due: dueDate,
@@ -145,26 +177,16 @@ export class FSRSService {
    * Now includes FSRS card data caching for better performance
    */
   fsrsCardToDbUpdate(card: FSRSCard): CardFSRSUpdate {
-    let stateString: string;
-    switch (card.state) {
-      case State.New: stateString = 'New'; break;
-      case State.Learning: stateString = 'Learning'; break;
-      case State.Review: stateString = 'Review'; break;
-      case State.Relearning: stateString = 'Relearning'; break;
-      default: stateString = 'New';
-    }
-
     return {
-      state: stateString,
+      state: card.state,
       reps: card.reps,
       lapses: card.lapses,
       difficulty: card.difficulty,
       stability: card.stability,
       scheduled_days: card.scheduled_days,
       elapsed_days: card.elapsed_days,
-      due_date: card.due.toISOString(),
+      due: card.due.toISOString(),
       last_review: card.last_review?.toISOString() || null,
-      learning_steps: card.learning_steps,
       updated_at: new Date().toISOString()
     };
   }
@@ -222,29 +244,21 @@ export class FSRSService {
   }
 
   /**
-   * Create initial FSRS data for a new card
+   * Create initial FSRS data for a new card (not used - cards created with default values)
    */
-  createInitialFSRSData(cardId: string, userId: string, createdAt?: Date): CardFSRSInsert {
-    const newCard = this.createNewCard(createdAt);
-    
-    // Ensure new cards always have learning_steps = 0 (step index 0)
-    if (newCard.learning_steps !== 0) {
-      console.warn('createEmptyCard returned learning_steps !== 0, forcing to 0');
-    }
+  createInitialFSRSData(): Partial<CardFSRSUpdate> {
+    const newCard = this.createNewCard();
     
     return {
-      card_id: cardId,
-      user_id: userId,
-      state: 'New',
+      state: State.New,
       reps: newCard.reps,
       lapses: newCard.lapses,
       difficulty: newCard.difficulty,
       stability: newCard.stability,
       scheduled_days: newCard.scheduled_days,
       elapsed_days: newCard.elapsed_days,
-      due_date: null, // New cards have no due date until first review
-      last_review: null,
-      learning_steps: 0 // Always 0 for new cards (step index 0)
+      due: null,
+      last_review: null
     };
   }
 
@@ -263,11 +277,11 @@ export class FSRSService {
     error?: string;
   }> {
     try {
-      // Get current FSRS data
+      // Get current FSRS data from cards table
       const { data: fsrsData, error: fetchError } = await supabase
-        .from('card_fsrs')
+        .from('cards')
         .select('*')
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId)
         .single();
 
@@ -275,8 +289,8 @@ export class FSRSService {
         return { success: false, error: `Failed to fetch card data: ${fetchError.message}` };
       }
 
-      // Convert to FSRSCard
-      const currentCard = this.dbRecordToFSRSCard(fsrsData);
+      // Convert to FSRSCard (cast to any because types.ts doesn't match actual DB schema)
+      const currentCard = this.dbRecordToFSRSCard(fsrsData as any);
 
       // Schedule next review using ts-fsrs API
       const { updatedCard, recordLog } = this.scheduleReview(currentCard, rating, reviewDate);
@@ -284,11 +298,11 @@ export class FSRSService {
       // Convert back to database format
       const dbUpdate = this.fsrsCardToDbUpdate(updatedCard);
 
-      // Update card state
+      // Update card state in cards table
       const { error: cardUpdateError } = await supabase
-        .from('card_fsrs')
+        .from('cards')
         .update(dbUpdate)
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId);
 
       if (cardUpdateError) {
@@ -454,11 +468,11 @@ export class FSRSService {
         };
       }
 
-      // Get current card state first  
+      // Get current card state from cards table
       const { data: currentFsrsData, error: fetchError } = await supabase
-        .from('card_fsrs')
+        .from('cards')
         .select('*')
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId)
         .single();
 
@@ -469,8 +483,8 @@ export class FSRSService {
         };
       }
 
-      // Convert current database record to FSRSCard
-      const currentCard = this.dbRecordToFSRSCard(currentFsrsData);
+      // Convert current database record to FSRSCard (cast to any because types.ts doesn't match actual DB schema)
+      const currentCard = this.dbRecordToFSRSCard(currentFsrsData as any);
 
       // Extract ReviewLog from stored JSONB (single ReviewLog from chosen outcome)
       const reviewLog = lastLog.review_log as any;
@@ -481,11 +495,11 @@ export class FSRSService {
       // Convert to database format
       const dbUpdate = this.fsrsCardToDbUpdate(restoredCard);
 
-      // Update card state in database
+      // Update card state in cards table
       const { error: updateError } = await supabase
-        .from('card_fsrs')
+        .from('cards')
         .update(dbUpdate)
-        .eq('card_id', cardId)
+        .eq('id', cardId)
         .eq('user_id', userId);
 
       if (updateError) {

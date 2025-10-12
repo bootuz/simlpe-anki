@@ -9,7 +9,6 @@ export interface UserProfile {
   onboarding_completed: boolean;
   learning_goal: string | null;
   user_level: 'beginner' | 'intermediate' | 'advanced';
-  show_advanced_features: boolean;
   preferred_view: 'simple' | 'classic';
   created_at: string;
   updated_at: string;
@@ -53,7 +52,6 @@ export function useOnboarding() {
               display_name: user.email?.split('@')[0] || 'User',
               onboarding_completed: false,
               user_level: 'beginner',
-              show_advanced_features: false,
               preferred_view: 'simple'
             })
             .select()

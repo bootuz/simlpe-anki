@@ -81,23 +81,23 @@ const Study = () => {
     try {
       setFsrsCardLoading(true);
       
-      // Get FSRS data for current card
-      const { data: fsrsData, error } = await supabase
-        .from('card_fsrs')
+      // Get card data with FSRS fields
+      const { data: cardData, error } = await supabase
+        .from('cards')
         .select('*')
-        .eq('card_id', currentCard.id)
+        .eq('id', currentCard.id)
         .eq('user_id', user.id)
         .single();
       
-      if (error || !fsrsData) {
-        console.error('Error loading FSRS card data:', error);
+      if (error || !cardData) {
+        console.error('Error loading card data:', error);
         setCurrentFSRSCard(null);
         return;
       }
       
       // Convert to FSRS Card using the service
       const fsrsService = await getFSRSServiceForUser(user.id);
-      const fsrsCard = fsrsService.dbRecordToFSRSCard(fsrsData);
+      const fsrsCard = fsrsService.dbRecordToFSRSCard(cardData as any);
       setCurrentFSRSCard(fsrsCard);
       
     } catch (error) {
