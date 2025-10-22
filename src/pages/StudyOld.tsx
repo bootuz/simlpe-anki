@@ -30,7 +30,7 @@ interface StudyCard {
   deck_id: string;
   deck_name: string;
   folder_name: string;
-  due: string | null;
+  due_date: string | null;
   created_at: string;
   state?: number;
 }
@@ -110,12 +110,12 @@ const Study = () => {
 
   // Helper function to get card status for display
   const getCardStatus = (card: StudyCard) => {
-    if (!card.due) {
+    if (!card.due_date) {
       return { label: 'New', variant: 'default' as const, icon: <BookOpen className="h-3 w-3" /> };
     }
     
     const now = new Date();
-    const dueDate = new Date(card.due);
+    const dueDate = new Date(card.due_date);
     
     // State: 0=New, 1=Learning, 2=Review, 3=Relearning
     if (card.state === 1) {
@@ -189,7 +189,7 @@ const Study = () => {
           deck_id: data.deck_id,
           deck_name: data.deck_name || 'Uncategorized Deck',
           folder_name: data.folder_name || 'Personal',
-          due: data.due,
+          due_date: data.due,
           created_at: data.created_at,
           state: data.state || 0
         };
@@ -215,7 +215,7 @@ const Study = () => {
           deck_id: card.deck_id,
           deck_name: card.deck_name || 'Uncategorized Deck',
           folder_name: card.folder_name || 'Personal',
-          due: card.due,
+          due_date: card.due,
           created_at: card.created_at,
           state: card.state || 0
         }));
