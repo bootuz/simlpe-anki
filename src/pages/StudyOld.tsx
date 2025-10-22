@@ -30,9 +30,9 @@ interface StudyCard {
   deck_id: string;
   deck_name: string;
   folder_name: string;
-  due_date: string | null;
+  due: string | null;
   created_at: string;
-  state?: string;
+  state?: number;
 }
 
 const Study = () => {
@@ -110,18 +110,19 @@ const Study = () => {
 
   // Helper function to get card status for display
   const getCardStatus = (card: StudyCard) => {
-    if (!card.due_date) {
+    if (!card.due) {
       return { label: 'New', variant: 'default' as const, icon: <BookOpen className="h-3 w-3" /> };
     }
     
     const now = new Date();
-    const dueDate = new Date(card.due_date);
+    const dueDate = new Date(card.due);
     
-    if (card.state === 'Learning') {
+    // State: 0=New, 1=Learning, 2=Review, 3=Relearning
+    if (card.state === 1) {
       return { label: 'Learning', variant: 'secondary' as const, icon: <Repeat className="h-3 w-3" /> };
     }
     
-    if (card.state === 'Relearning') {
+    if (card.state === 3) {
       return { label: 'Relearning', variant: 'destructive' as const, icon: <Repeat className="h-3 w-3" /> };
     }
     
@@ -188,9 +189,9 @@ const Study = () => {
           deck_id: data.deck_id,
           deck_name: data.deck_name || 'Uncategorized Deck',
           folder_name: data.folder_name || 'Personal',
-          due_date: data.due_date,
+          due: data.due,
           created_at: data.created_at,
-          state: data.state || 'New'
+          state: data.state || 0
         };
 
         transformedCards = [transformedCard];
@@ -202,7 +203,7 @@ const Study = () => {
         const { data, error } = await supabase
           .from("cards_with_details")
           .select("*")
-          .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
+          .or('due.is.null,due.lte.' + new Date().toISOString());
 
         if (error) throw error;
 
@@ -214,9 +215,9 @@ const Study = () => {
           deck_id: card.deck_id,
           deck_name: card.deck_name || 'Uncategorized Deck',
           folder_name: card.folder_name || 'Personal',
-          due_date: card.due_date,
+          due: card.due,
           created_at: card.created_at,
-          state: card.state || 'New'
+          state: card.state || 0
         }));
       }
       
