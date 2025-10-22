@@ -249,8 +249,11 @@ const Study = () => {
       if (specificCardId) {
         // Load only the specific card
         const { data, error } = await supabase
-          .from('cards_with_details')
-          .select('*')
+          .from('cards')
+          .select(`
+            *,
+            decks!deck_id(name, folder_id, folders!folder_id(name))
+          `)
           .eq('id', specificCardId)
           .maybeSingle();
 
@@ -269,35 +272,47 @@ const Study = () => {
           front: data.front,
           back: data.back,
           deck_id: data.deck_id,
-          deck_name: data.deck_name || 'Uncategorized Deck',
-          folder_name: data.folder_name || 'Personal',
-          due_date: data.due_date,
+          deck_name: data.decks?.name || 'Uncategorized Deck',
+          folder_name: data.decks?.folders?.name || 'Personal',
+          due_date: (data as any).due_date,
           created_at: data.created_at,
-          state: data.state || 'New'
+          state: ((data as any).fsrs_state)?.toString() || 'New'
         };
 
         transformedCards = [transformedCard];
       } else {
-        // Load all cards ready for study (non-Review always available, Review only when due)
+        // Load all cards ready for study
         const { data, error } = await supabase
-          .from('cards_with_details')
-          .select('*')
-          .or('state.neq.Review,and(state.eq.Review,due_date.lte.' + new Date().toISOString() + ')');
+          .from('cards')
+          .select(`
+            *,
+            decks!deck_id(name, folder_id, folders!folder_id(name))
+          `)
+          .eq('user_id', user?.id);
 
         if (error) throw error;
 
-        // Transform the data
-        transformedCards = (data || []).map(card => ({
-          id: card.id,
-          front: card.front,
-          back: card.back,
-          deck_id: card.deck_id,
-          deck_name: card.deck_name || 'Uncategorized Deck',
-          folder_name: card.folder_name || 'Personal',
-          due_date: card.due_date,
-          created_at: card.created_at,
-          state: card.state || 'New'
-        }));
+        // Transform the data and filter for cards ready for study
+        const now = new Date();
+        transformedCards = (data || [])
+          .map(card => ({
+            id: card.id,
+            front: card.front,
+            back: card.back,
+            deck_id: card.deck_id,
+            deck_name: card.decks?.name || 'Uncategorized Deck',
+            folder_name: card.decks?.folders?.name || 'Personal',
+            due_date: (card as any).due_date,
+            created_at: card.created_at,
+            state: ((card as any).fsrs_state)?.toString() || 'New'
+          }))
+          .filter(card => {
+            // Include new cards (no due date)
+            if (!card.due_date) return true;
+            // Include cards that are due
+            const dueDate = new Date(card.due_date);
+            return dueDate <= now;
+          });
       }
       
       setCards(transformedCards);

@@ -117,39 +117,36 @@ export class StudySessionManager {
    * Load cards based on session configuration
    */
   private async loadCardsForSession(): Promise<StudyCard[]> {
-    // Use the secure RPC function instead of direct view access
-    const baseCards = await supabase.from('cards_with_details').select('*');
-    
-    if (baseCards.error) {
-      throw new Error(`Failed to load cards: ${baseCards.error.message}`);
-    }
-    
-    let filteredCards = baseCards.data || [];
+    // Query cards with deck and folder information
+    let query = supabase
+      .from('cards')
+      .select(`
+        *,
+        decks!deck_id(name, folder_id, folders!folder_id(name))
+      `);
 
     // Apply deck filter if specified
     if (this.sessionConfig.deckId) {
-      filteredCards = filteredCards.filter(card => card.deck_id === this.sessionConfig.deckId);
+      query = query.eq('deck_id', this.sessionConfig.deckId);
     }
 
-    // Apply tag filter if specified
-    // Note: Tag filtering disabled as tags field not available in view
-    // if (this.sessionConfig.tags && this.sessionConfig.tags.length > 0) {
-    //   filteredCards = filteredCards.filter(card => 
-    //     card.tags && this.sessionConfig.tags!.some(tag => card.tags!.includes(tag))
-    //   );
-    // }
-
-    let cards: StudyCard[] = filteredCards.map(card => ({
+    const { data: baseCards, error } = await query;
+    
+    if (error) {
+      throw new Error(`Failed to load cards: ${error.message}`);
+    }
+    
+    let cards: StudyCard[] = (baseCards || []).map(card => ({
       id: card.id,
       front: card.front,
       back: card.back,
       deck_id: card.deck_id,
-      deck_name: card.deck_name || 'Uncategorized Deck',
-      folder_name: card.folder_name || 'Personal',
-      due_date: card.due_date,
+      deck_name: card.decks?.name || 'Uncategorized Deck',
+      folder_name: card.decks?.folders?.name || 'Personal',
+      due_date: (card as any).due_date,
       created_at: card.created_at,
-      state: card.state || 'New',
-      tags: [] // Note: tags field not in view, using fallback
+      state: ((card as any).fsrs_state)?.toString() || 'New',
+      tags: card.tags || []
     }));
 
     // Filter cards based on study mode and configuration
