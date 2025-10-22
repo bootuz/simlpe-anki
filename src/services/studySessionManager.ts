@@ -143,10 +143,10 @@ export class StudySessionManager {
       deck_id: card.deck_id,
       deck_name: card.decks?.name || 'Uncategorized Deck',
       folder_name: card.decks?.folders?.name || 'Personal',
-      due_date: (card as any).due,
+      due_date: (card as any).due ?? (card as any).due_date,
       created_at: card.created_at,
-      state: ((card as any).state)?.toString() || 'New',
-      tags: card.tags || []
+      state: (((card as any).state ?? (card as any).fsrs_state))?.toString() || 'New',
+      tags: (card as any).tags || []
     }));
 
     // Filter cards based on study mode and configuration

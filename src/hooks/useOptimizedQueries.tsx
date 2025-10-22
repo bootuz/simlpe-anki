@@ -22,20 +22,8 @@ export function useCardsWithDetails() {
       const { data, error } = await supabase
         .from('cards')
         .select(`
-          id,
-          front,
-          back,
-          deck_id,
-          user_id,
-          created_at,
-          updated_at,
-          state,
-          due,
-          stability,
-          difficulty,
-          reps,
-          lapses,
-          decks(name, folder_id, folders(name))
+          *,
+          decks!deck_id(name, folder_id, folders!folder_id(name))
         `)
         .eq('user_id', user.id)
         .order('created_at');
@@ -47,8 +35,8 @@ export function useCardsWithDetails() {
         ...card,
         deck_name: card.decks?.name || 'Uncategorized',
         folder_name: card.decks?.folders?.name || 'Personal',
-        due_date: card.due, // Map 'due' to 'due_date' for consistency
-        state: card.state?.toString() || 'New'
+        due_date: (card as any).due ?? (card as any).due_date, // Support both schemas
+        state: ((card as any).state ?? (card as any).fsrs_state)?.toString() || 'New'
       }));
     },
     enabled: !!user?.id,
@@ -69,20 +57,8 @@ export function useStudyCards() {
       const { data, error } = await supabase
         .from('cards')
         .select(`
-          id,
-          front,
-          back,
-          deck_id,
-          user_id,
-          created_at,
-          updated_at,
-          state,
-          due,
-          stability,
-          difficulty,
-          reps,
-          lapses,
-          decks(name, folder_id, folders(name))
+          *,
+          decks!deck_id(name, folder_id, folders!folder_id(name))
         `)
         .eq('user_id', user.id);
       
@@ -93,8 +69,8 @@ export function useStudyCards() {
         ...card,
         deck_name: card.decks?.name || 'Uncategorized',
         folder_name: card.decks?.folders?.name || 'Personal',
-        due_date: card.due,
-        state: card.state?.toString() || 'New'
+        due_date: (card as any).due ?? (card as any).due_date,
+        state: ((card as any).state ?? (card as any).fsrs_state)?.toString() || 'New'
       }));
     },
     enabled: !!user?.id,
