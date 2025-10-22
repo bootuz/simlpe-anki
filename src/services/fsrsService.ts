@@ -34,14 +34,14 @@ type CardFSRSRow = {
 };
 
 type CardFSRSUpdate = {
-  fsrs_state?: number;
+  state?: number;
   reps?: number;
   lapses?: number;
   difficulty?: number | null;
   stability?: number | null;
   scheduled_days?: number;
   elapsed_days?: number;
-  due_date?: string | null;
+  due?: string | null;
   last_review?: string | null;
   updated_at?: string;
 };
@@ -135,9 +135,8 @@ export class FSRSService {
     }
 
     let dueDate: Date;
-    const rawDue = (record as any).due ?? (record as any).due_date;
-    if (rawDue) {
-      dueDate = new Date(rawDue as string);
+    if (record.due) {
+      dueDate = new Date(record.due);
       if (isNaN(dueDate.getTime())) {
         dueDate = now;
       }
@@ -147,9 +146,8 @@ export class FSRSService {
       dueDate = now;
     }
 
-    const rawState = (record as any).state ?? (record as any).fsrs_state ?? 0;
     let state: State;
-    switch (rawState) {
+    switch (record.state) {
       case 0: state = State.New; break;
       case 1: state = State.Learning; break;
       case 2: state = State.Review; break;
@@ -180,17 +178,17 @@ export class FSRSService {
    */
   fsrsCardToDbUpdate(card: FSRSCard): CardFSRSUpdate {
     return {
-      fsrs_state: card.state,
+      state: card.state,
       reps: card.reps,
       lapses: card.lapses,
       difficulty: card.difficulty,
       stability: card.stability,
       scheduled_days: card.scheduled_days,
       elapsed_days: card.elapsed_days,
-      due_date: card.due.toISOString(),
+      due: card.due.toISOString(),
       last_review: card.last_review?.toISOString() || null,
       updated_at: new Date().toISOString()
-    } as any;
+    };
   }
 
   /**
@@ -252,14 +250,14 @@ export class FSRSService {
     const newCard = this.createNewCard();
     
     return {
-      fsrs_state: State.New,
+      state: State.New,
       reps: newCard.reps,
       lapses: newCard.lapses,
       difficulty: newCard.difficulty,
       stability: newCard.stability,
       scheduled_days: newCard.scheduled_days,
       elapsed_days: newCard.elapsed_days,
-      due_date: null,
+      due: null,
       last_review: null
     };
   }

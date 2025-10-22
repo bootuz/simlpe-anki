@@ -143,9 +143,9 @@ export class StudySessionManager {
       deck_id: card.deck_id,
       deck_name: card.decks?.name || 'Uncategorized Deck',
       folder_name: card.decks?.folders?.name || 'Personal',
-      due_date: (card as any).due ?? (card as any).due_date,
+      due_date: (card as any).due,
       created_at: card.created_at,
-      state: (((card as any).state ?? (card as any).fsrs_state))?.toString() || 'New',
+      state: ((card as any).state)?.toString() || 'New',
       tags: (card as any).tags || []
     }));
 
