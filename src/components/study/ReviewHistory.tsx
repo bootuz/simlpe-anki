@@ -30,10 +30,10 @@ export function ReviewHistory({ cardId, userId }: ReviewHistoryProps) {
       setLoading(true);
       const { data, error } = await supabase
         .from('review_logs')
-        .select('id, rating, review_time, created_at')
+        .select('id, rating, created_at')
         .eq('card_id', cardId)
         .eq('user_id', userId)
-        .order('review_time', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(10); // Show last 10 reviews
 
       if (error) {
@@ -41,7 +41,15 @@ export function ReviewHistory({ cardId, userId }: ReviewHistoryProps) {
         return;
       }
 
-      setReviews(data || []);
+      // Transform data to match interface
+      const transformedData = (data || []).map(log => ({
+        id: log.id,
+        rating: log.rating,
+        review_time: log.created_at,
+        created_at: log.created_at
+      }));
+
+      setReviews(transformedData);
     } catch (error) {
       console.error('Error loading review history:', error);
     } finally {

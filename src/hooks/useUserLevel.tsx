@@ -137,7 +137,7 @@ export const UserLevelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             .eq('user_id', user.id),
           supabase
             .from('review_logs')
-            .select('id, rating', { count: 'exact' })
+            .select('id', { count: 'exact' })
             .eq('user_id', user.id)
         ]);
 

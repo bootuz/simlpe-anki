@@ -101,13 +101,14 @@ const Index = () => {
   const loadAllCards = async () => {
     try {
       const { data: cardsData, error } = await supabase
-        .from("cards_with_details")
-        .select("*")
+        .from("cards")
+        .select("id, front, back, deck_id, created_at, updated_at, user_id")
+        .eq("user_id", user.id)
         .order("created_at");
 
       if (error) throw error;
 
-      // Transform cards data to include FSRS state
+      // Transform cards data
       const transformedCards: Card[] = (cardsData || []).map(card => ({
         id: card.id,
         front: card.front,
@@ -115,9 +116,9 @@ const Index = () => {
         deck_id: card.deck_id,
         created_at: card.created_at,
         updated_at: card.updated_at,
-        state: card.state,
-        due_date: card.due_date,
-        tags: [] // Note: tags field not in view, using fallback
+        state: 'New',
+        due_date: null,
+        tags: []
       }));
 
       // Update cards state with all user's cards
@@ -144,8 +145,9 @@ const Index = () => {
           .eq("user_id", user.id)
           .order("created_at"),
         supabase
-          .from("cards_with_details")
-          .select("*")
+          .from("cards")
+          .select("id, front, back, deck_id, created_at, updated_at, user_id")
+          .eq("user_id", user.id)
           .order("created_at")
       ]);
 
@@ -171,7 +173,7 @@ const Index = () => {
           }))
       }));
 
-      // Transform cards data to include FSRS state
+      // Transform cards data
       const transformedCards: Card[] = (cardsData || []).map(card => ({
         id: card.id,
         front: card.front,
@@ -179,9 +181,9 @@ const Index = () => {
         deck_id: card.deck_id,
         created_at: card.created_at,
         updated_at: card.updated_at,
-        state: card.state,
-        due_date: card.due_date,
-        tags: [] // Note: tags field not in view, using fallback
+        state: 'New',
+        due_date: null,
+        tags: []
       }));
 
       setFolders(transformedFolders);

@@ -20,12 +20,30 @@ export function useCardsWithDetails() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .from('cards_with_details')
-        .select('*')
+        .from('cards')
+        .select(`
+          id,
+          front,
+          back,
+          deck_id,
+          user_id,
+          created_at,
+          updated_at,
+          decks(name, folder_id, folders(name))
+        `)
+        .eq('user_id', user.id)
         .order('created_at');
       
       if (error) throw error;
-      return data || [];
+      
+      // Transform the data to match expected format
+      return (data || []).map((card: any) => ({
+        ...card,
+        deck_name: card.decks?.name || 'Uncategorized',
+        folder_name: card.decks?.folders?.name || 'Personal',
+        due_date: null, // Will be null for cards without FSRS data
+        state: 'New'
+      }));
     },
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -43,12 +61,29 @@ export function useStudyCards() {
       if (!user?.id) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
-        .from('cards_with_details')
-        .select('*')
-        .or('due_date.is.null,due_date.lte.' + new Date().toISOString());
+        .from('cards')
+        .select(`
+          id,
+          front,
+          back,
+          deck_id,
+          user_id,
+          created_at,
+          updated_at,
+          decks(name, folder_id, folders(name))
+        `)
+        .eq('user_id', user.id);
       
       if (error) throw error;
-      return data || [];
+      
+      // Transform the data to match expected format
+      return (data || []).map((card: any) => ({
+        ...card,
+        deck_name: card.decks?.name || 'Uncategorized',
+        folder_name: card.decks?.folders?.name || 'Personal',
+        due_date: null,
+        state: 'New'
+      }));
     },
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 2, // 2 minutes (study data changes more frequently)
