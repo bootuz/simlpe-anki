@@ -20,8 +20,8 @@ type CardFSRSRow = {
   front: string;
   back: string;
   tags: string[] | null;
-  fsrs_state: number;
-  due_date: string | null;
+  state: number;
+  due: string | null;
   stability: number | null;
   difficulty: number | null;
   elapsed_days: number;
@@ -34,14 +34,14 @@ type CardFSRSRow = {
 };
 
 type CardFSRSUpdate = {
-  fsrs_state?: number;
+  state?: number;
   reps?: number;
   lapses?: number;
   difficulty?: number | null;
   stability?: number | null;
   scheduled_days?: number;
   elapsed_days?: number;
-  due_date?: string | null;
+  due?: string | null;
   last_review?: string | null;
   updated_at?: string;
 };
@@ -135,8 +135,8 @@ export class FSRSService {
     }
 
     let dueDate: Date;
-    if (record.due_date) {
-      dueDate = new Date(record.due_date);
+    if (record.due) {
+      dueDate = new Date(record.due);
       if (isNaN(dueDate.getTime())) {
         dueDate = now;
       }
@@ -147,7 +147,7 @@ export class FSRSService {
     }
 
     let state: State;
-    switch (record.fsrs_state) {
+    switch (record.state) {
       case 0: state = State.New; break;
       case 1: state = State.Learning; break;
       case 2: state = State.Review; break;
@@ -178,14 +178,14 @@ export class FSRSService {
    */
   fsrsCardToDbUpdate(card: FSRSCard): CardFSRSUpdate {
     return {
-      fsrs_state: card.state,
+      state: card.state,
       reps: card.reps,
       lapses: card.lapses,
       difficulty: card.difficulty,
       stability: card.stability,
       scheduled_days: card.scheduled_days,
       elapsed_days: card.elapsed_days,
-      due_date: card.due.toISOString(),
+      due: card.due.toISOString(),
       last_review: card.last_review?.toISOString() || null,
       updated_at: new Date().toISOString()
     };
@@ -250,14 +250,14 @@ export class FSRSService {
     const newCard = this.createNewCard();
     
     return {
-      fsrs_state: State.New,
+      state: State.New,
       reps: newCard.reps,
       lapses: newCard.lapses,
       difficulty: newCard.difficulty,
       stability: newCard.stability,
       scheduled_days: newCard.scheduled_days,
       elapsed_days: newCard.elapsed_days,
-      due_date: null,
+      due: null,
       last_review: null
     };
   }

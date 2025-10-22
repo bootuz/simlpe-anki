@@ -274,9 +274,9 @@ const Study = () => {
           deck_id: data.deck_id,
           deck_name: data.decks?.name || 'Uncategorized Deck',
           folder_name: data.decks?.folders?.name || 'Personal',
-          due_date: (data as any).due_date,
+          due_date: (data as any).due,
           created_at: data.created_at,
-          state: ((data as any).fsrs_state)?.toString() || 'New'
+          state: ((data as any).state)?.toString() || 'New'
         };
 
         transformedCards = [transformedCard];
@@ -302,9 +302,9 @@ const Study = () => {
             deck_id: card.deck_id,
             deck_name: card.decks?.name || 'Uncategorized Deck',
             folder_name: card.decks?.folders?.name || 'Personal',
-            due_date: (card as any).due_date,
+            due_date: (card as any).due,
             created_at: card.created_at,
-            state: ((card as any).fsrs_state)?.toString() || 'New'
+            state: ((card as any).state)?.toString() || 'New'
           }))
           .filter(card => {
             // Include new cards (no due date)

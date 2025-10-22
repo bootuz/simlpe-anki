@@ -29,6 +29,12 @@ export function useCardsWithDetails() {
           user_id,
           created_at,
           updated_at,
+          state,
+          due,
+          stability,
+          difficulty,
+          reps,
+          lapses,
           decks(name, folder_id, folders(name))
         `)
         .eq('user_id', user.id)
@@ -41,8 +47,8 @@ export function useCardsWithDetails() {
         ...card,
         deck_name: card.decks?.name || 'Uncategorized',
         folder_name: card.decks?.folders?.name || 'Personal',
-        due_date: null, // Will be null for cards without FSRS data
-        state: 'New'
+        due_date: card.due, // Map 'due' to 'due_date' for consistency
+        state: card.state?.toString() || 'New'
       }));
     },
     enabled: !!user?.id,
@@ -70,6 +76,12 @@ export function useStudyCards() {
           user_id,
           created_at,
           updated_at,
+          state,
+          due,
+          stability,
+          difficulty,
+          reps,
+          lapses,
           decks(name, folder_id, folders(name))
         `)
         .eq('user_id', user.id);
@@ -81,8 +93,8 @@ export function useStudyCards() {
         ...card,
         deck_name: card.decks?.name || 'Uncategorized',
         folder_name: card.decks?.folders?.name || 'Personal',
-        due_date: null,
-        state: 'New'
+        due_date: card.due,
+        state: card.state?.toString() || 'New'
       }));
     },
     enabled: !!user?.id,
