@@ -14,12 +14,8 @@ import {
   Inbox,
   Trash2,
   Filter,
-  Settings,
-  Trophy,
-  Zap,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useUserLevel } from "@/hooks/useUserLevel";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCardMutations } from "@/hooks/useOptimizedQueries";
@@ -27,7 +23,6 @@ import { CardItem } from "@/components/cards";
 import { SearchAndFilters, EnhancedAddCardModal } from "@/components/forms";
 import { useCardManagement } from "@/hooks/useCardManagement";
 import { useCardFiltering } from "@/hooks/useCardFiltering";
-import SimplifiedDeckSelector from "@/components/SimplifiedDeckSystem";
 
 interface Card {
   id: string;
@@ -43,7 +38,6 @@ interface Card {
 
 const Index = () => {
   const { user, loading, signOut } = useAuth();
-  const { level, features, canUpgrade, upgradeToNextLevel, toggleAdvancedMode, isAdvancedModeEnabled } = useUserLevel();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addCard: addCardMutation } = useCardMutations();
@@ -655,80 +649,6 @@ const Index = () => {
     }
   };
 
-  // For beginners, show simplified interface
-  if (level === 'beginner' && !isAdvancedModeEnabled) {
-    return (
-      <div className="flex-1 flex flex-col">
-        {/* Simplified Header */}
-        <header className="relative h-16 border-b bg-card/60 supports-[backdrop-filter]:backdrop-blur-xl border-border/40 sticky top-0 z-30">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none" />
-          <div className="relative flex items-center justify-between h-full px-6">
-            <div className="flex items-center gap-3">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center shadow-sm border border-primary/20">
-                  <BookOpen className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent">
-                  Simple Anki
-                </h1>
-                <Sparkles className="h-4 w-4 text-primary/60 animate-pulse" />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-3">
-              {canUpgrade && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={upgradeToNextLevel}
-                  className="border-primary/30 hover:border-primary/50 hover:bg-primary/5"
-                >
-                  <Trophy className="h-4 w-4 mr-2 text-yellow-500" />
-                  <span className="hidden sm:inline">Unlock Features</span>
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                onClick={() => navigate("/")}
-                className="relative group overflow-hidden border-primary/30 hover:border-primary/50 hover:bg-primary/5"
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Study</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleAdvancedMode}
-                title="Switch to advanced view"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              {user && (
-                <Button
-                  variant="ghost"
-                  onClick={signOut}
-                  className="hover:bg-destructive/5 hover:text-destructive"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Sign Out</span>
-                </Button>
-              )}
-            </div>
-          </div>
-        </header>
-        
-        {/* Simplified Main Content */}
-        <main className="flex-1 bg-gradient-to-br from-background via-background to-primary/5 relative">
-          <SimplifiedDeckSelector />
-        </main>
-      </div>
-    );
-  }
-
-  // Advanced/Classic view for intermediate and advanced users
   return (
     <>
       <AppSidebar
@@ -782,28 +702,6 @@ const Index = () => {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Level Badge */}
-              {level !== 'beginner' && (
-                <div className="px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
-                  <span className="text-xs font-semibold text-primary flex items-center gap-1">
-                    <Zap className="h-3 w-3" />
-                    {level === 'intermediate' ? 'Intermediate' : 'Advanced'}
-                  </span>
-                </div>
-              )}
-              
-              {/* Toggle to Simple View */}
-              {level !== 'beginner' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleAdvancedMode}
-                  title="Switch to simple view"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-              )}
-              
               <Button
                 variant="outline"
                 onClick={() => navigate("/")}
