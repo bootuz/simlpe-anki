@@ -9,7 +9,6 @@ import {
   Folder, 
   Plus, 
   LogOut, 
-  Layers3,
   Sparkles,
   Inbox,
   Trash2,
@@ -42,7 +41,6 @@ const Index = () => {
   const { toast } = useToast();
   const { addCard: addCardMutation } = useCardMutations();
   
-  const [isGeneratingSampleData, setIsGeneratingSampleData] = useState(false);
   const [folders, setFolders] = useState<StudyFolder[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
   const [currentFolderId, setCurrentFolderId] = useState<string>("");
@@ -244,38 +242,6 @@ const Index = () => {
     } catch (error) {
       console.error("Error adding card:", error);
       // Note: addCardMutation already shows error toast
-    }
-  };
-
-
-  const handleGenerateSampleData = async () => {
-    if (!user) return;
-    
-    try {
-      setIsGeneratingSampleData(true);
-      
-      const { error } = await supabase.rpc('generate_english_sample_data', {
-        target_user_id: user.id
-      });
-
-      if (error) throw error;
-
-      // Reload data to show the new content
-      await loadUserData();
-      
-      toast({
-        title: "Success",
-        description: "Sample English learning content created! Check your sidebar for the new English folder."
-      });
-    } catch (error) {
-      console.error("Error generating sample data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate sample data",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGeneratingSampleData(false);
     }
   };
 
@@ -815,26 +781,10 @@ const Index = () => {
                     >
                       <span className="relative z-10 flex items-center gap-3">
                         <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
-                        {currentFolder ? "Create My First Deck" : "Start Your Journey"}
-                      </span>
-                      <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/20 to-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
-                    </Button>
-                    
-                    <div className="flex items-center gap-4">
-                      <span className="text-muted-foreground text-sm font-medium">or</span>
-                      
-                      <Button 
-                        onClick={handleGenerateSampleData}
-                        disabled={isGeneratingSampleData}
-                        size="lg"
-                        className="group px-6 py-4 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-2xl hover:shadow-primary/40 transform hover:scale-105 transition-all duration-300"
-                      >
-                        <Layers3 className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-200 text-white" />
-                        <span>
-                          {isGeneratingSampleData ? "Generating..." : "Try Sample Content"}
-                        </span>
-                      </Button>
-                    </div>
+                      {currentFolder ? "Create My First Deck" : "Start Your Journey"}
+                    </span>
+                    <div className="absolute inset-0 rounded-md bg-gradient-to-r from-primary/20 to-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
+                  </Button>
                   </div>
                 </div>
               </div>
@@ -876,7 +826,7 @@ const Index = () => {
                         {/* Quick stats */}
                         <div className="flex items-center justify-center gap-6 pt-4">
                           <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
-                            <Layers3 className="h-4 w-4 text-primary" />
+                            <BookOpen className="h-4 w-4 text-primary" />
                             <span className="text-sm font-medium text-primary">
                               {currentDeckCards.length} {currentDeckCards.length === 1 ? 'card' : 'cards'}
                             </span>
@@ -913,7 +863,7 @@ const Index = () => {
                         {/* Central icon */}
                         <div className="absolute inset-12 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                           <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-2xl">
-                            <Layers3 className="h-8 w-8 text-white" />
+                            <BookOpen className="h-8 w-8 text-white" />
                           </div>
                         </div>
                         
