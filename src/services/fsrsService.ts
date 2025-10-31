@@ -41,7 +41,7 @@ type CardFSRSUpdate = {
   stability?: number | null;
   scheduled_days?: number;
   elapsed_days?: number;
-  due_date?: string | null;
+  due?: string | null;
   last_review?: string | null;
   updated_at?: string;
 };
@@ -170,7 +170,7 @@ export class FSRSService {
       stability: card.stability,
       scheduled_days: card.scheduled_days,
       elapsed_days: card.elapsed_days,
-      due_date: card.due.toISOString(),
+      due: card.due.toISOString(),
       last_review: card.last_review?.toISOString() || null,
       updated_at: new Date().toISOString()
     };
@@ -242,7 +242,7 @@ export class FSRSService {
       stability: newCard.stability,
       scheduled_days: newCard.scheduled_days,
       elapsed_days: newCard.elapsed_days,
-      due_date: null,
+      due: null,
       last_review: null
     };
   }
