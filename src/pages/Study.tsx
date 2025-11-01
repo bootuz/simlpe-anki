@@ -222,6 +222,16 @@ const Study = () => {
     return { label: 'Review', variant: 'outline' as const, icon: <BookOpen className="h-3 w-3" /> };
   };
 
+  // Helper to map numeric state to label
+  const mapStateLabel = (state?: number | null): string => {
+    switch (state) {
+      case 1: return 'Learning';
+      case 2: return 'Review';
+      case 3: return 'Relearning';
+      default: return 'New';
+    }
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -276,7 +286,7 @@ const Study = () => {
           folder_name: data.decks?.folders?.name || 'Personal',
           due_date: (data as any).due,
           created_at: data.created_at,
-          state: ((data as any).state)?.toString() || 'New'
+          state: mapStateLabel((data as any).state as number | undefined)
         };
 
         transformedCards = [transformedCard];
@@ -304,7 +314,7 @@ const Study = () => {
             folder_name: card.decks?.folders?.name || 'Personal',
             due_date: (card as any).due,
             created_at: card.created_at,
-            state: ((card as any).state)?.toString() || 'New'
+            state: mapStateLabel((card as any).state as number | undefined)
           }))
           .filter(card => {
             // Include new cards (no due date)
